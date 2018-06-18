@@ -1,0 +1,66 @@
+plugins {
+    id 'java'
+    id 'idea'
+    id 'jacoco'
+    id 'io.franzbecker.gradle-lombok' version '1.11'
+    id "com.google.protobuf" version "0.8.5"
+    id 'org.unbroken-dome.test-sets' version '1.5.0'
+
+    id "nebula.dependency-lock" version "5.0.6"
+}
+
+lombok {
+    version = "1.18.0"
+}
+
+group = 'jp.co.soramitsu.iroha'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = 1.8
+
+jacoco {
+    toolVersion = "0.8.1"
+    reportsDir = file("$buildDir/reports/")
+}
+
+jacocoTestReport {
+    executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec")
+
+    reports {
+        xml.enabled true
+        xml.destination file("${buildDir}/reports/coverage.xml")
+        csv.enabled false
+        html.enabled false
+    }
+
+    dependsOn(test)
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.8'
+}
+
+repositories {
+    jcenter()
+    mavenCentral()
+    maven { url "https://jitpack.io" }
+}
+
+def jarDir = 'src/integration/java/bindings/'
+dependencies {
+    testCompile('junit:junit:4.12')
+    testCompile files(
+            "${jarDir}/iroha_lib.jar",
+            "${jarDir}/iroha-bindings-example.jar"
+    )
+    testCompile("org.mockito:mockito-core:2.19.0")
+
+    compile 'com.github.warchant:ed25519-sha3-java:1.0'
+}
+
+apply from: 'proto.gradle'
+
+testSets {
+    integration {
+        systemProperties = [ "java.library.path" : "${jarDir}" ]
+    }
+}
