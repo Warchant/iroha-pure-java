@@ -54,7 +54,7 @@ dependencies {
     )
     testCompile("org.mockito:mockito-core:2.19.0")
 
-    compile 'com.github.warchant:ed25519-sha3-java:1.0'
+    compile 'com.github.warchant:ed25519-sha3-java:1.2.0'
 }
 
 apply from: 'proto.gradle'

@@ -5,10 +5,10 @@ import iroha.protocol.Commands.CreateAccount;
 import java.security.KeyPair;
 import java.security.PublicKey;
 import java.time.Instant;
-import jp.co.soramitsu.iroha.java.detail.mapping.TimestampMapper;
-import jp.co.soramitsu.iroha.java.detail.Ed25519Sha3.CryptoException;
+import jp.co.soramitsu.crypto.ed25519.Ed25519Sha3.CryptoException;
 import jp.co.soramitsu.iroha.java.detail.Signable;
 import jp.co.soramitsu.iroha.java.detail.mapping.PubkeyMapper;
+import jp.co.soramitsu.iroha.java.detail.mapping.TimestampMapper;
 
 public class TransactionBuilder {
 
