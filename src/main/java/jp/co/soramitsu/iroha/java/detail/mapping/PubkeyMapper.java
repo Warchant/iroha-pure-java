@@ -2,9 +2,9 @@ package jp.co.soramitsu.iroha.java.detail.mapping;
 
 import com.google.protobuf.ByteString;
 import java.security.PublicKey;
+import jp.co.soramitsu.crypto.ed25519.Ed25519Sha3;
 import jp.co.soramitsu.crypto.ed25519.spec.EdDSANamedCurveTable;
 import jp.co.soramitsu.crypto.ed25519.spec.EdDSAParameterSpec;
-import jp.co.soramitsu.iroha.java.detail.Ed25519Sha3;
 
 public class PubkeyMapper {
 
