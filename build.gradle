@@ -5,7 +5,6 @@ plugins {
     id 'groovy'
     id 'io.franzbecker.gradle-lombok' version '1.11'
     id "com.google.protobuf" version "0.8.5"
-
     id "nebula.dependency-lock" version "5.0.6"
 }
 
@@ -54,11 +53,13 @@ repositories {
 def spockVersion = '1.1-groovy-2.4'
 def edVersion = '1.2.0'
 def spockGenesisVersion = '0.6.0'
+def rxjavaVersion = '2.1.16'
 
 dependencies {
     testCompile("com.nagternal:spock-genesis:${spockGenesisVersion}")
     testCompile("org.spockframework:spock-core:${spockVersion}")
     compile("com.github.warchant:ed25519-sha3-java:${edVersion}")
+    compile("io.reactivex.rxjava2:rxjava:${rxjavaVersion}")
 }
 
 apply from: 'proto.gradle'
