@@ -4,6 +4,9 @@ import java.time.Instant;
 
 public class TimestampMapper {
 
+  private TimestampMapper() {
+  }
+
   public static Instant toDomainValue(Long instance) {
     return Instant.ofEpochMilli(instance);
   }

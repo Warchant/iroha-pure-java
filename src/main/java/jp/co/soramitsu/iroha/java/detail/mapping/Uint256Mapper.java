@@ -5,6 +5,9 @@ import java.math.BigInteger;
 
 public class Uint256Mapper {
 
+  private Uint256Mapper() {
+  }
+
   private static final int SHIFT_SIZE = 64;
   private static final BigInteger TWO_COMPL_REF = BigInteger.ONE.shiftLeft(64);
 
@@ -34,6 +37,10 @@ public class Uint256Mapper {
   public static Primitive.uint256 toProtobufValue(BigInteger big) {
     if (big.bitLength() > 256) {
       throw new IllegalArgumentException("BigInteger does not fit into uint256");
+    }
+
+    if (big.signum() < 0) {
+      throw new IllegalArgumentException("BigInteger must be positive");
     }
 
     long fourth = big.longValue();

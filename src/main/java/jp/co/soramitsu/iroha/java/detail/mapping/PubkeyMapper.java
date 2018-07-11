@@ -8,6 +8,9 @@ import jp.co.soramitsu.crypto.ed25519.spec.EdDSAParameterSpec;
 
 public class PubkeyMapper {
 
+  private PubkeyMapper() {
+  }
+
   private static final EdDSAParameterSpec spec = EdDSANamedCurveTable
       .getByName(EdDSANamedCurveTable.ED_25519);
 

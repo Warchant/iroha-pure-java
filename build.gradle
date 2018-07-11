@@ -2,9 +2,9 @@ plugins {
     id 'java'
     id 'idea'
     id 'jacoco'
+    id 'groovy'
     id 'io.franzbecker.gradle-lombok' version '1.11'
     id "com.google.protobuf" version "0.8.5"
-    id 'org.unbroken-dome.test-sets' version '1.5.0'
 
     id "nebula.dependency-lock" version "5.0.6"
 }
@@ -13,9 +13,14 @@ lombok {
     version = "1.18.0"
 }
 
-group = 'jp.co.soramitsu.iroha'
+group = 'jp.co.soramitsu'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = 1.8
+
+jar {
+    baseName = 'iroha-pure-java'
+    version = project.version
+}
 
 jacoco {
     toolVersion = "0.8.1"
@@ -29,7 +34,8 @@ jacocoTestReport {
         xml.enabled true
         xml.destination file("${buildDir}/reports/coverage.xml")
         csv.enabled false
-        html.enabled false
+        html.enabled true
+        html.destination file("${buildDir}/reports/html")
     }
 
     dependsOn(test)
@@ -45,22 +51,14 @@ repositories {
     maven { url "https://jitpack.io" }
 }
 
-def jarDir = 'src/integration/java/bindings/'
-dependencies {
-    testCompile('junit:junit:4.12')
-    testCompile files(
-            "${jarDir}/iroha_lib.jar",
-            "${jarDir}/iroha-bindings-example.jar"
-    )
-    testCompile("org.mockito:mockito-core:2.19.0")
+def spockVersion = '1.1-groovy-2.4'
+def edVersion = '1.2.0'
+def spockGenesisVersion = '0.6.0'
 
-    compile 'com.github.warchant:ed25519-sha3-java:1.2.0'
+dependencies {
+    testCompile("com.nagternal:spock-genesis:${spockGenesisVersion}")
+    testCompile("org.spockframework:spock-core:${spockVersion}")
+    compile("com.github.warchant:ed25519-sha3-java:${edVersion}")
 }
 
 apply from: 'proto.gradle'
-
-testSets {
-    integration {
-        systemProperties = [ "java.library.path" : "${jarDir}" ]
-    }
-}
