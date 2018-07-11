@@ -9,31 +9,30 @@ import java.time.Instant;
 import jp.co.soramitsu.crypto.ed25519.Ed25519Sha3;
 import jp.co.soramitsu.crypto.ed25519.Ed25519Sha3.CryptoException;
 import jp.co.soramitsu.iroha.java.detail.BuildableAndSignable;
+import jp.co.soramitsu.iroha.java.detail.Hashable;
 import jp.co.soramitsu.iroha.java.detail.mapping.PubkeyMapper;
-import org.spongycastle.jcajce.provider.digest.SHA3;
 
 
-public class Transaction implements BuildableAndSignable<BlockOuterClass.Transaction> {
-
-  private SHA3.Digest256 digest = new SHA3.Digest256();
+public class Transaction
+    extends Hashable<BlockOuterClass.Transaction.Payload.Builder>
+    implements BuildableAndSignable<BlockOuterClass.Transaction> {
 
   private BlockOuterClass.Transaction.Builder tx = BlockOuterClass.Transaction.newBuilder();
 
-  /* default */ Payload.Builder payload = Payload.newBuilder();
-
-  public byte[] hash() {
-    return digest.digest(payload());
+  private void updatePayload() {
+    tx.setPayload(getProto());
   }
 
-  public byte[] payload() {
-    return payload.buildPartial().toByteArray();
+  /* default */ Transaction() {
+    super(Payload.newBuilder());
   }
 
   @Override
-  public BuildableAndSignable<BlockOuterClass.Transaction> sign(KeyPair keyPair) throws CryptoException {
+  public BuildableAndSignable<BlockOuterClass.Transaction> sign(KeyPair keyPair)
+      throws CryptoException {
     Ed25519Sha3 ed = new Ed25519Sha3();  // throws
 
-    tx.setPayload(payload);
+    updatePayload();
 
     byte[] rawSignature = ed.rawSign(hash(), keyPair);  // throws
 

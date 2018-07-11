@@ -30,27 +30,27 @@ public class TransactionBuilder {
   }
 
   public TransactionBuilder setCreatorAccountId(String accountId) {
-    tx.payload.setCreatorAccountId(accountId);
+    tx.getProto().setCreatorAccountId(accountId);
     return this;
   }
 
   public TransactionBuilder setCreatedTime(Instant time) {
-    tx.payload.setCreatedTime(TimestampMapper.toProtobufValue(time));
+    tx.getProto().setCreatedTime(TimestampMapper.toProtobufValue(time));
     return this;
   }
 
   public TransactionBuilder setQuorum(int quorum) {
-    tx.payload.setQuorum(quorum);
+    tx.getProto().setQuorum(quorum);
     return this;
   }
 
   public TransactionBuilder createAccount(
-      @NonNull String accountName,
-      @NonNull String domainid,
-      @NonNull PublicKey publicKey
+      String accountName,
+      String domainid,
+      PublicKey publicKey
   ) {
 
-    tx.payload.addCommands(
+    tx.getProto().addCommands(
         Command.newBuilder()
             .setCreateAccount(
                 CreateAccount.newBuilder()
@@ -66,13 +66,13 @@ public class TransactionBuilder {
   }
 
   public TransactionBuilder transferAsset(
-      @NonNull String sourceAccount,
-      @NonNull String destinationAccount,
-      @NonNull String assetId,
+      String sourceAccount,
+      String destinationAccount,
+      String assetId,
       String description,
-      @NonNull BigDecimal amount
+      BigDecimal amount
   ) {
-    tx.payload.addCommands(
+    tx.getProto().addCommands(
         Command.newBuilder()
             .setTransferAsset(
                 TransferAsset.newBuilder()
@@ -85,7 +85,6 @@ public class TransactionBuilder {
                     )
                     .build()
             ).build()
-
     );
 
     return this;
@@ -96,7 +95,7 @@ public class TransactionBuilder {
       String key,
       String value
   ) {
-    tx.payload.addCommands(
+    tx.getProto().addCommands(
         Command.newBuilder()
             .setSetAccountDetail(
                 SetAccountDetail.newBuilder()
@@ -111,15 +110,8 @@ public class TransactionBuilder {
     return this;
   }
 
-  public byte[] payload() {
-    return tx.payload();
-  }
-
-  public byte[] hash() {
-    return tx.hash();
-  }
-
-  public BuildableAndSignable<BlockOuterClass.Transaction> sign(KeyPair keyPair) throws CryptoException {
+  public BuildableAndSignable<BlockOuterClass.Transaction> sign(KeyPair keyPair)
+      throws CryptoException {
     return tx.sign(keyPair);
   }
 
