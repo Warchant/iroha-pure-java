@@ -19,8 +19,5 @@ cache:
 
 script:
   - ./gradlew --daemon
-  - ./gradlew assemble
+  - ./gradlew assemble -x test
   - ./gradlew test
-#  TODO: store linux version of libirohajava in ${jniDir} and then uncomment it
-#  - ./gradlew integration
-  - ./gradlew javadoc
