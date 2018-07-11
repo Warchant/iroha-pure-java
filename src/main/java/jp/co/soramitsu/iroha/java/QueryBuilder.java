@@ -2,6 +2,7 @@ package jp.co.soramitsu.iroha.java;
 
 import iroha.protocol.Queries.GetAccount;
 import iroha.protocol.Queries.GetAccountAssetTransactions;
+import iroha.protocol.Queries.GetAccountAssets;
 import iroha.protocol.Queries.GetSignatories;
 import iroha.protocol.Queries.QueryPayloadMeta;
 import java.time.Instant;
@@ -65,6 +66,18 @@ public class QueryBuilder {
   ) {
     query.getProto().setGetAccountSignatories(
         GetSignatories.newBuilder()
+            .build()
+    );
+
+    return query;
+  }
+
+  public Query getAccountAssets(
+      String accountId
+  ) {
+    query.getProto().setGetAccountAssets(
+        GetAccountAssets.newBuilder()
+            .setAccountId(accountId)
             .build()
     );
 
