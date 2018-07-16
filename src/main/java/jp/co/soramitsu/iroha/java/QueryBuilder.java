@@ -66,6 +66,7 @@ public class QueryBuilder {
   ) {
     query.getProto().setGetAccountSignatories(
         GetSignatories.newBuilder()
+            .setAccountId(accountId)
             .build()
     );
 

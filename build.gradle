@@ -4,6 +4,7 @@ plugins {
     id 'java'
     id 'idea'
     id 'jacoco'
+    id 'application'
     id 'groovy'
     id 'io.franzbecker.gradle-lombok' version '1.11'
     id "com.google.protobuf" version "0.8.5"
@@ -57,9 +58,6 @@ final def spockVersion = '1.1-groovy-2.4'
 final def edVersion = '1.2.0'
 final def spockGenesisVersion = '0.6.0'
 final def rxjavaVersion = '2.1.16'
-final def irohaBindingsVersion = 'v1.0.0_beta-3'
-String OS = ""
-String jarDir = ""
 
 
 dependencies {
@@ -70,52 +68,4 @@ dependencies {
 }
 
 apply from: 'proto.gradle'
-
-testSets {
-    integration
-}
-
-task detectOs {
-    doLast {
-        switch (OperatingSystem.current()) {
-            case OperatingSystem.LINUX:
-                OS = "linux"
-                break
-            case OperatingSystem.MAC_OS:
-                OS = "mac"
-                break
-            default:
-                logger.warn("Your operating system is not supported: ${OperatingSystem.current()}")
-                logger.warn("Task `integration` is not available.")
-        }
-
-        println "Detected OS is ${OS}"
-    }
-}
-
-task injectBindings {
-    outputs.upToDateWhen { false }
-
-    doLast {
-        if (!OS.empty) {
-            jarDir = "bindings/${OS}/${irohaBindingsVersion}"
-            println "Using bindings at ${jarDir}"
-
-            project.dependencies {
-                testCompile(files(
-                        "${jarDir}/iroha_lib.jar",
-                        "${jarDir}/iroha-bindings-example.jar"))
-            }
-
-            // add path to lib
-            integration {
-                systemProperties = ["java.library.path": "${jarDir}"]
-            }
-        } else {
-            throw new GradleException("Could not detect an OS")
-        }
-    }
-}
-
-injectBindings.dependsOn(detectOs)
-integration.dependsOn(injectBindings)
+apply from: 'integration.gradle'
