@@ -1,11 +1,15 @@
+import org.gradle.internal.os.OperatingSystem
+
 plugins {
     id 'java'
     id 'idea'
     id 'jacoco'
+    id 'application'
     id 'groovy'
     id 'io.franzbecker.gradle-lombok' version '1.11'
     id "com.google.protobuf" version "0.8.5"
     id "nebula.dependency-lock" version "5.0.6"
+    id 'org.unbroken-dome.test-sets' version '1.5.0'
 }
 
 lombok {
@@ -50,10 +54,11 @@ repositories {
     maven { url "https://jitpack.io" }
 }
 
-def spockVersion = '1.1-groovy-2.4'
-def edVersion = '1.2.0'
-def spockGenesisVersion = '0.6.0'
-def rxjavaVersion = '2.1.16'
+final def spockVersion = '1.1-groovy-2.4'
+final def edVersion = '1.2.0'
+final def spockGenesisVersion = '0.6.0'
+final def rxjavaVersion = '2.1.16'
+
 
 dependencies {
     testCompile("com.nagternal:spock-genesis:${spockGenesisVersion}")
@@ -63,3 +68,4 @@ dependencies {
 }
 
 apply from: 'proto.gradle'
+apply from: 'integration.gradle'

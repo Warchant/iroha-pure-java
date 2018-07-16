@@ -1,0 +1,31 @@
+import org.gradle.internal.os.OperatingSystem
+
+final def irohaBindingsVersion = 'v1.0.0_beta-3'
+
+String OS = ""
+
+switch (OperatingSystem.current()) {
+    case OperatingSystem.LINUX:
+        OS = "linux"
+        break
+    case OperatingSystem.MAC_OS:
+        OS = "mac"
+        break
+    default:
+        logger.warn("Your operating system is not supported: ${OperatingSystem.current()}")
+}
+
+
+
+def jarDir = "${project.rootDir}/bindings/${OS}/${irohaBindingsVersion}"
+println "Using bindings from ${jarDir}"
+
+dependencies {
+    compile files("${jarDir}/iroha_lib.jar", "${jarDir}/iroha-bindings-example.jar")
+}
+
+testSets {
+    integration {
+        systemProperties = ["java.library.path": "${jarDir}"]
+    }
+}

@@ -7,3 +7,31 @@
 # iroha-pure-java
 
 Only java implementation of [Iroha](https://github.com/hyperledger/iroha) Client library.
+
+# example
+
+Transaction:
+
+```
+Transaction.builder(accountId, instant)
+        .createAccount(accountName, domainId, keyPair.getPublic())
+        .transferAsset(srcAccountId, dstAccountId, assetId, description, amount)
+        .setAccountDetail(accountId, key, value)
+        .sign(keyPair1)
+        .sign(keyPair2)
+        .build();
+```
+
+Query:
+```
+Query.builder(accountId, instant, counter)
+        .getAccountAssetTransactions(accountId, assetId)
+        .buildSigned(keyPair1);
+```
+
+Keypair:
+```
+KeyPair keypair1 = Ed25519Sha3.generateKeypair();
+KeyPair keypair1 = Ed25519Sha3.generateKeypair(new byte[]{..32 bytes seed..});
+
+```
