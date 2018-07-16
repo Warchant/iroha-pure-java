@@ -1,10 +1,7 @@
-import org.gradle.internal.os.OperatingSystem
-
 plugins {
     id 'java'
     id 'idea'
     id 'jacoco'
-    id 'application'
     id 'groovy'
     id 'io.franzbecker.gradle-lombok' version '1.11'
     id "com.google.protobuf" version "0.8.5"
@@ -68,4 +65,11 @@ dependencies {
 }
 
 apply from: 'proto.gradle'
-apply from: 'integration.gradle'
+
+testSets {
+    integration
+}
+
+integration.dependsOn {
+    apply from: 'integration.gradle'
+}

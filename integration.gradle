@@ -24,8 +24,6 @@ dependencies {
     compile files("${jarDir}/iroha_lib.jar", "${jarDir}/iroha-bindings-example.jar")
 }
 
-testSets {
-    integration {
-        systemProperties = ["java.library.path": "${jarDir}"]
-    }
+integration {
+    systemProperties = ["java.library.path": "${jarDir}"]
 }
