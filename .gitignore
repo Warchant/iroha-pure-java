@@ -27,3 +27,8 @@ hs_err_pid*
 out/
 build/
 !gradle/wrapper/gradle-wrapper.jar
+/.idea/
+**/*.iml
+
+# exclude jar from bindings dir
+!bindings/**/*.jar
