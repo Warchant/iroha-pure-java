@@ -1,34 +1,29 @@
 package jp.co.soramitsu.iroha.java;
 
-import static java.util.Objects.requireNonNull;
-
 import iroha.protocol.TransactionOuterClass;
 import java.math.BigDecimal;
 import java.security.KeyPair;
 import java.security.PublicKey;
 import java.time.Instant;
-import java.util.function.Supplier;
 import jp.co.soramitsu.crypto.ed25519.Ed25519Sha3.CryptoException;
 import jp.co.soramitsu.iroha.java.detail.BuildableAndSignable;
-import lombok.AllArgsConstructor;
+import lombok.NonNull;
 
 public class ValidatingTransactionBuilder implements TransactionBuilder {
 
   private PlainTransactionBuilder delegate;
 
-  public ValidatingTransactionBuilder(String accountId, Instant time) {
+  public ValidatingTransactionBuilder(@NonNull String accountId, @NonNull Instant time) {
     this.delegate = new PlainTransactionBuilder(accountId, time);
   }
 
   @Override
-  public TransactionBuilder setCreatorAccountId(String accountId) {
-    requireNonNull(accountId, new StringNotNullMessageSupplier("accountId"));
+  public TransactionBuilder setCreatorAccountId(@NonNull String accountId) {
     return delegate.setCreatorAccountId(accountId);
   }
 
   @Override
-  public TransactionBuilder setCreatedTime(Instant time) {
-    requireNonNull(time, new StringNotNullMessageSupplier("time"));
+  public TransactionBuilder setCreatedTime(@NonNull Instant time) {
     return delegate.setCreatedTime(time);
   }
 
@@ -41,20 +36,22 @@ public class ValidatingTransactionBuilder implements TransactionBuilder {
   }
 
   @Override
-  public TransactionBuilder createAccount(String accountName, String domainid,
-      PublicKey publicKey) {
-    requireNonNull(accountName, new StringNotNullMessageSupplier("accountName"));
-    requireNonNull(domainid, new StringNotNullMessageSupplier("domainid"));
-    requireNonNull(publicKey, new StringNotNullMessageSupplier("publicKey"));
+  public TransactionBuilder createAccount(
+      @NonNull String accountName,
+      @NonNull String domainid,
+      @NonNull PublicKey publicKey
+  ) {
     return delegate.createAccount(accountName, domainid, publicKey);
   }
 
   @Override
-  public TransactionBuilder transferAsset(String sourceAccount, String destinationAccount,
-      String assetId, String description, BigDecimal amount) {
-    requireNonNull(sourceAccount, new StringNotNullMessageSupplier("sourceAccount"));
-    requireNonNull(destinationAccount, new StringNotNullMessageSupplier("destinationAccount"));
-    requireNonNull(assetId, new StringNotNullMessageSupplier("assetId"));
+  public TransactionBuilder transferAsset(
+      @NonNull String sourceAccount,
+      @NonNull String destinationAccount,
+      @NonNull String assetId,
+      @NonNull String description,
+      @NonNull BigDecimal amount
+  ) {
     validateAmount(amount);
 
     return delegate.transferAsset(sourceAccount, destinationAccount, assetId, description, amount);
@@ -70,17 +67,17 @@ public class ValidatingTransactionBuilder implements TransactionBuilder {
   }
 
   @Override
-  public TransactionBuilder setAccountDetail(String accountId, String key, String value) {
-    requireNonNull(accountId, new StringNotNullMessageSupplier("accountId"));
-    requireNonNull(key, new StringNotNullMessageSupplier("key"));
-
+  public TransactionBuilder setAccountDetail(
+      @NonNull String accountId,
+      @NonNull String key,
+      @NonNull String value
+  ) {
     return delegate.setAccountDetail(accountId, key, value);
   }
 
   @Override
-  public BuildableAndSignable<TransactionOuterClass.Transaction> sign(KeyPair keyPair)
+  public BuildableAndSignable<TransactionOuterClass.Transaction> sign(@NonNull KeyPair keyPair)
       throws CryptoException {
-    requireNonNull(keyPair, new StringNotNullMessageSupplier("keyPair"));
     return delegate.sign(keyPair);
   }
 
@@ -89,14 +86,4 @@ public class ValidatingTransactionBuilder implements TransactionBuilder {
     return delegate.build();
   }
 
-  @AllArgsConstructor
-  private static class StringNotNullMessageSupplier implements Supplier<String> {
-
-    private String param;
-
-    @Override
-    public String get() {
-      return param + " can't be null";
-    }
-  }
 }
