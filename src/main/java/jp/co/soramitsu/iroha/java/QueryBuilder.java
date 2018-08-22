@@ -1,5 +1,7 @@
 package jp.co.soramitsu.iroha.java;
 
+import static java.util.Objects.nonNull;
+
 import iroha.protocol.Queries.GetAccount;
 import iroha.protocol.Queries.GetAccountAssetTransactions;
 import iroha.protocol.Queries.GetAccountAssets;
@@ -9,6 +11,8 @@ import java.time.Instant;
 import jp.co.soramitsu.iroha.java.detail.mapping.TimestampMapper;
 
 public class QueryBuilder {
+
+  private FieldValidator validator;
 
   private QueryPayloadMeta.Builder meta = QueryPayloadMeta.newBuilder();
 
@@ -20,12 +24,30 @@ public class QueryBuilder {
     setCounter(counter);
   }
 
+  public QueryBuilder enableValidation() {
+    this.validator = new FieldValidator();
+    return this;
+  }
+
+  public QueryBuilder disableValidation() {
+    this.validator = null;
+    return this;
+  }
+
   public QueryBuilder setCreatorAccountId(String accountId) {
+    if (nonNull(this.validator)) {
+      this.validator.checkAccountId(accountId);
+    }
+
     meta.setCreatorAccountId(accountId);
     return this;
   }
 
   public QueryBuilder setCreatedTime(Instant time) {
+    if (nonNull(this.validator)) {
+      this.validator.checkTimestamp(time);
+    }
+
     meta.setCreatedTime(TimestampMapper.toProtobufValue(time));
     return this;
   }
@@ -39,6 +61,11 @@ public class QueryBuilder {
       String accountId,
       String assetId
   ) {
+    if (nonNull(this.validator)) {
+      this.validator.checkAccountId(accountId);
+      this.validator.checkAssetId(assetId);
+    }
+
     query.getProto().setGetAccountAssetTransactions(
         GetAccountAssetTransactions.newBuilder()
             .setAccountId(accountId)
@@ -52,6 +79,10 @@ public class QueryBuilder {
   public Query getAccount(
       String accountId
   ) {
+    if (nonNull(this.validator)) {
+      this.validator.checkAccountId(accountId);
+    }
+
     query.getProto().setGetAccount(
         GetAccount.newBuilder()
             .setAccountId(accountId)
@@ -64,6 +95,10 @@ public class QueryBuilder {
   public Query getSignatories(
       String accountId
   ) {
+    if (nonNull(this.validator)) {
+      this.validator.checkAccountId(accountId);
+    }
+
     query.getProto().setGetAccountSignatories(
         GetSignatories.newBuilder()
             .setAccountId(accountId)
@@ -76,6 +111,10 @@ public class QueryBuilder {
   public Query getAccountAssets(
       String accountId
   ) {
+    if (nonNull(this.validator)) {
+      this.validator.checkAccountId(accountId);
+    }
+
     query.getProto().setGetAccountAssets(
         GetAccountAssets.newBuilder()
             .setAccountId(accountId)

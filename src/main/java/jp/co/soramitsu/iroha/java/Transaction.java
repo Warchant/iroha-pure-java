@@ -63,6 +63,6 @@ public class Transaction
   }
 
   public static TransactionBuilder builder(String accountId, Instant time) {
-    return new PlainTransactionBuilder(accountId, time);
+    return new TransactionBuilder(accountId, time);
   }
 }

@@ -1,5 +1,11 @@
 package jp.co.soramitsu.iroha.java;
 
+import static java.util.Objects.nonNull;
+
+import iroha.protocol.Commands.Command;
+import iroha.protocol.Commands.CreateAccount;
+import iroha.protocol.Commands.SetAccountDetail;
+import iroha.protocol.Commands.TransferAsset;
 import iroha.protocol.TransactionOuterClass;
 import java.math.BigDecimal;
 import java.security.KeyPair;
@@ -7,37 +13,146 @@ import java.security.PublicKey;
 import java.time.Instant;
 import jp.co.soramitsu.crypto.ed25519.Ed25519Sha3.CryptoException;
 import jp.co.soramitsu.iroha.java.detail.BuildableAndSignable;
+import jp.co.soramitsu.iroha.java.detail.mapping.PubkeyMapper;
+import jp.co.soramitsu.iroha.java.detail.mapping.TimestampMapper;
 
-public interface TransactionBuilder {
+public class TransactionBuilder {
 
-  TransactionBuilder setCreatorAccountId(String accountId);
+  private FieldValidator validator;
+  private Transaction tx = new Transaction();
 
-  TransactionBuilder setCreatedTime(Instant time);
+  /**
+   * Both fields are required, therefore we can not create builder without them.
+   */
+  public TransactionBuilder(String accountId, Instant time) {
+    setCreatorAccountId(accountId);
+    setCreatedTime(time);
+    setQuorum(1 /* default value for quorum */);
+  }
 
-  TransactionBuilder setQuorum(int quorum);
+  public TransactionBuilder enableValidation() {
+    this.validator = new FieldValidator();
+    return this;
+  }
 
-  TransactionBuilder createAccount(
+  public TransactionBuilder disableValidation() {
+    this.validator = null;
+    return this;
+  }
+
+  public TransactionBuilder setCreatorAccountId(String accountId) {
+    if (nonNull(this.validator)) {
+      this.validator.checkAccountId(accountId);
+    }
+
+    tx.reducedPayload.setCreatorAccountId(accountId);
+    return this;
+  }
+
+  public TransactionBuilder setCreatedTime(Instant time) {
+    if (nonNull(this.validator)) {
+      this.validator.checkTimestamp(time);
+    }
+
+    tx.reducedPayload.setCreatedTime(TimestampMapper.toProtobufValue(time));
+    return this;
+  }
+
+  public TransactionBuilder setQuorum(int quorum) {
+    if (nonNull(this.validator)) {
+      this.validator.checkQuorum(quorum);
+    }
+
+    tx.reducedPayload.setQuorum(quorum);
+    return this;
+  }
+
+  public TransactionBuilder createAccount(
       String accountName,
       String domainid,
       PublicKey publicKey
-  );
+  ) {
+    if (nonNull(this.validator)) {
+      this.validator.checkAccount(accountName);
+      this.validator.checkDomainId(domainid);
+    }
 
-  TransactionBuilder transferAsset(
+    tx.reducedPayload.addCommands(
+        Command.newBuilder()
+            .setCreateAccount(
+                CreateAccount.newBuilder()
+                    .setAccountName(accountName)
+                    .setDomainId(domainid)
+                    .setMainPubkey(
+                        PubkeyMapper.toProtobufValue(publicKey)
+                    ).build()
+            ).build()
+    );
+
+    return this;
+  }
+
+  public TransactionBuilder transferAsset(
       String sourceAccount,
       String destinationAccount,
       String assetId,
       String description,
       BigDecimal amount
-  );
+  ) {
+    if (nonNull(this.validator)) {
+      this.validator.checkAccountId(sourceAccount);
+      this.validator.checkAccountId(destinationAccount);
+      this.validator.checkAssetId(assetId);
+    }
 
-  TransactionBuilder setAccountDetail(
+    tx.reducedPayload.addCommands(
+        Command.newBuilder()
+            .setTransferAsset(
+                TransferAsset.newBuilder()
+                    .setSrcAccountId(sourceAccount)
+                    .setDestAccountId(destinationAccount)
+                    .setAssetId(assetId)
+                    .setDescription(description)
+                    .setAmount(amount.toPlainString())
+                    .build()
+            ).build()
+    );
+
+    return this;
+  }
+
+  public TransactionBuilder setAccountDetail(
       String accountId,
       String key,
       String value
-  );
+  ) {
+    if (nonNull(this.validator)) {
+      this.validator.checkAccountId(accountId);
+      this.validator.checkAccountDetailsKey(key);
+      this.validator.checkAccountDetailsValue(value);
+    }
 
-  BuildableAndSignable<TransactionOuterClass.Transaction> sign(KeyPair keyPair)
-      throws CryptoException;
+    tx.reducedPayload.addCommands(
+        Command.newBuilder()
+            .setSetAccountDetail(
+                SetAccountDetail.newBuilder()
+                    .setAccountId(accountId)
+                    .setKey(key)
+                    .setValue(value)
+                    .build()
+            )
+            .build()
+    );
 
-  Transaction build();
+    return this;
+  }
+
+  public BuildableAndSignable<TransactionOuterClass.Transaction> sign(KeyPair keyPair)
+      throws CryptoException {
+    return tx.sign(keyPair);
+  }
+
+  public Transaction build() {
+    return tx;
+  }
 }
