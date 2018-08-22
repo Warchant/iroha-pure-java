@@ -48,12 +48,18 @@ public class TransactionTest {
       throws CryptoException {
     val keyPair = Ed25519Sha3.keyPairFromBytes(privateKey, publicKey);
 
-    return Transaction.builder(accountId, instant)
+    val unsigned = Transaction.builder(accountId, instant)
         .createAccount(accountName, domainId, keyPair.getPublic())
         .transferAsset(srcAccountId, dstAccountId, assetId, description, amount)
-        .setAccountDetail(accountId, key, value)
-        .sign(keyPair)
+        .setAccountDetail(accountId, key, value);
+
+    val signed = unsigned
+        .sign(keyPair);
+
+    val tx = signed
         .build();
+
+    return tx;
   }
 
   private TransactionOuterClass.Transaction createIrohalibTx(byte[] publicKey, byte[] privateKey)

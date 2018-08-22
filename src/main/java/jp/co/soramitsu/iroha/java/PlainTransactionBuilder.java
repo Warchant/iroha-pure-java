@@ -29,19 +29,19 @@ public class PlainTransactionBuilder implements TransactionBuilder {
 
   @Override
   public TransactionBuilder setCreatorAccountId(String accountId) {
-    tx.getProto().setCreatorAccountId(accountId);
+    tx.reducedPayload.setCreatorAccountId(accountId);
     return this;
   }
 
   @Override
   public TransactionBuilder setCreatedTime(Instant time) {
-    tx.getProto().setCreatedTime(TimestampMapper.toProtobufValue(time));
+    tx.reducedPayload.setCreatedTime(TimestampMapper.toProtobufValue(time));
     return this;
   }
 
   @Override
   public TransactionBuilder setQuorum(int quorum) {
-    tx.getProto().setQuorum(quorum);
+    tx.reducedPayload.setQuorum(quorum);
     return this;
   }
 
@@ -51,7 +51,7 @@ public class PlainTransactionBuilder implements TransactionBuilder {
       String domainid,
       PublicKey publicKey
   ) {
-    tx.getProto().addCommands(
+    tx.reducedPayload.addCommands(
         Command.newBuilder()
             .setCreateAccount(
                 CreateAccount.newBuilder()
@@ -74,7 +74,7 @@ public class PlainTransactionBuilder implements TransactionBuilder {
       String description,
       BigDecimal amount
   ) {
-    tx.getProto().addCommands(
+    tx.reducedPayload.addCommands(
         Command.newBuilder()
             .setTransferAsset(
                 TransferAsset.newBuilder()
@@ -96,7 +96,7 @@ public class PlainTransactionBuilder implements TransactionBuilder {
       String key,
       String value
   ) {
-    tx.getProto().addCommands(
+    tx.reducedPayload.addCommands(
         Command.newBuilder()
             .setSetAccountDetail(
                 SetAccountDetail.newBuilder()

@@ -14,19 +14,24 @@ import jp.co.soramitsu.iroha.java.detail.Hashable;
 import jp.co.soramitsu.iroha.java.detail.mapping.PubkeyMapper;
 
 public class Transaction
-    extends Hashable<TransactionOuterClass.Transaction.Payload.ReducedPayload.Builder>
+    extends
+    Hashable<TransactionOuterClass.Transaction.Payload.Builder>  // should be Payload.Builder
     implements BuildableAndSignable<TransactionOuterClass.Transaction> {
 
   private TransactionOuterClass.Transaction.Builder tx = TransactionOuterClass.Transaction
       .newBuilder();
 
+  /* default*/ ReducedPayload.Builder reducedPayload = ReducedPayload.newBuilder();
+
   private void updatePayload() {
-    Payload payload = tx.getPayload().toBuilder().setReducedPayload(getProto()).build();
-    tx.setPayload(payload);
+    tx.setPayload(
+        getProto()
+            .setReducedPayload(reducedPayload)
+    );
   }
 
   /* default */ Transaction() {
-    super(ReducedPayload.newBuilder());
+    super(Payload.newBuilder());
   }
 
   @Override
