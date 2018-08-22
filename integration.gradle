@@ -1,6 +1,6 @@
 import org.gradle.internal.os.OperatingSystem
 
-final def irohaBindingsVersion = 'v1.0.0_beta-3'
+final def irohaBindingsVersion = 'v1.0.0_beta-4'
 
 String OS = ""
 
