@@ -1,9 +1,10 @@
 package jp.co.soramitsu.iroha.java;
 
 import com.google.protobuf.ByteString;
-import iroha.protocol.BlockOuterClass;
-import iroha.protocol.BlockOuterClass.Transaction.Payload;
 import iroha.protocol.Primitive.Signature;
+import iroha.protocol.TransactionOuterClass;
+import iroha.protocol.TransactionOuterClass.Transaction.Payload;
+import iroha.protocol.TransactionOuterClass.Transaction.Payload.ReducedPayload;
 import java.security.KeyPair;
 import java.time.Instant;
 import jp.co.soramitsu.crypto.ed25519.Ed25519Sha3;
@@ -12,23 +13,24 @@ import jp.co.soramitsu.iroha.java.detail.BuildableAndSignable;
 import jp.co.soramitsu.iroha.java.detail.Hashable;
 import jp.co.soramitsu.iroha.java.detail.mapping.PubkeyMapper;
 
-
 public class Transaction
-    extends Hashable<BlockOuterClass.Transaction.Payload.Builder>
-    implements BuildableAndSignable<BlockOuterClass.Transaction> {
+    extends Hashable<TransactionOuterClass.Transaction.Payload.ReducedPayload.Builder>
+    implements BuildableAndSignable<TransactionOuterClass.Transaction> {
 
-  private BlockOuterClass.Transaction.Builder tx = BlockOuterClass.Transaction.newBuilder();
+  private TransactionOuterClass.Transaction.Builder tx = TransactionOuterClass.Transaction
+      .newBuilder();
 
   private void updatePayload() {
-    tx.setPayload(getProto());
+    Payload payload = tx.getPayload().toBuilder().setReducedPayload(getProto()).build();
+    tx.setPayload(payload);
   }
 
   /* default */ Transaction() {
-    super(Payload.newBuilder());
+    super(ReducedPayload.newBuilder());
   }
 
   @Override
-  public BuildableAndSignable<BlockOuterClass.Transaction> sign(KeyPair keyPair)
+  public BuildableAndSignable<TransactionOuterClass.Transaction> sign(KeyPair keyPair)
       throws CryptoException {
     Ed25519Sha3 ed = new Ed25519Sha3();  // throws
 
@@ -50,13 +52,12 @@ public class Transaction
     return this;
   }
 
-
   @Override
-  public BlockOuterClass.Transaction build() {
+  public TransactionOuterClass.Transaction build() {
     return tx.build();
   }
 
   public static TransactionBuilder builder(String accountId, Instant time) {
-    return new TransactionBuilder(accountId, time);
+    return new PlainTransactionBuilder(accountId, time);
   }
 }

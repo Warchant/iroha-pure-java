@@ -5,7 +5,7 @@ import static jp.co.soramitsu.withbindings.ByteVectorUtil.bytes2Blob;
 import static org.junit.Assert.assertEquals;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import iroha.protocol.BlockOuterClass;
+import iroha.protocol.TransactionOuterClass;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Instant;
@@ -44,7 +44,7 @@ public class TransactionTest {
   private final Long time = TimestampMapper.toProtobufValue(instant);
 
 
-  private BlockOuterClass.Transaction createPureJavaTx(byte[] publicKey, byte[] privateKey)
+  private TransactionOuterClass.Transaction createPureJavaTx(byte[] publicKey, byte[] privateKey)
       throws CryptoException {
     val keyPair = Ed25519Sha3.keyPairFromBytes(privateKey, publicKey);
 
@@ -56,7 +56,7 @@ public class TransactionTest {
         .build();
   }
 
-  private BlockOuterClass.Transaction createIrohalibTx(byte[] publicKey, byte[] privateKey)
+  private TransactionOuterClass.Transaction createIrohalibTx(byte[] publicKey, byte[] privateKey)
       throws InvalidProtocolBufferException {
 
     val keyPair = new Keypair(
@@ -76,7 +76,7 @@ public class TransactionTest {
         .blob()
         .blob();
 
-    return BlockOuterClass.Transaction.parseFrom(byteVector2bytes(blob));
+    return TransactionOuterClass.Transaction.parseFrom(byteVector2bytes(blob));
   }
 
   @Test

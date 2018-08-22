@@ -1,7 +1,7 @@
 package jp.co.soramitsu.withbindings;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import iroha.protocol.BlockOuterClass.Transaction;
+import iroha.protocol.TransactionOuterClass.Transaction;
 import iroha.protocol.Queries.Query;
 import jp.co.soramitsu.iroha.Blob;
 import jp.co.soramitsu.iroha.ByteVector;
