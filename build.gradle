@@ -3,14 +3,9 @@ plugins {
     id 'idea'
     id 'jacoco'
     id 'groovy'
-    id 'io.franzbecker.gradle-lombok' version '1.11'
     id "com.google.protobuf" version "0.8.5"
     id "nebula.dependency-lock" version "5.0.6"
     id 'org.unbroken-dome.test-sets' version '1.5.0'
-}
-
-lombok {
-    version = "1.18.0"
 }
 
 group = 'jp.co.soramitsu'
@@ -55,13 +50,16 @@ final def spockVersion = '1.1-groovy-2.4'
 final def edVersion = '1.2.0'
 final def spockGenesisVersion = '0.6.0'
 final def rxjavaVersion = '2.1.16'
-
+final def lombokVersion = '1.18.2'
 
 dependencies {
     testCompile("com.nagternal:spock-genesis:${spockGenesisVersion}")
     testCompile("org.spockframework:spock-core:${spockVersion}")
     compile("com.github.warchant:ed25519-sha3-java:${edVersion}")
     compile("io.reactivex.rxjava2:rxjava:${rxjavaVersion}")
+    compileOnly("org.projectlombok:lombok:$lombokVersion")
+    testCompileOnly("org.projectlombok:lombok:$lombokVersion")
+
 }
 
 testSets {
