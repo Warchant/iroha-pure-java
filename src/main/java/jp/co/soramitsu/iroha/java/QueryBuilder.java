@@ -5,6 +5,7 @@ import static java.util.Objects.nonNull;
 import iroha.protocol.Queries.GetAccount;
 import iroha.protocol.Queries.GetAccountAssetTransactions;
 import iroha.protocol.Queries.GetAccountAssets;
+import iroha.protocol.Queries.GetAccountDetail;
 import iroha.protocol.Queries.GetSignatories;
 import iroha.protocol.Queries.QueryPayloadMeta;
 import java.time.Instant;
@@ -16,7 +17,9 @@ public class QueryBuilder {
 
   private QueryPayloadMeta.Builder meta = QueryPayloadMeta.newBuilder();
 
-  private Query query = new Query(meta);
+  private Query newQuery() {
+    return new Query(meta);
+  }
 
   public QueryBuilder(String accountId, Instant time, long counter) {
     setCreatorAccountId(accountId);
@@ -66,6 +69,8 @@ public class QueryBuilder {
       this.validator.checkAssetId(assetId);
     }
 
+    Query query = newQuery();
+
     query.getProto().setGetAccountAssetTransactions(
         GetAccountAssetTransactions.newBuilder()
             .setAccountId(accountId)
@@ -83,6 +88,8 @@ public class QueryBuilder {
       this.validator.checkAccountId(accountId);
     }
 
+    Query query = newQuery();
+
     query.getProto().setGetAccount(
         GetAccount.newBuilder()
             .setAccountId(accountId)
@@ -98,6 +105,8 @@ public class QueryBuilder {
     if (nonNull(this.validator)) {
       this.validator.checkAccountId(accountId);
     }
+
+    Query query = newQuery();
 
     query.getProto().setGetAccountSignatories(
         GetSignatories.newBuilder()
@@ -115,9 +124,27 @@ public class QueryBuilder {
       this.validator.checkAccountId(accountId);
     }
 
+    Query query = newQuery();
+
     query.getProto().setGetAccountAssets(
         GetAccountAssets.newBuilder()
             .setAccountId(accountId)
+            .build()
+    );
+
+    return query;
+  }
+
+  public Query getAccountDetail(
+      String accountId,
+      String key
+  ) {
+    Query query = newQuery();
+
+    query.getProto().setGetAccountDetail(
+        GetAccountDetail.newBuilder()
+            .setAccountId(accountId)
+            .setKey(key)
             .build()
     );
 
