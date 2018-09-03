@@ -25,6 +25,10 @@ public class BlocksQuery
     this.meta = meta;
   }
 
+  public byte[] payload() {
+    return meta.buildPartial().toByteArray();
+  }
+
   private void updatePayload() {
     getProto().setMeta(meta);
     q.setMeta(meta);
@@ -33,7 +37,7 @@ public class BlocksQuery
   public Queries.BlocksQuery buildSigned(KeyPair keyPair) throws CryptoException {
     Ed25519Sha3 ed = new Ed25519Sha3();
     updatePayload();
-    byte[] rawSignature = ed.rawSign(meta.buildPartial().toByteArray(), keyPair);
+    byte[] rawSignature = ed.rawSign(hash(), keyPair);
 
     Signature sig = Signature.newBuilder()
         .setSignature(
