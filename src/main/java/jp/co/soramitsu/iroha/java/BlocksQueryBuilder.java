@@ -57,7 +57,7 @@ public class BlocksQueryBuilder {
   }
 
   public BlocksQuery getQuery() {
-      System.out.println(meta);
-      return newQuery();
+    System.out.println(meta);
+    return newQuery();
   }
 }

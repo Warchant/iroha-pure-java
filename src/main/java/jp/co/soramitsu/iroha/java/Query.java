@@ -55,7 +55,7 @@ public class Query
     return q.build();
   }
 
-  public static QueryBuilder builder(String accountId, Instant time, long counter){
+  public static QueryBuilder builder(String accountId, Instant time, long counter) {
     return new QueryBuilder(accountId, time, counter);
   }
 }
