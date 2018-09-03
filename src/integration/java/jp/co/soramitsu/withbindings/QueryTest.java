@@ -16,6 +16,7 @@ import jp.co.soramitsu.iroha.ModelCrypto;
 import jp.co.soramitsu.iroha.ModelQueryBuilder;
 import jp.co.soramitsu.iroha.PrivateKey;
 import jp.co.soramitsu.iroha.PublicKey;
+import jp.co.soramitsu.iroha.java.BlocksQuery;
 import jp.co.soramitsu.iroha.java.Query;
 import jp.co.soramitsu.iroha.java.detail.mapping.TimestampMapper;
 import lombok.val;
@@ -69,16 +70,33 @@ public class QueryTest {
   @Test
   public void getAccountAssetTransactions() throws CryptoException, InvalidProtocolBufferException {
     val query1 = Query.builder(accountId, instant, counter)
-        .getAccountAssetTransactions(accountId, assetId)
-        .buildSigned(keyPair1);
+            .getAccountAssetTransactions(accountId, assetId)
+            .buildSigned(keyPair1);
 
     val query2 = ByteVectorUtil.queryFromBlob(getQueryTemplate()
-        .getAccountAssetTransactions(accountId, assetId)
-        .build()
-        .signAndAddSignature(keyPair2)
-        .finish()
-        .blob()
-        .blob());
+            .getAccountAssetTransactions(accountId, assetId)
+            .build()
+            .signAndAddSignature(keyPair2)
+            .finish()
+            .blob()
+            .blob());
+
+    assertEquals(query1, query2);
+  }
+
+  @Test
+  public void getAccountAssetTransactionsBlocks() throws CryptoException, InvalidProtocolBufferException {
+    val query1 = BlocksQuery.builder(accountId, instant, counter)
+            .getAccountAssetTransactions(accountId, assetId)
+            .buildSigned(keyPair1);
+
+    val query2 = ByteVectorUtil.blocksQueryFromBlob(getQueryTemplate()
+            .getAccountAssetTransactions(accountId, assetId)
+            .build()
+            .signAndAddSignature(keyPair2)
+            .finish()
+            .blob()
+            .blob());
 
     assertEquals(query1, query2);
   }

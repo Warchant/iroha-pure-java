@@ -1,6 +1,7 @@
 package jp.co.soramitsu.withbindings;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import iroha.protocol.Queries;
 import iroha.protocol.TransactionOuterClass.Transaction;
 import iroha.protocol.Queries.Query;
 import jp.co.soramitsu.iroha.Blob;
@@ -27,6 +28,10 @@ public class ByteVectorUtil {
 
   public static Query queryFromBlob(ByteVector blob) throws InvalidProtocolBufferException {
     return Query.parseFrom(byteVector2bytes(blob));
+  }
+
+  public static Queries.BlocksQuery blocksQueryFromBlob(ByteVector blob) throws InvalidProtocolBufferException {
+    return Queries.BlocksQuery.parseFrom(byteVector2bytes(blob));
   }
 
   public static Transaction txFromBlob(ByteVector blob) throws InvalidProtocolBufferException {
