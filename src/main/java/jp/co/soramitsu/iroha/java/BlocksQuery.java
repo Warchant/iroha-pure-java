@@ -27,12 +27,13 @@ public class BlocksQuery
 
   private void updatePayload() {
     getProto().setMeta(meta);
+    q.setMeta(meta);
   }
 
   public Queries.BlocksQuery buildSigned(KeyPair keyPair) throws CryptoException {
     Ed25519Sha3 ed = new Ed25519Sha3();
     updatePayload();
-    byte[] rawSignature = ed.rawSign(hash(), keyPair);
+    byte[] rawSignature = ed.rawSign(meta.buildPartial().toByteArray(), keyPair);
 
     Signature sig = Signature.newBuilder()
         .setSignature(
@@ -52,7 +53,7 @@ public class BlocksQuery
     return q.build();
   }
 
-  public static QueryBuilder builder(String accountId, Instant time, long counter){
-    return new QueryBuilder(accountId, time, counter);
+  public static BlocksQueryBuilder builder(String accountId, Instant time, long counter){
+    return new BlocksQueryBuilder(accountId, time, counter);
   }
 }

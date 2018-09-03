@@ -9,13 +9,11 @@ import java.math.BigInteger;
 import java.security.KeyPair;
 import java.time.Instant;
 import javax.xml.bind.DatatypeConverter;
+
+import iroha.protocol.Queries;
 import jp.co.soramitsu.crypto.ed25519.Ed25519Sha3;
 import jp.co.soramitsu.crypto.ed25519.Ed25519Sha3.CryptoException;
-import jp.co.soramitsu.iroha.Keypair;
-import jp.co.soramitsu.iroha.ModelCrypto;
-import jp.co.soramitsu.iroha.ModelQueryBuilder;
-import jp.co.soramitsu.iroha.PrivateKey;
-import jp.co.soramitsu.iroha.PublicKey;
+import jp.co.soramitsu.iroha.*;
 import jp.co.soramitsu.iroha.java.BlocksQuery;
 import jp.co.soramitsu.iroha.java.Query;
 import jp.co.soramitsu.iroha.java.detail.mapping.TimestampMapper;
@@ -62,18 +60,25 @@ public class QueryTest {
 
   private ModelQueryBuilder getQueryTemplate(){
     return new ModelQueryBuilder()
-        .createdTime(BigInteger.valueOf(time))
-        .queryCounter(BigInteger.valueOf(counter))
-        .creatorAccountId(accountId);
+            .createdTime(BigInteger.valueOf(time))
+            .queryCounter(BigInteger.valueOf(counter))
+            .creatorAccountId(accountId);
+  }
+
+  private ModelBlocksQueryBuilder getBlocksQueryTemplate(){
+    return new ModelBlocksQueryBuilder()
+            .createdTime(BigInteger.valueOf(time))
+            .queryCounter(BigInteger.valueOf(counter))
+            .creatorAccountId(accountId);
   }
 
   @Test
   public void getAccountAssetTransactions() throws CryptoException, InvalidProtocolBufferException {
-    val query1 = Query.builder(accountId, instant, counter)
+    Queries.Query query1 = Query.builder(accountId, instant, counter)
             .getAccountAssetTransactions(accountId, assetId)
             .buildSigned(keyPair1);
 
-    val query2 = ByteVectorUtil.queryFromBlob(getQueryTemplate()
+    Queries.Query query2 = ByteVectorUtil.queryFromBlob(getQueryTemplate()
             .getAccountAssetTransactions(accountId, assetId)
             .build()
             .signAndAddSignature(keyPair2)
@@ -85,69 +90,68 @@ public class QueryTest {
   }
 
   @Test
-  public void getAccountAssetTransactionsBlocks() throws CryptoException, InvalidProtocolBufferException {
-    val query1 = BlocksQuery.builder(accountId, instant, counter)
-            .getAccountAssetTransactions(accountId, assetId)
+  public void getBlocksQuery() throws CryptoException, InvalidProtocolBufferException {
+    Queries.BlocksQuery blocksQuery1 = BlocksQuery.builder(accountId, instant, counter)
+            .getQuery()
             .buildSigned(keyPair1);
 
-    val query2 = ByteVectorUtil.blocksQueryFromBlob(getQueryTemplate()
-            .getAccountAssetTransactions(accountId, assetId)
+    Queries.BlocksQuery blocksQuery2 = ByteVectorUtil.blocksQueryFromBlob(getBlocksQueryTemplate()
             .build()
             .signAndAddSignature(keyPair2)
             .finish()
             .blob()
             .blob());
 
-    assertEquals(query1, query2);
+    assertEquals(blocksQuery1, blocksQuery2);
   }
 
   @Test
   public void getAccount() throws CryptoException, InvalidProtocolBufferException {
-    val query1 = Query.builder(accountId, instant, counter)
-        .getAccount(accountId)
-        .buildSigned(keyPair1);
+    Queries.Query query1 = Query.builder(accountId, instant, counter)
+            .getAccount(accountId)
+            .buildSigned(keyPair1);
 
-    val query2 = ByteVectorUtil.queryFromBlob(getQueryTemplate()
-        .getAccount(accountId)
-        .build()
-        .signAndAddSignature(keyPair2)
-        .finish()
-        .blob()
-        .blob());
+    Queries.Query query2 = ByteVectorUtil.queryFromBlob(getQueryTemplate()
+            .getAccount(accountId)
+            .build()
+            .signAndAddSignature(keyPair2)
+            .finish()
+            .blob()
+            .blob());
 
     assertEquals(query1, query2);
   }
 
   @Test
   public void getAccountAssets() throws CryptoException, InvalidProtocolBufferException {
-    val query1 = Query.builder(accountId, instant, counter)
-        .getAccountAssets(accountId)
-        .buildSigned(keyPair1);
+    Queries.Query query1 = Query.builder(accountId, instant, counter)
+            .getAccountAssets(accountId)
+            .buildSigned(keyPair1);
 
-    val query2 = ByteVectorUtil.queryFromBlob(getQueryTemplate()
-        .getAccountAssets(accountId)
-        .build()
-        .signAndAddSignature(keyPair2)
-        .finish()
-        .blob()
-        .blob());
+    Queries.Query query2 = ByteVectorUtil.queryFromBlob(getQueryTemplate()
+            .getAccountAssets(accountId)
+            .build()
+            .signAndAddSignature(keyPair2)
+            .finish()
+            .blob()
+            .blob());
 
     assertEquals(query1, query2);
   }
 
   @Test
   public void getSignatories() throws CryptoException, InvalidProtocolBufferException {
-    val query1 = Query.builder(accountId, instant, counter)
-        .getSignatories(accountId)
-        .buildSigned(keyPair1);
+    Queries.Query query1 = Query.builder(accountId, instant, counter)
+            .getSignatories(accountId)
+            .buildSigned(keyPair1);
 
-    val query2 = ByteVectorUtil.queryFromBlob(getQueryTemplate()
-        .getSignatories(accountId)
-        .build()
-        .signAndAddSignature(keyPair2)
-        .finish()
-        .blob()
-        .blob());
+    Queries.Query query2 = ByteVectorUtil.queryFromBlob(getQueryTemplate()
+            .getSignatories(accountId)
+            .build()
+            .signAndAddSignature(keyPair2)
+            .finish()
+            .blob()
+            .blob());
 
     assertEquals(query1, query2);
   }
