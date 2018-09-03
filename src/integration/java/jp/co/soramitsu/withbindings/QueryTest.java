@@ -58,33 +58,33 @@ public class QueryTest {
       new PrivateKey(bytes2Blob(bytesPrivateKey))
   );
 
-  private ModelQueryBuilder getQueryTemplate(){
+  private ModelQueryBuilder getQueryTemplate() {
     return new ModelQueryBuilder()
-            .createdTime(BigInteger.valueOf(time))
-            .queryCounter(BigInteger.valueOf(counter))
-            .creatorAccountId(accountId);
+        .createdTime(BigInteger.valueOf(time))
+        .queryCounter(BigInteger.valueOf(counter))
+        .creatorAccountId(accountId);
   }
 
-  private ModelBlocksQueryBuilder getBlocksQueryTemplate(){
+  private ModelBlocksQueryBuilder getBlocksQueryTemplate() {
     return new ModelBlocksQueryBuilder()
-            .createdTime(BigInteger.valueOf(time))
-            .queryCounter(BigInteger.valueOf(counter))
-            .creatorAccountId(accountId);
+        .createdTime(BigInteger.valueOf(time))
+        .queryCounter(BigInteger.valueOf(counter))
+        .creatorAccountId(accountId);
   }
 
   @Test
   public void getAccountAssetTransactions() throws CryptoException, InvalidProtocolBufferException {
     Queries.Query query1 = Query.builder(accountId, instant, counter)
-            .getAccountAssetTransactions(accountId, assetId)
-            .buildSigned(keyPair1);
+        .getAccountAssetTransactions(accountId, assetId)
+        .buildSigned(keyPair1);
 
     Queries.Query query2 = ByteVectorUtil.queryFromBlob(getQueryTemplate()
-            .getAccountAssetTransactions(accountId, assetId)
-            .build()
-            .signAndAddSignature(keyPair2)
-            .finish()
-            .blob()
-            .blob());
+        .getAccountAssetTransactions(accountId, assetId)
+        .build()
+        .signAndAddSignature(keyPair2)
+        .finish()
+        .blob()
+        .blob());
 
     assertEquals(query1, query2);
   }
@@ -92,15 +92,15 @@ public class QueryTest {
   @Test
   public void getBlocksQuery() throws CryptoException, InvalidProtocolBufferException {
     Queries.BlocksQuery blocksQuery1 = BlocksQuery.builder(accountId, instant, counter)
-            .getQuery()
-            .buildSigned(keyPair1);
+        .getQuery()
+        .buildSigned(keyPair1);
 
     Queries.BlocksQuery blocksQuery2 = ByteVectorUtil.blocksQueryFromBlob(getBlocksQueryTemplate()
-            .build()
-            .signAndAddSignature(keyPair2)
-            .finish()
-            .blob()
-            .blob());
+        .build()
+        .signAndAddSignature(keyPair2)
+        .finish()
+        .blob()
+        .blob());
 
     assertEquals(blocksQuery1, blocksQuery2);
   }
@@ -108,16 +108,16 @@ public class QueryTest {
   @Test
   public void getAccount() throws CryptoException, InvalidProtocolBufferException {
     Queries.Query query1 = Query.builder(accountId, instant, counter)
-            .getAccount(accountId)
-            .buildSigned(keyPair1);
+        .getAccount(accountId)
+        .buildSigned(keyPair1);
 
     Queries.Query query2 = ByteVectorUtil.queryFromBlob(getQueryTemplate()
-            .getAccount(accountId)
-            .build()
-            .signAndAddSignature(keyPair2)
-            .finish()
-            .blob()
-            .blob());
+        .getAccount(accountId)
+        .build()
+        .signAndAddSignature(keyPair2)
+        .finish()
+        .blob()
+        .blob());
 
     assertEquals(query1, query2);
   }
@@ -125,16 +125,16 @@ public class QueryTest {
   @Test
   public void getAccountAssets() throws CryptoException, InvalidProtocolBufferException {
     Queries.Query query1 = Query.builder(accountId, instant, counter)
-            .getAccountAssets(accountId)
-            .buildSigned(keyPair1);
+        .getAccountAssets(accountId)
+        .buildSigned(keyPair1);
 
     Queries.Query query2 = ByteVectorUtil.queryFromBlob(getQueryTemplate()
-            .getAccountAssets(accountId)
-            .build()
-            .signAndAddSignature(keyPair2)
-            .finish()
-            .blob()
-            .blob());
+        .getAccountAssets(accountId)
+        .build()
+        .signAndAddSignature(keyPair2)
+        .finish()
+        .blob()
+        .blob());
 
     assertEquals(query1, query2);
   }
@@ -142,16 +142,16 @@ public class QueryTest {
   @Test
   public void getSignatories() throws CryptoException, InvalidProtocolBufferException {
     Queries.Query query1 = Query.builder(accountId, instant, counter)
-            .getSignatories(accountId)
-            .buildSigned(keyPair1);
+        .getSignatories(accountId)
+        .buildSigned(keyPair1);
 
     Queries.Query query2 = ByteVectorUtil.queryFromBlob(getQueryTemplate()
-            .getSignatories(accountId)
-            .build()
-            .signAndAddSignature(keyPair2)
-            .finish()
-            .blob()
-            .blob());
+        .getSignatories(accountId)
+        .build()
+        .signAndAddSignature(keyPair2)
+        .finish()
+        .blob()
+        .blob());
 
     assertEquals(query1, query2);
   }

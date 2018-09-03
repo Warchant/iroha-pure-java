@@ -57,7 +57,7 @@ public class BlocksQuery
     return q.build();
   }
 
-  public static BlocksQueryBuilder builder(String accountId, Instant time, long counter){
+  public static BlocksQueryBuilder builder(String accountId, Instant time, long counter) {
     return new BlocksQueryBuilder(accountId, time, counter);
   }
 }
