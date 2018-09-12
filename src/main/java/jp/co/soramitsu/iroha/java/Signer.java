@@ -1,9 +1,6 @@
 package jp.co.soramitsu.iroha.java;
 
 import static com.google.protobuf.ByteString.copyFrom;
-import static javax.xml.bind.DatatypeConverter.parseHexBinary;
-import static jp.co.soramitsu.crypto.ed25519.Ed25519Sha3.privateKeyFromBytes;
-import static jp.co.soramitsu.crypto.ed25519.Ed25519Sha3.publicKeyFromBytes;
 import static jp.co.soramitsu.iroha.java.detail.mapping.PubkeyMapper.toProtobufValue;
 
 import iroha.protocol.Primitive.Signature;
