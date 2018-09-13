@@ -47,7 +47,7 @@ repositories {
 }
 
 final def spockVersion = '1.1-groovy-2.4'
-final def edVersion = '1.2.0'
+final def edVersion = '1.3.3'
 final def spockGenesisVersion = '0.6.0'
 final def rxjavaVersion = '2.1.16'
 final def lombokVersion = '1.18.2'
