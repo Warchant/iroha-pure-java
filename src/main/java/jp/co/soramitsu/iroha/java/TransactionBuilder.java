@@ -2,10 +2,13 @@ package jp.co.soramitsu.iroha.java;
 
 import static java.util.Objects.nonNull;
 
+import com.google.protobuf.ByteString;
+import iroha.protocol.Commands.AddPeer;
 import iroha.protocol.Commands.Command;
 import iroha.protocol.Commands.CreateAccount;
 import iroha.protocol.Commands.SetAccountDetail;
 import iroha.protocol.Commands.TransferAsset;
+import iroha.protocol.Primitive.Peer;
 import iroha.protocol.TransactionOuterClass;
 import java.math.BigDecimal;
 import java.security.KeyPair;
@@ -142,6 +145,30 @@ public class TransactionBuilder {
                     .build()
             )
             .build()
+    );
+
+    return this;
+  }
+
+  public TransactionBuilder addPeer(
+      String address,
+      byte[] peerKey
+  ) {
+    if (nonNull(this.validator)) {
+      this.validator.checkPeerAddress(address);
+      this.validator.checkPublicKey(peerKey);
+    }
+
+    tx.reducedPayload.addCommands(
+        Command.newBuilder()
+            .setAddPeer(
+                AddPeer.newBuilder()
+                    .setPeer(
+                        Peer.newBuilder()
+                            .setAddress(address)
+                            .setPeerKey(ByteString.copyFrom(peerKey))
+                    )
+            )
     );
 
     return this;
