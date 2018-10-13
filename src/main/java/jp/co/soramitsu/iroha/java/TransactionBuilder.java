@@ -4,11 +4,17 @@ import static java.util.Objects.nonNull;
 
 import com.google.protobuf.ByteString;
 import iroha.protocol.Commands.AddPeer;
+import iroha.protocol.Commands.AppendRole;
 import iroha.protocol.Commands.Command;
 import iroha.protocol.Commands.CreateAccount;
+import iroha.protocol.Commands.CreateDomain;
+import iroha.protocol.Commands.CreateRole;
+import iroha.protocol.Commands.GrantPermission;
 import iroha.protocol.Commands.SetAccountDetail;
 import iroha.protocol.Commands.TransferAsset;
+import iroha.protocol.Primitive.GrantablePermission;
 import iroha.protocol.Primitive.Peer;
+import iroha.protocol.Primitive.RolePermission;
 import iroha.protocol.TransactionOuterClass;
 import java.math.BigDecimal;
 import java.security.KeyPair;
@@ -174,8 +180,91 @@ public class TransactionBuilder {
                         Peer.newBuilder()
                             .setAddress(address)
                             .setPeerKey(ByteString.copyFrom(peerKey))
-                    )
+                    ).build()
+            ).build()
+    );
+
+    return this;
+  }
+
+  public TransactionBuilder grantPermission(
+      String accountId,
+      GrantablePermission permission
+  ) {
+    if (nonNull(this.validator)) {
+      this.validator.checkAccountId(accountId);
+    }
+
+    tx.reducedPayload.addCommands(
+        Command.newBuilder()
+            .setGrantPermission(
+                GrantPermission.newBuilder()
+                    .setAccountId(accountId)
+                    .setPermission(permission)
+                    .build()
+            ).build()
+    );
+
+    return this;
+  }
+
+  public TransactionBuilder createRole(
+      String roleName,
+      Iterable<? extends RolePermission> permissions
+  ) {
+
+    tx.reducedPayload.addCommands(
+        Command.newBuilder().setCreateRole(
+            CreateRole.newBuilder()
+                .setRoleName(roleName)
+                .addAllPermissions(permissions)
+                .build()
+        ).build()
+    );
+
+    return this;
+  }
+
+  public TransactionBuilder createDomain(
+      String domainId,
+      String defaultRole
+  ) {
+
+    if (nonNull(this.validator)) {
+      this.validator.checkDomainId(domainId);
+    }
+
+    tx.reducedPayload.addCommands(
+        Command.newBuilder()
+            .setCreateDomain(
+                CreateDomain.newBuilder()
+                    .setDomainId(domainId)
+                    .setDefaultRole(defaultRole)
+                    .build()
             )
+            .build()
+    );
+
+    return this;
+  }
+
+  public TransactionBuilder appendRole(
+      String accountId,
+      String roleName
+  ) {
+    if (nonNull(this.validator)) {
+      this.validator.checkAccountId(accountId);
+    }
+
+    tx.reducedPayload.addCommands(
+        Command.newBuilder()
+            .setAppendRole(
+                AppendRole.newBuilder()
+                    .setAccountId(accountId)
+                    .setRoleName(roleName)
+                    .build()
+            )
+            .build()
     );
 
     return this;

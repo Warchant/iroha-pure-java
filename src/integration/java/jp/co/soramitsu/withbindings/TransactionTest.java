@@ -5,13 +5,18 @@ import static jp.co.soramitsu.withbindings.ByteVectorUtil.bytes2Blob;
 import static org.junit.Assert.assertEquals;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import iroha.protocol.Primitive.GrantablePermission;
+import iroha.protocol.Primitive.RolePermission;
 import iroha.protocol.TransactionOuterClass;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
 import javax.xml.bind.DatatypeConverter;
 import jp.co.soramitsu.crypto.ed25519.Ed25519Sha3;
 import jp.co.soramitsu.crypto.ed25519.Ed25519Sha3.CryptoException;
+import jp.co.soramitsu.iroha.Grantable;
 import jp.co.soramitsu.iroha.Keypair;
 import jp.co.soramitsu.iroha.ModelTransactionBuilder;
 import jp.co.soramitsu.iroha.PrivateKey;
@@ -39,6 +44,10 @@ public class TransactionTest {
   private final String description = "description?";
   private final String key = "key";
   private final String value = "value";
+  private final String peerAddress = "0.0.0.0:10001";
+  private final String defaultRole = "role";
+  private final ArrayList<RolePermission> permissions = new ArrayList<>(
+      Arrays.asList(RolePermission.values()));
 
   private final BigDecimal amount = BigDecimal.TEN;
   private final Instant instant = Instant.now();
@@ -49,16 +58,17 @@ public class TransactionTest {
       throws CryptoException {
     val keyPair = Ed25519Sha3.keyPairFromBytes(privateKey, publicKey);
 
-    val unsigned = Transaction.builder(accountId, instant)
+    val tx = Transaction.builder(accountId, instant)
         .createAccount(accountName, domainId, keyPair.getPublic())
         .transferAsset(srcAccountId, dstAccountId, assetId, description, amount)
-        .addPeer("0.0.0.0:10001", Hex.decode(publicKey))
-        .setAccountDetail(accountId, key, value);
-
-    val signed = unsigned
-        .sign(keyPair);
-
-    val tx = signed
+        .addPeer(peerAddress, Hex.decode(publicKey))
+        .setAccountDetail(accountId, key, value)
+        .createDomain(domainId, defaultRole)
+        // TODO(@warchant): figure out how to add createRole cmd in bindings
+        // .createRole(defaultRole, permissions)
+        .appendRole(accountId, defaultRole)
+        .grantPermission(accountId, GrantablePermission.can_set_my_account_detail)
+        .sign(keyPair)
         .build();
 
     return tx;
@@ -77,8 +87,11 @@ public class TransactionTest {
         .createdTime(BigInteger.valueOf(time))
         .createAccount(accountName, domainId, keyPair.publicKey())
         .transferAsset(srcAccountId, dstAccountId, assetId, description, amount.toString())
-        .addPeer("0.0.0.0:10001", keyPair.publicKey())
+        .addPeer(peerAddress, keyPair.publicKey())
         .setAccountDetail(accountId, key, value)
+        .createDomain(domainId, defaultRole)
+        .appendRole(accountId, defaultRole)
+        .grantPermission(accountId, Grantable.kSetMyAccountDetail)
         .build()
         .signAndAddSignature(keyPair)
         .finish()
