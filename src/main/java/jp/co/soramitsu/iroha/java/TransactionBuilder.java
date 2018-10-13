@@ -28,8 +28,15 @@ public class TransactionBuilder {
    * Both fields are required, therefore we can not create builder without them.
    */
   public TransactionBuilder(String accountId, Instant time) {
-    setCreatorAccountId(accountId);
-    setCreatedTime(time);
+    // passing null throws but we sometimes want to pass null to set no-value, example - genesis block
+    if (nonNull(accountId)) {
+      setCreatorAccountId(accountId);
+    }
+
+    if (nonNull(time)) {
+      setCreatedTime(time);
+    }
+
     setQuorum(1 /* default value for quorum */);
   }
 
