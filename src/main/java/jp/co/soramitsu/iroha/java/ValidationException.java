@@ -16,6 +16,8 @@ public class ValidationException extends IllegalArgumentException {
     AMOUNT("amount"),
     ACCOUNT("account"),
     ACCOUNT_ID("account_id"),
+    PUBKEY("public_key"),
+    PEER_ADDRESS("peer_address"),
     QUORUM("quorum");
 
 
