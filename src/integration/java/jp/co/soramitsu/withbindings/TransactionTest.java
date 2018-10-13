@@ -20,6 +20,7 @@ import jp.co.soramitsu.iroha.java.Transaction;
 import jp.co.soramitsu.iroha.java.detail.mapping.TimestampMapper;
 import lombok.val;
 import org.junit.Test;
+import org.spongycastle.util.encoders.Hex;
 
 public class TransactionTest {
 
@@ -51,6 +52,7 @@ public class TransactionTest {
     val unsigned = Transaction.builder(accountId, instant)
         .createAccount(accountName, domainId, keyPair.getPublic())
         .transferAsset(srcAccountId, dstAccountId, assetId, description, amount)
+        .addPeer("0.0.0.0:10001", Hex.decode(publicKey))
         .setAccountDetail(accountId, key, value);
 
     val signed = unsigned
@@ -75,6 +77,7 @@ public class TransactionTest {
         .createdTime(BigInteger.valueOf(time))
         .createAccount(accountName, domainId, keyPair.publicKey())
         .transferAsset(srcAccountId, dstAccountId, assetId, description, amount.toString())
+        .addPeer("0.0.0.0:10001", keyPair.publicKey())
         .setAccountDetail(accountId, key, value)
         .build()
         .signAndAddSignature(keyPair)
