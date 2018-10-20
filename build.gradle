@@ -48,8 +48,8 @@ repositories {
 final def spockVersion = '1.2-groovy-2.4'
 final def edVersion = '2.0.1'
 final def spockGenesisVersion = '0.6.0'
-final def rxjavaVersion = '2.2.2'
 final def lombokVersion = '1.18.2'
+final def testcontainersIroha = '0.1.0'
 
 dependencies {
     testCompile("com.nagternal:spock-genesis:${spockGenesisVersion}")
@@ -57,11 +57,7 @@ dependencies {
     compile("com.github.warchant:ed25519-sha3-java:${edVersion}")
     compileOnly("org.projectlombok:lombok:$lombokVersion")
     testCompileOnly("org.projectlombok:lombok:$lombokVersion")
-}
-
-testSets {
-    integration
+    testCompile "com.github.Warchant:testcontainers-iroha:${testcontainersIroha}"
 }
 
 apply from: 'proto.gradle'
-apply from: 'integration.gradle'

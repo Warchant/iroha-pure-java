@@ -59,6 +59,7 @@ public class Transaction
 
   @Override
   public TransactionOuterClass.Transaction build() {
+    updatePayload();
     return tx.build();
   }
 

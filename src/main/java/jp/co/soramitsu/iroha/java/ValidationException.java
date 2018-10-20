@@ -18,7 +18,8 @@ public class ValidationException extends IllegalArgumentException {
     ACCOUNT_ID("account_id"),
     PUBKEY("public_key"),
     PEER_ADDRESS("peer_address"),
-    QUORUM("quorum");
+    QUORUM("quorum"),
+    ROLE_NAME("role_name");
 
 
     private String type;

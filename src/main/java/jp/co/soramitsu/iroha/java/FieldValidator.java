@@ -4,11 +4,14 @@ import static jp.co.soramitsu.iroha.java.ValidationException.Type.AMOUNT;
 import static jp.co.soramitsu.iroha.java.ValidationException.Type.PEER_ADDRESS;
 import static jp.co.soramitsu.iroha.java.ValidationException.Type.PUBKEY;
 import static jp.co.soramitsu.iroha.java.ValidationException.Type.QUORUM;
+import static jp.co.soramitsu.iroha.java.ValidationException.Type.ROLE_NAME;
 
 import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import lombok.NonNull;
 
 public class FieldValidator {
@@ -32,10 +35,6 @@ public class FieldValidator {
   }
 
   public void checkAccountId(@NonNull String accountId) {
-    // TODO
-  }
-
-  public void checkDomainId(@NonNull String domainId) {
     // TODO
   }
 
@@ -73,5 +72,24 @@ public class FieldValidator {
     if (peerKey.length != 32) {
       throw new ValidationException(PUBKEY, "Public key must be 32 bytes length");
     }
+  }
+
+
+  private static Pattern roleNameRegex = Pattern.compile("[a-z_0-9]{1,32}");
+
+  public void checkRoleName(String roleName) {
+    Matcher m = roleNameRegex.matcher(roleName);
+    if (!m.find()) {
+      throw new ValidationException(ROLE_NAME,
+          String.format("Role name is invalid, should match: %s", roleNameRegex.pattern()));
+    }
+  }
+
+  public void checkAssetName(String assetName) {
+    // TODO
+  }
+
+  public void checkPrecision(Integer precision) {
+    // TODO
   }
 }
