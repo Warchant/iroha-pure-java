@@ -1,3 +1,10 @@
+sudo: required
+services:
+- docker
+addons:
+  apt:
+    packages:
+    - docker-ce
 language: java
 jdk:
 - oraclejdk8
