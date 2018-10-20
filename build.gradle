@@ -4,7 +4,7 @@ plugins {
     id 'jacoco'
     id 'groovy'
     id "com.google.protobuf" version "0.8.5"
-    id 'org.unbroken-dome.test-sets' version '1.5.0'
+    id "org.sonarqube" version "2.6"
 }
 
 group = 'jp.co.soramitsu'
@@ -63,3 +63,10 @@ dependencies {
 }
 
 apply from: 'proto.gradle'
+
+sonarqube {
+    properties {
+        property "sonar.exclusions", "**/generated/*.java"
+        property "sonar.projectKey", "warchant:iroha-pure-java"
+    }
+}
