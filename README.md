@@ -37,7 +37,7 @@ KeyPair keypair1 = Ed25519Sha3.generateKeypair(new byte[]{..32 bytes seed..});
 
 ```
 
-For usage examples, look at [tests](./test/groovy/jp/co/soramitsu/iroha/java/).
+For usage examples, look at [tests](./src/test/groovy/jp/co/soramitsu/iroha/java/).
 
 
 ## License
