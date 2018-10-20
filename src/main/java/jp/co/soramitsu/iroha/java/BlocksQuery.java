@@ -1,17 +1,12 @@
 package jp.co.soramitsu.iroha.java;
 
-import com.google.protobuf.ByteString;
-import iroha.protocol.Primitive.Signature;
 import iroha.protocol.Queries;
 import iroha.protocol.Queries.Query.Payload;
 import iroha.protocol.Queries.QueryPayloadMeta;
-import jp.co.soramitsu.crypto.ed25519.Ed25519Sha3;
-import jp.co.soramitsu.crypto.ed25519.Ed25519Sha3.CryptoException;
-import jp.co.soramitsu.iroha.java.detail.Hashable;
-import jp.co.soramitsu.iroha.java.detail.mapping.PubkeyMapper;
-
 import java.security.KeyPair;
 import java.time.Instant;
+import jp.co.soramitsu.crypto.ed25519.Ed25519Sha3.CryptoException;
+import jp.co.soramitsu.iroha.java.detail.Hashable;
 
 public class BlocksQuery
     extends Hashable<Payload.Builder> {
@@ -35,20 +30,8 @@ public class BlocksQuery
   }
 
   public Queries.BlocksQuery buildSigned(KeyPair keyPair) throws CryptoException {
-    Ed25519Sha3 ed = new Ed25519Sha3();
     updatePayload();
-    byte[] rawSignature = ed.rawSign(hash(), keyPair);
-
-    Signature sig = Signature.newBuilder()
-        .setSignature(
-            ByteString.copyFrom(rawSignature)
-        )
-        .setPubkey(
-            PubkeyMapper.toProtobufValue(keyPair.getPublic())
-        )
-        .build();
-
-    q.setSignature(sig);
+    q.setSignature(Utils.sign(this, keyPair));
     return q.build();
   }
 
@@ -59,5 +42,9 @@ public class BlocksQuery
 
   public static BlocksQueryBuilder builder(String accountId, Instant time, long counter) {
     return new BlocksQueryBuilder(accountId, time, counter);
+  }
+
+  public static BlocksQueryBuilder builder(String accountId, long counter) {
+    return builder(accountId, Instant.now(), counter);
   }
 }

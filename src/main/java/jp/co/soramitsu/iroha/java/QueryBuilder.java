@@ -9,7 +9,6 @@ import iroha.protocol.Queries.GetAccountDetail;
 import iroha.protocol.Queries.GetSignatories;
 import iroha.protocol.Queries.QueryPayloadMeta;
 import java.time.Instant;
-import jp.co.soramitsu.iroha.java.detail.mapping.TimestampMapper;
 
 public class QueryBuilder {
 
@@ -51,7 +50,7 @@ public class QueryBuilder {
       this.validator.checkTimestamp(time);
     }
 
-    meta.setCreatedTime(TimestampMapper.toProtobufValue(time));
+    meta.setCreatedTime(time.toEpochMilli());
     return this;
   }
 

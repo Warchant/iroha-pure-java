@@ -1,7 +1,6 @@
 package jp.co.soramitsu.iroha.java;
 
 import static com.google.protobuf.ByteString.copyFrom;
-import static jp.co.soramitsu.iroha.java.detail.mapping.PubkeyMapper.toProtobufValue;
 
 import iroha.protocol.Primitive.Signature;
 import iroha.protocol.Queries.BlocksQuery;
@@ -64,10 +63,10 @@ public class Signer {
       Instant createdAt
   ) throws CryptoException {
     val builder = QueryPayloadMeta
-                .newBuilder()
-                .setCreatorAccountId(queryCreator)
-                .setQueryCounter(1)
-                .setCreatedTime(createdAt.toEpochMilli());
+        .newBuilder()
+        .setCreatorAccountId(queryCreator)
+        .setQueryCounter(1)
+        .setCreatedTime(createdAt.toEpochMilli());
     return BlocksQuery.newBuilder()
         .setSignature(createSignature(builder.buildPartial().toByteArray()))
         .setMeta(builder)
@@ -100,7 +99,7 @@ public class Signer {
 
     return Signature.newBuilder()
         .setSignature(copyFrom(rawSignature))
-        .setPubkey(toProtobufValue(keyPair.getPublic()))
+        .setPubkey(copyFrom(keyPair.getPublic().getEncoded()))
         .build();
   }
 

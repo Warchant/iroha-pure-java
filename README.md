@@ -37,6 +37,8 @@ KeyPair keypair1 = Ed25519Sha3.generateKeypair(new byte[]{..32 bytes seed..});
 
 ```
 
+For usage examples, look at [tests](./test/groovy/jp/co/soramitsu/iroha/java/).
+
 
 ## License
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FWarchant%2Firoha-pure-java.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FWarchant%2Firoha-pure-java?ref=badge_large)
