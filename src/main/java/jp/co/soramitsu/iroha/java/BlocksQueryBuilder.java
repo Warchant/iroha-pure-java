@@ -1,11 +1,9 @@
 package jp.co.soramitsu.iroha.java;
 
-import iroha.protocol.Queries.*;
-import jp.co.soramitsu.iroha.java.detail.mapping.TimestampMapper;
-
-import java.time.Instant;
-
 import static java.util.Objects.nonNull;
+
+import iroha.protocol.Queries.QueryPayloadMeta;
+import java.time.Instant;
 
 public class BlocksQueryBuilder {
 
@@ -47,7 +45,7 @@ public class BlocksQueryBuilder {
       this.validator.checkTimestamp(time);
     }
 
-    meta.setCreatedTime(TimestampMapper.toProtobufValue(time));
+    meta.setCreatedTime(time.toEpochMilli());
     return this;
   }
 

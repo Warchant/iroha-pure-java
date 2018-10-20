@@ -1,16 +1,12 @@
-package jp.co.soramitsu.iroha.java.queries
+package jp.co.soramitsu.iroha.java
 
-import com.google.protobuf.ByteString
-import io.grpc.ManagedChannel
-import io.grpc.ManagedChannelBuilder
-import iroha.protocol.CommandServiceGrpc
+import io.reactivex.observers.TestObserver
 import iroha.protocol.Endpoint
 import iroha.protocol.Primitive
-import jp.co.soramitsu.iroha.java.Transaction
+import iroha.protocol.QryResponses
 import jp.co.soramitsu.iroha.testcontainers.IrohaContainer
 import jp.co.soramitsu.iroha.testcontainers.PeerConfig
 import jp.co.soramitsu.iroha.testcontainers.detail.GenesisBlockBuilder
-import org.junit.Rule
 import spock.lang.Specification
 
 import java.security.PublicKey
@@ -26,10 +22,8 @@ class IntegrationTest extends Specification {
     final def defaultKeypair = GenesisBlockBuilder.defaultKeyPair
     final def defaultAccountId = String.format("%s@%s", defaultAccount, defaultDomain)
 
-    @Rule
     IrohaContainer iroha = new IrohaContainer()
-    ManagedChannel channel
-    CommandServiceGrpc.CommandServiceBlockingStub stub
+    IrohaAPI api
 
     PeerConfig config = PeerConfig.builder()
             .genesisBlock(
@@ -39,6 +33,7 @@ class IntegrationTest extends Specification {
                             .addPeer("0.0.0.0:10001", defaultKeypair.getPublic() as PublicKey)
                             .createRole(
                             defaultRole,
+                            // all permissions
                             IntStream.range(0, 42)
                                     .boxed()
                                     .map(Primitive.RolePermission.&forNumber)
@@ -54,55 +49,68 @@ class IntegrationTest extends Specification {
         iroha.withPeerConfig(config)
                 .start()
 
-        URI addr = iroha.getToriiAddress()
-
-        channel = ManagedChannelBuilder
-                .forAddress(addr.getHost(), addr.getPort())
-                .usePlaintext()
-                .build()
-
-        stub = CommandServiceGrpc.newBlockingStub(channel)
-
+        api = new IrohaAPI(iroha.toriiAddress)
     }
 
     def cleanup() {
         iroha.stop()
     }
 
-    def "commands work"() {
-        given:
-        Transaction tx = Transaction.builder(defaultAccountId, Instant.now())
+    def "big integration test"() {
+        when: "subscribe on new blocks"
+        def bq = BlocksQuery.builder(defaultAccountId, Instant.now(), 1L)
+                .getQuery()
+                .buildSigned(defaultKeypair)
+
+        def t1 = new TestObserver<QryResponses.BlockQueryResponse>()
+        api.blocksQuery(bq)
+                .subscribe(t1)
+
+        then: "blocks query works"
+        t1.assertSubscribed()
+        t1.assertNoTimeout()
+        t1.assertNotComplete()
+        t1.assertNoErrors()
+        t1.assertEmpty()
+        noExceptionThrown()
+
+        when: "new valid transaction is sent"
+        def tx = Transaction.builder(defaultAccountId, Instant.now())
                 .createRole("role", [Primitive.RolePermission.can_add_peer])
                 .createAccount("account1", defaultDomain, defaultKeypair.getPublic())
                 .createDomain("domain", defaultRole)
                 .grantPermission("account1@" + defaultDomain, Primitive.GrantablePermission.can_set_my_account_detail)
+                .grantPermissions("account1@" + defaultDomain,
+                [
+                        Primitive.GrantablePermission.can_remove_my_signatory,
+                        Primitive.GrantablePermission.can_add_my_signatory
+                ])
                 .setAccountDetail(defaultAccountId, "key", "value")
                 .createAsset("usd", defaultDomain, 2)
                 .addAssetQuantity("usd#" + defaultDomain, BigDecimal.TEN)
-                .build()
-                .sign(defaultKeypair) as Transaction
-
-        byte[] hash = tx.hash()
-
-        when:
-        stub.torii(tx.build())
-        waitForCommit()
-
-        def request = Endpoint.TxStatusRequest.newBuilder()
-                .setTxHash(ByteString.copyFrom(hash))
+                .transferAsset(defaultAccountId, "account1@domain", "usd#test", "", new BigDecimal(5))
+                .sign(defaultKeypair)
                 .build()
 
-        def response = stub.status(request)
+        def t2 = new TestObserver<Endpoint.ToriiResponse>()
+        api.transaction(tx)
+                .blockingSubscribe(t2)
 
-        then: "stateful validation is passed and tx is committed"
-        response.txStatus == Endpoint.TxStatus.COMMITTED
+        then: "status stream works as expected"
+        t2.assertSubscribed()
+        t2.assertComplete()
+        t2.assertNoErrors()
+        t2.assertNoTimeout()
+        t1.assertValueCount(1)
+        noExceptionThrown()
 
+        when: "query account"
+        def q = Query.builder(defaultAccountId, 1L)
+                .getAccount(defaultAccountId)
+                .buildSigned(defaultKeypair)
+        def res = api.query(q).getAccountResponse()
 
-    }
-
-    def waitForCommit() {
-        sleep(100 + iroha.conf.irohaConfig.proposal_delay, {
-            println("waitForCommit: interrupted")
-        })
+        then:
+        res.getAccount().accountId == defaultAccountId
     }
 }

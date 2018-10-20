@@ -24,8 +24,6 @@ import java.security.PublicKey;
 import java.time.Instant;
 import jp.co.soramitsu.crypto.ed25519.Ed25519Sha3.CryptoException;
 import jp.co.soramitsu.iroha.java.detail.BuildableAndSignable;
-import jp.co.soramitsu.iroha.java.detail.mapping.PubkeyMapper;
-import jp.co.soramitsu.iroha.java.detail.mapping.TimestampMapper;
 
 public class TransactionBuilder {
 
@@ -72,7 +70,7 @@ public class TransactionBuilder {
       this.validator.checkTimestamp(time);
     }
 
-    tx.reducedPayload.setCreatedTime(TimestampMapper.toProtobufValue(time));
+    tx.reducedPayload.setCreatedTime(time.toEpochMilli());
     return this;
   }
 
@@ -88,12 +86,12 @@ public class TransactionBuilder {
   public TransactionBuilder createAccount(
       String accountName,
       String domainid,
-      PublicKey publicKey
+      byte[] publicKey
   ) {
     if (nonNull(this.validator)) {
       this.validator.checkAccount(accountName);
       this.validator.checkDomain(domainid);
-      this.validator.checkPublicKey(publicKey.getEncoded());
+      this.validator.checkPublicKey(publicKey);
     }
 
     tx.reducedPayload.addCommands(
@@ -102,13 +100,23 @@ public class TransactionBuilder {
                 CreateAccount.newBuilder()
                     .setAccountName(accountName)
                     .setDomainId(domainid)
-                    .setMainPubkey(
-                        PubkeyMapper.toProtobufValue(publicKey)
-                    ).build()
+                    .setMainPubkey(ByteString.copyFrom(publicKey)).build()
             ).build()
     );
 
     return this;
+  }
+
+  public TransactionBuilder createAccount(
+      String accountName,
+      String domainid,
+      PublicKey publicKey
+  ) {
+    return createAccount(
+        accountName,
+        domainid,
+        publicKey.getEncoded()
+    );
   }
 
   public TransactionBuilder transferAsset(
@@ -116,7 +124,7 @@ public class TransactionBuilder {
       String destinationAccount,
       String assetId,
       String description,
-      BigDecimal amount
+      String amount
   ) {
     if (nonNull(this.validator)) {
       this.validator.checkAccountId(sourceAccount);
@@ -132,12 +140,28 @@ public class TransactionBuilder {
                     .setDestAccountId(destinationAccount)
                     .setAssetId(assetId)
                     .setDescription(description)
-                    .setAmount(amount.toPlainString())
+                    .setAmount(amount)
                     .build()
             ).build()
     );
 
     return this;
+  }
+
+  public TransactionBuilder transferAsset(
+      String sourceAccount,
+      String destinationAccount,
+      String assetId,
+      String description,
+      BigDecimal amount
+  ) {
+    return transferAsset(
+        sourceAccount,
+        destinationAccount,
+        assetId,
+        description,
+        amount.toPlainString()
+    );
   }
 
   public TransactionBuilder setAccountDetail(
@@ -319,8 +343,8 @@ public class TransactionBuilder {
   public TransactionBuilder addAssetQuantity(
       String assetId,
       BigDecimal amount
-  ){
-    if(nonNull(this.validator)){
+  ) {
+    if (nonNull(this.validator)) {
       this.validator.checkAssetId(assetId);
       this.validator.checkAmount(amount);
     }
@@ -345,6 +369,7 @@ public class TransactionBuilder {
   }
 
   public Transaction build() {
+    tx.updatePayload();
     return tx;
   }
 }
