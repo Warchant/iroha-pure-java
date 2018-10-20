@@ -3,10 +3,12 @@ package jp.co.soramitsu.iroha.java;
 import static java.util.Objects.nonNull;
 
 import com.google.protobuf.ByteString;
+import iroha.protocol.Commands.AddAssetQuantity;
 import iroha.protocol.Commands.AddPeer;
 import iroha.protocol.Commands.AppendRole;
 import iroha.protocol.Commands.Command;
 import iroha.protocol.Commands.CreateAccount;
+import iroha.protocol.Commands.CreateAsset;
 import iroha.protocol.Commands.CreateDomain;
 import iroha.protocol.Commands.CreateRole;
 import iroha.protocol.Commands.GrantPermission;
@@ -31,10 +33,10 @@ public class TransactionBuilder {
   private Transaction tx = new Transaction();
 
   /**
-   * Both fields are required, therefore we can not create builder without them.
+   * Both fields are required, therefore we can not create builder without them. However, in genesis
+   * block they can be null.
    */
   public TransactionBuilder(String accountId, Instant time) {
-    // passing null throws but we sometimes want to pass null to set no-value, example - genesis block
     if (nonNull(accountId)) {
       setCreatorAccountId(accountId);
     }
@@ -90,7 +92,8 @@ public class TransactionBuilder {
   ) {
     if (nonNull(this.validator)) {
       this.validator.checkAccount(accountName);
-      this.validator.checkDomainId(domainid);
+      this.validator.checkDomain(domainid);
+      this.validator.checkPublicKey(publicKey.getEncoded());
     }
 
     tx.reducedPayload.addCommands(
@@ -187,6 +190,13 @@ public class TransactionBuilder {
     return this;
   }
 
+  public TransactionBuilder addPeer(
+      String address,
+      PublicKey peerKey
+  ) {
+    return addPeer(address, peerKey.getEncoded());
+  }
+
   public TransactionBuilder grantPermission(
       String accountId,
       GrantablePermission permission
@@ -205,6 +215,14 @@ public class TransactionBuilder {
             ).build()
     );
 
+    return this;
+  }
+
+  public TransactionBuilder grantPermissions(
+      String accountId,
+      Iterable<GrantablePermission> permissions
+  ) {
+    permissions.forEach(p -> this.grantPermission(accountId, p));
     return this;
   }
 
@@ -231,7 +249,8 @@ public class TransactionBuilder {
   ) {
 
     if (nonNull(this.validator)) {
-      this.validator.checkDomainId(domainId);
+      this.validator.checkDomain(domainId);
+      this.validator.checkRoleName(defaultRole);
     }
 
     tx.reducedPayload.addCommands(
@@ -254,6 +273,7 @@ public class TransactionBuilder {
   ) {
     if (nonNull(this.validator)) {
       this.validator.checkAccountId(accountId);
+      this.validator.checkRoleName(roleName);
     }
 
     tx.reducedPayload.addCommands(
@@ -262,6 +282,55 @@ public class TransactionBuilder {
                 AppendRole.newBuilder()
                     .setAccountId(accountId)
                     .setRoleName(roleName)
+                    .build()
+            )
+            .build()
+    );
+
+    return this;
+  }
+
+  public TransactionBuilder createAsset(
+      String assetName,
+      String domain,
+      Integer precision
+  ) {
+    if (nonNull(this.validator)) {
+      this.validator.checkAssetName(assetName);
+      this.validator.checkDomain(domain);
+      this.validator.checkPrecision(precision);
+    }
+
+    tx.reducedPayload.addCommands(
+        Command.newBuilder()
+            .setCreateAsset(
+                CreateAsset.newBuilder()
+                    .setAssetName(assetName)
+                    .setDomainId(domain)
+                    .setPrecision(precision)
+                    .build()
+            )
+            .build()
+    );
+
+    return this;
+  }
+
+  public TransactionBuilder addAssetQuantity(
+      String assetId,
+      BigDecimal amount
+  ){
+    if(nonNull(this.validator)){
+      this.validator.checkAssetId(assetId);
+      this.validator.checkAmount(amount);
+    }
+
+    tx.reducedPayload.addCommands(
+        Command.newBuilder()
+            .setAddAssetQuantity(
+                AddAssetQuantity.newBuilder()
+                    .setAssetId(assetId)
+                    .setAmount(amount.toPlainString())
                     .build()
             )
             .build()
