@@ -19,8 +19,13 @@ import iroha.protocol.QueryServiceGrpc.QueryServiceStub;
 import iroha.protocol.TransactionOuterClass;
 import java.net.URI;
 import jp.co.soramitsu.iroha.java.detail.StreamObserverToSubject;
+import lombok.Getter;
+import lombok.SneakyThrows;
 
 public class IrohaAPI {
+
+  @Getter
+  private URI uri;
 
   private CommandServiceBlockingStub cmdStub;
   private CommandServiceStub cmdStreamingStub;
@@ -31,12 +36,15 @@ public class IrohaAPI {
     this(uri.getHost(), uri.getPort());
   }
 
+  @SneakyThrows
   public IrohaAPI(String host, int port) {
     ManagedChannel channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext().build();
     cmdStub = CommandServiceGrpc.newBlockingStub(channel);
     queryStub = QueryServiceGrpc.newBlockingStub(channel);
     cmdStreamingStub = CommandServiceGrpc.newStub(channel);
     queryStreamingStub = QueryServiceGrpc.newStub(channel);
+
+    this.uri = new URI("grpc", null, host, port, null, null, null);
   }
 
 

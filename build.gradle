@@ -49,17 +49,22 @@ final def spockVersion = '1.2-groovy-2.4'
 final def edVersion = '2.0.1'
 final def spockGenesisVersion = '0.6.0'
 final def lombokVersion = '1.18.2'
-final def testcontainersIroha = '0.1.0'
+final def testcontainersIroha = '0.1.1'
 final def rxjavaVersion = '2.2.2'
 
 dependencies {
-    testCompile("com.nagternal:spock-genesis:${spockGenesisVersion}")
-    testCompile("org.spockframework:spock-core:${spockVersion}")
+    compile "io.reactivex.rxjava2:rxjava:${rxjavaVersion}"
     compile("com.github.warchant:ed25519-sha3-java:${edVersion}")
+
     compileOnly("org.projectlombok:lombok:$lombokVersion")
     testCompileOnly("org.projectlombok:lombok:$lombokVersion")
-    testCompile "com.github.Warchant:testcontainers-iroha:${testcontainersIroha}"
-    implementation "io.reactivex.rxjava2:rxjava:${rxjavaVersion}"
+
+    testCompile "com.nagternal:spock-genesis:${spockGenesisVersion}"
+    testCompile "org.spockframework:spock-core:${spockVersion}"
+    testCompile("com.github.Warchant:testcontainers-iroha:${testcontainersIroha}") {
+        transitive = false
+    }
+
 }
 
 apply from: 'proto.gradle'
