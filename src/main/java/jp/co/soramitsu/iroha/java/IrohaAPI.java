@@ -17,12 +17,13 @@ import iroha.protocol.QueryServiceGrpc;
 import iroha.protocol.QueryServiceGrpc.QueryServiceBlockingStub;
 import iroha.protocol.QueryServiceGrpc.QueryServiceStub;
 import iroha.protocol.TransactionOuterClass;
+import java.io.Closeable;
 import java.net.URI;
 import jp.co.soramitsu.iroha.java.detail.StreamObserverToSubject;
 import lombok.Getter;
 import lombok.SneakyThrows;
 
-public class IrohaAPI {
+public class IrohaAPI implements AutoCloseable, Closeable {
 
   @Getter
   private URI uri;
@@ -73,11 +74,19 @@ public class IrohaAPI {
     return subject;
   }
 
-  @Override
-  public void finalize() {
+  public void terminate() {
     if (!channel.isTerminated()) {
       channel.shutdownNow();
     }
   }
 
+  @Override
+  public void finalize() {
+    terminate();
+  }
+
+  @Override
+  public void close() {
+    terminate();
+  }
 }
