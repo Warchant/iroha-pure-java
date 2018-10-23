@@ -27,6 +27,7 @@ public class IrohaAPI {
   @Getter
   private URI uri;
 
+  private ManagedChannel channel;
   private CommandServiceBlockingStub cmdStub;
   private CommandServiceStub cmdStreamingStub;
   private QueryServiceBlockingStub queryStub;
@@ -38,7 +39,7 @@ public class IrohaAPI {
 
   @SneakyThrows
   public IrohaAPI(String host, int port) {
-    ManagedChannel channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext().build();
+    channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext().build();
     cmdStub = CommandServiceGrpc.newBlockingStub(channel);
     queryStub = QueryServiceGrpc.newBlockingStub(channel);
     cmdStreamingStub = CommandServiceGrpc.newStub(channel);
@@ -70,6 +71,13 @@ public class IrohaAPI {
     PublishSubject<BlockQueryResponse> subject = PublishSubject.create();
     queryStreamingStub.fetchCommits(query, new StreamObserverToSubject<>(subject));
     return subject;
+  }
+
+  @Override
+  public void finalize() {
+    if (!channel.isTerminated()) {
+      channel.shutdownNow();
+    }
   }
 
 }

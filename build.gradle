@@ -3,7 +3,7 @@ plugins {
     id 'idea'
     id 'jacoco'
     id 'groovy'
-    id "com.google.protobuf" version "0.8.5"
+    id "com.google.protobuf" version "0.8.6"
     id "org.sonarqube" version "2.6"
 }
 
@@ -61,10 +61,8 @@ dependencies {
 
     testCompile "com.nagternal:spock-genesis:${spockGenesisVersion}"
     testCompile "org.spockframework:spock-core:${spockVersion}"
-    testCompile("com.github.Warchant:testcontainers-iroha:${testcontainersIroha}") {
-        transitive = false
-    }
 
+    testCompile group: 'com.github.Warchant', name: 'testcontainers-iroha', version: testcontainersIroha
 }
 
 apply from: 'proto.gradle'
