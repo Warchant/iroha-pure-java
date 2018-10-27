@@ -4,6 +4,7 @@ import static java.util.Objects.nonNull;
 
 import iroha.protocol.Queries.QueryPayloadMeta;
 import java.time.Instant;
+import java.util.Date;
 
 public class BlocksQueryBuilder {
 
@@ -15,10 +16,22 @@ public class BlocksQueryBuilder {
     return new BlocksQuery(meta);
   }
 
-  public BlocksQueryBuilder(String accountId, Instant time, long counter) {
+  private void init(String accountId, Long time, long counter) {
     setCreatorAccountId(accountId);
     setCreatedTime(time);
     setCounter(counter);
+  }
+
+  public BlocksQueryBuilder(String accountId, Instant time, long counter) {
+    init(accountId, time.toEpochMilli(), counter);
+  }
+
+  public BlocksQueryBuilder(String accountId, Date time, long counter) {
+    init(accountId, time.getTime(), counter);
+  }
+
+  public BlocksQueryBuilder(String accountId, Long time, long counter) {
+    init(accountId, time, counter);
   }
 
   public BlocksQueryBuilder enableValidation() {
@@ -40,13 +53,21 @@ public class BlocksQueryBuilder {
     return this;
   }
 
-  public BlocksQueryBuilder setCreatedTime(Instant time) {
+  public BlocksQueryBuilder setCreatedTime(Long time) {
     if (nonNull(this.validator)) {
       this.validator.checkTimestamp(time);
     }
 
-    meta.setCreatedTime(time.toEpochMilli());
+    meta.setCreatedTime(time);
     return this;
+  }
+
+  public BlocksQueryBuilder setCreatedTime(Instant time) {
+    return setCreatedTime(time.toEpochMilli());
+  }
+
+  public BlocksQueryBuilder setCreatedTime(Date time) {
+    return setCreatedTime(time.getTime());
   }
 
   public BlocksQueryBuilder setCounter(long counter) {
@@ -55,7 +76,6 @@ public class BlocksQueryBuilder {
   }
 
   public BlocksQuery getQuery() {
-    System.out.println(meta);
     return newQuery();
   }
 }

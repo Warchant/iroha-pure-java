@@ -5,6 +5,7 @@ import iroha.protocol.TransactionOuterClass.Transaction.Payload;
 import iroha.protocol.TransactionOuterClass.Transaction.Payload.ReducedPayload;
 import java.security.KeyPair;
 import java.time.Instant;
+import java.util.Date;
 import jp.co.soramitsu.iroha.java.detail.BuildableAndSignable;
 import jp.co.soramitsu.iroha.java.detail.Hashable;
 
@@ -42,6 +43,14 @@ public class Transaction
   public TransactionOuterClass.Transaction build() {
     updatePayload();
     return tx.build();
+  }
+
+  public static TransactionBuilder builder(String accountId, Long date) {
+    return new TransactionBuilder(accountId, date);
+  }
+
+  public static TransactionBuilder builder(String accountId, Date date) {
+    return new TransactionBuilder(accountId, date);
   }
 
   public static TransactionBuilder builder(String accountId, Instant time) {

@@ -9,6 +9,7 @@ import iroha.protocol.Queries.GetAccountDetail;
 import iroha.protocol.Queries.GetSignatories;
 import iroha.protocol.Queries.QueryPayloadMeta;
 import java.time.Instant;
+import java.util.Date;
 
 public class QueryBuilder {
 
@@ -20,10 +21,22 @@ public class QueryBuilder {
     return new Query(meta);
   }
 
-  public QueryBuilder(String accountId, Instant time, long counter) {
+  private void init(String accountId, Long time, long counter) {
     setCreatorAccountId(accountId);
     setCreatedTime(time);
     setCounter(counter);
+  }
+
+  public QueryBuilder(String accountId, Instant time, long counter) {
+    init(accountId, time.toEpochMilli(), counter);
+  }
+
+  public QueryBuilder(String accountId, Date time, long counter) {
+    init(accountId, time.getTime(), counter);
+  }
+
+  public QueryBuilder(String accountId, Long time, long counter) {
+    init(accountId, time, counter);
   }
 
   public QueryBuilder enableValidation() {
@@ -45,13 +58,21 @@ public class QueryBuilder {
     return this;
   }
 
-  public QueryBuilder setCreatedTime(Instant time) {
+  public QueryBuilder setCreatedTime(Long time) {
     if (nonNull(this.validator)) {
       this.validator.checkTimestamp(time);
     }
 
-    meta.setCreatedTime(time.toEpochMilli());
+    meta.setCreatedTime(time);
     return this;
+  }
+
+  public QueryBuilder setCreatedTime(Date time) {
+    return setCreatedTime(time.getTime());
+  }
+
+  public QueryBuilder setCreatedTime(Instant time) {
+    return setCreatedTime(time.toEpochMilli());
   }
 
   public QueryBuilder setCounter(long counter) {

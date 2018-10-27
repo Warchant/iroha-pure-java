@@ -5,6 +5,7 @@ import iroha.protocol.Queries.Query.Payload;
 import iroha.protocol.Queries.QueryPayloadMeta;
 import java.security.KeyPair;
 import java.time.Instant;
+import java.util.Date;
 import jp.co.soramitsu.crypto.ed25519.Ed25519Sha3.CryptoException;
 import jp.co.soramitsu.iroha.java.detail.Hashable;
 
@@ -34,6 +35,14 @@ public class Query
   public Queries.Query buildUnsigned() {
     updatePayload();
     return q.build();
+  }
+
+  public static QueryBuilder builder(String accountId, Long time, long counter) {
+    return new QueryBuilder(accountId, time, counter);
+  }
+
+  public static QueryBuilder builder(String accountId, Date time, long counter) {
+    return new QueryBuilder(accountId, time, counter);
   }
 
   public static QueryBuilder builder(String accountId, Instant time, long counter) {

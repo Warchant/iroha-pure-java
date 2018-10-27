@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.NonNull;
@@ -90,6 +91,14 @@ public class FieldValidator {
   }
 
   public void checkPrecision(Integer precision) {
+    // TODO
+  }
+
+  public void checkTimestamp(Date time) {
+    // TODO
+  }
+
+  public void checkTimestamp(Long time) {
     // TODO
   }
 }

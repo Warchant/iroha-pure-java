@@ -22,6 +22,7 @@ import java.math.BigDecimal;
 import java.security.KeyPair;
 import java.security.PublicKey;
 import java.time.Instant;
+import java.util.Date;
 import jp.co.soramitsu.crypto.ed25519.Ed25519Sha3.CryptoException;
 import jp.co.soramitsu.iroha.java.detail.BuildableAndSignable;
 
@@ -30,11 +31,7 @@ public class TransactionBuilder {
   private FieldValidator validator;
   private Transaction tx = new Transaction();
 
-  /**
-   * Both fields are required, therefore we can not create builder without them. However, in genesis
-   * block they can be null.
-   */
-  public TransactionBuilder(String accountId, Instant time) {
+  private void init(String accountId, Long time) {
     if (nonNull(accountId)) {
       setCreatorAccountId(accountId);
     }
@@ -43,7 +40,23 @@ public class TransactionBuilder {
       setCreatedTime(time);
     }
 
-    setQuorum(1 /* default value for quorum */);
+    setQuorum(1 /* default value */);
+  }
+
+  /**
+   * Both fields are required, therefore we can not create builder without them. However, in genesis
+   * block they can be null.
+   */
+  public TransactionBuilder(String accountId, Instant time) {
+    init(accountId, time.toEpochMilli());
+  }
+
+  public TransactionBuilder(String accountId, Date time) {
+    init(accountId, time.getTime());
+  }
+
+  public TransactionBuilder(String accountId, Long time) {
+    init(accountId, time);
   }
 
   public TransactionBuilder enableValidation() {
@@ -65,13 +78,21 @@ public class TransactionBuilder {
     return this;
   }
 
-  public TransactionBuilder setCreatedTime(Instant time) {
+  public TransactionBuilder setCreatedTime(Long time) {
     if (nonNull(this.validator)) {
       this.validator.checkTimestamp(time);
     }
 
-    tx.reducedPayload.setCreatedTime(time.toEpochMilli());
+    tx.reducedPayload.setCreatedTime(time);
     return this;
+  }
+
+  public TransactionBuilder setCreatedTime(Date time) {
+    return setCreatedTime(time.getTime());
+  }
+
+  public TransactionBuilder setCreatedTime(Instant time) {
+    return setCreatedTime(time.toEpochMilli());
   }
 
   public TransactionBuilder setQuorum(int quorum) {
