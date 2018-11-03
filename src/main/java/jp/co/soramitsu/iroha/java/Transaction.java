@@ -54,6 +54,6 @@ public class Transaction
   }
 
   public static TransactionBuilder builder(String accountId) {
-    return builder(accountId, Instant.now());
+    return builder(accountId, System.currentTimeMillis());
   }
 }

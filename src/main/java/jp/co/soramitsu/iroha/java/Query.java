@@ -50,6 +50,6 @@ public class Query
   }
 
   public static QueryBuilder builder(String accountId, long counter) {
-    return new QueryBuilder(accountId, Instant.now(), counter);
+    return new QueryBuilder(accountId, System.currentTimeMillis(), counter);
   }
 }
