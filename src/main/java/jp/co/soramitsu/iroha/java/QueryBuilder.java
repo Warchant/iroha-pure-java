@@ -1,7 +1,5 @@
 package jp.co.soramitsu.iroha.java;
 
-import static java.util.Objects.nonNull;
-
 import iroha.protocol.Queries.GetAccount;
 import iroha.protocol.Queries.GetAccountAssetTransactions;
 import iroha.protocol.Queries.GetAccountAssets;
@@ -50,7 +48,7 @@ public class QueryBuilder {
   }
 
   public QueryBuilder setCreatorAccountId(String accountId) {
-    if (nonNull(this.validator)) {
+    if (this.validator != null) {
       this.validator.checkAccountId(accountId);
     }
 
@@ -59,7 +57,7 @@ public class QueryBuilder {
   }
 
   public QueryBuilder setCreatedTime(Long time) {
-    if (nonNull(this.validator)) {
+    if (this.validator != null) {
       this.validator.checkTimestamp(time);
     }
 
@@ -84,7 +82,7 @@ public class QueryBuilder {
       String accountId,
       String assetId
   ) {
-    if (nonNull(this.validator)) {
+    if (this.validator != null) {
       this.validator.checkAccountId(accountId);
       this.validator.checkAssetId(assetId);
     }
@@ -104,7 +102,7 @@ public class QueryBuilder {
   public Query getAccount(
       String accountId
   ) {
-    if (nonNull(this.validator)) {
+    if (this.validator != null) {
       this.validator.checkAccountId(accountId);
     }
 
@@ -122,7 +120,7 @@ public class QueryBuilder {
   public Query getSignatories(
       String accountId
   ) {
-    if (nonNull(this.validator)) {
+    if (this.validator != null) {
       this.validator.checkAccountId(accountId);
     }
 
@@ -140,7 +138,7 @@ public class QueryBuilder {
   public Query getAccountAssets(
       String accountId
   ) {
-    if (nonNull(this.validator)) {
+    if (this.validator != null) {
       this.validator.checkAccountId(accountId);
     }
 

@@ -1,7 +1,5 @@
 package jp.co.soramitsu.iroha.java;
 
-import static java.util.Objects.nonNull;
-
 import iroha.protocol.Queries.QueryPayloadMeta;
 import java.time.Instant;
 import java.util.Date;
@@ -45,7 +43,7 @@ public class BlocksQueryBuilder {
   }
 
   public BlocksQueryBuilder setCreatorAccountId(String accountId) {
-    if (nonNull(this.validator)) {
+    if (this.validator != null) {
       this.validator.checkAccountId(accountId);
     }
 
@@ -54,7 +52,7 @@ public class BlocksQueryBuilder {
   }
 
   public BlocksQueryBuilder setCreatedTime(Long time) {
-    if (nonNull(this.validator)) {
+    if (this.validator != null) {
       this.validator.checkTimestamp(time);
     }
 

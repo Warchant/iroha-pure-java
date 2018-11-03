@@ -1,7 +1,5 @@
 package jp.co.soramitsu.iroha.java;
 
-import static java.util.Objects.nonNull;
-
 import com.google.protobuf.ByteString;
 import iroha.protocol.BlockOuterClass;
 import iroha.protocol.Commands.AddAssetQuantity;
@@ -33,11 +31,11 @@ public class TransactionBuilder {
   private Transaction tx = new Transaction();
 
   private void init(String accountId, Long time) {
-    if (nonNull(accountId)) {
+    if (accountId != null) {
       setCreatorAccountId(accountId);
     }
 
-    if (nonNull(time)) {
+    if (time != null) {
       setCreatedTime(time);
     }
 
@@ -71,16 +69,16 @@ public class TransactionBuilder {
   }
 
   public TransactionBuilder setCreatorAccountId(String accountId) {
-    if (nonNull(this.validator)) {
+    if (this.validator != null) {
       this.validator.checkAccountId(accountId);
     }
-    
+
     tx.getProto().setCreatorAccountId(accountId);
     return this;
   }
 
   public TransactionBuilder setCreatedTime(Long time) {
-    if (nonNull(this.validator)) {
+    if (this.validator != null) {
       this.validator.checkTimestamp(time);
     }
 
@@ -97,7 +95,7 @@ public class TransactionBuilder {
   }
 
   public TransactionBuilder setQuorum(int quorum) {
-    if (nonNull(this.validator)) {
+    if (this.validator != null) {
       this.validator.checkQuorum(quorum);
     }
 
@@ -110,7 +108,7 @@ public class TransactionBuilder {
       String domainid,
       byte[] publicKey
   ) {
-    if (nonNull(this.validator)) {
+    if (this.validator != null) {
       this.validator.checkAccount(accountName);
       this.validator.checkDomain(domainid);
       this.validator.checkPublicKey(publicKey);
@@ -148,7 +146,7 @@ public class TransactionBuilder {
       String description,
       String amount
   ) {
-    if (nonNull(this.validator)) {
+    if (this.validator != null) {
       this.validator.checkAccountId(sourceAccount);
       this.validator.checkAccountId(destinationAccount);
       this.validator.checkAssetId(assetId);
@@ -191,7 +189,7 @@ public class TransactionBuilder {
       String key,
       String value
   ) {
-    if (nonNull(this.validator)) {
+    if (this.validator != null) {
       this.validator.checkAccountId(accountId);
       this.validator.checkAccountDetailsKey(key);
       this.validator.checkAccountDetailsValue(value);
@@ -216,7 +214,7 @@ public class TransactionBuilder {
       String address,
       byte[] peerKey
   ) {
-    if (nonNull(this.validator)) {
+    if (this.validator != null) {
       this.validator.checkPeerAddress(address);
       this.validator.checkPublicKey(peerKey);
     }
@@ -247,7 +245,7 @@ public class TransactionBuilder {
       String accountId,
       GrantablePermission permission
   ) {
-    if (nonNull(this.validator)) {
+    if (this.validator != null) {
       this.validator.checkAccountId(accountId);
     }
 
@@ -294,7 +292,7 @@ public class TransactionBuilder {
       String defaultRole
   ) {
 
-    if (nonNull(this.validator)) {
+    if (this.validator != null) {
       this.validator.checkDomain(domainId);
       this.validator.checkRoleName(defaultRole);
     }
@@ -317,7 +315,7 @@ public class TransactionBuilder {
       String accountId,
       String roleName
   ) {
-    if (nonNull(this.validator)) {
+    if (this.validator != null) {
       this.validator.checkAccountId(accountId);
       this.validator.checkRoleName(roleName);
     }
@@ -341,7 +339,7 @@ public class TransactionBuilder {
       String domain,
       Integer precision
   ) {
-    if (nonNull(this.validator)) {
+    if (this.validator != null) {
       this.validator.checkAssetName(assetName);
       this.validator.checkDomain(domain);
       this.validator.checkPrecision(precision);
@@ -366,7 +364,7 @@ public class TransactionBuilder {
       String assetId,
       BigDecimal amount
   ) {
-    if (nonNull(this.validator)) {
+    if (this.validator != null) {
       this.validator.checkAssetId(assetId);
       this.validator.checkAmount(amount);
     }
