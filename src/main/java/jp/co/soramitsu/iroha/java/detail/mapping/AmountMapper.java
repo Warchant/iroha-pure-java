@@ -27,4 +27,8 @@ public class AmountMapper {
         .setPrecision(precision)
         .build();
   }
+
+  public static Amount toProtobufValue(String instance) {
+    return toProtobufValue(new BigDecimal(instance));
+  }
 }

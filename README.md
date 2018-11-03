@@ -8,6 +8,10 @@
 
 Only java implementation of [Iroha](https://github.com/hyperledger/iroha) Client library.
 
+# compatibility with iroha
+
+Compatible with `iroha-v1.0.0_beta-3` only.
+
 # example
 
 Transaction:

@@ -1,25 +1,23 @@
 package jp.co.soramitsu.iroha.java;
 
-import com.google.protobuf.ByteString;
 import iroha.protocol.BlockOuterClass;
 import iroha.protocol.BlockOuterClass.Transaction.Payload;
-import iroha.protocol.Primitive.Signature;
 import java.security.KeyPair;
 import java.time.Instant;
-import jp.co.soramitsu.crypto.ed25519.Ed25519Sha3;
+import java.util.Date;
 import jp.co.soramitsu.crypto.ed25519.Ed25519Sha3.CryptoException;
 import jp.co.soramitsu.iroha.java.detail.BuildableAndSignable;
 import jp.co.soramitsu.iroha.java.detail.Hashable;
-import jp.co.soramitsu.iroha.java.detail.mapping.PubkeyMapper;
-
 
 public class Transaction
-    extends Hashable<BlockOuterClass.Transaction.Payload.Builder>
+    extends
+    Hashable<BlockOuterClass.Transaction.Payload.Builder>  // should be Payload.Builder
     implements BuildableAndSignable<BlockOuterClass.Transaction> {
 
-  private BlockOuterClass.Transaction.Builder tx = BlockOuterClass.Transaction.newBuilder();
+  private BlockOuterClass.Transaction.Builder tx = BlockOuterClass.Transaction
+      .newBuilder();
 
-  private void updatePayload() {
+  /* default */ void updatePayload() {
     tx.setPayload(getProto());
   }
 
@@ -30,33 +28,32 @@ public class Transaction
   @Override
   public BuildableAndSignable<BlockOuterClass.Transaction> sign(KeyPair keyPair)
       throws CryptoException {
-    Ed25519Sha3 ed = new Ed25519Sha3();  // throws
-
     updatePayload();
 
-    byte[] rawSignature = ed.rawSign(hash(), keyPair);  // throws
-
-    Signature sig = Signature.newBuilder()
-        .setSignature(
-            ByteString.copyFrom(rawSignature)
-        )
-        .setPubkey(
-            PubkeyMapper.toProtobufValue(keyPair.getPublic())
-        )
-        .build();
-
-    tx.addSignatures(sig);
+    tx.addSignatures(Utils.sign(this, keyPair));
 
     return this;
   }
 
-
   @Override
   public BlockOuterClass.Transaction build() {
+    updatePayload();
     return tx.build();
+  }
+
+  public static TransactionBuilder builder(String accountId, Long date) {
+    return new TransactionBuilder(accountId, date);
+  }
+
+  public static TransactionBuilder builder(String accountId, Date date) {
+    return new TransactionBuilder(accountId, date);
   }
 
   public static TransactionBuilder builder(String accountId, Instant time) {
     return new TransactionBuilder(accountId, time);
+  }
+
+  public static TransactionBuilder builder(String accountId) {
+    return builder(accountId, Instant.now());
   }
 }

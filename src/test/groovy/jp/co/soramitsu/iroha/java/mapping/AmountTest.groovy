@@ -66,4 +66,17 @@ class AmountTest extends Specification {
         where:
         domainStr << Gen.string(~/[1-9]\d+\.\d+/).take(10000)
     }
+
+    def "string to proto" (){
+        given:
+        def amount = "1.37"
+
+        when:
+        def proto = AmountMapper.toProtobufValue(amount)
+
+        println(proto)
+        then:
+        true
+
+    }
 }

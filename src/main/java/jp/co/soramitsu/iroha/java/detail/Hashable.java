@@ -1,8 +1,9 @@
 package jp.co.soramitsu.iroha.java.detail;
 
+import com.google.protobuf.GeneratedMessageV3.Builder;
 import org.spongycastle.jcajce.provider.digest.SHA3;
 
-public abstract class Hashable<T extends com.google.protobuf.GeneratedMessageV3.Builder<T>> {
+public abstract class Hashable<T extends Builder<T>> {
 
   private SHA3.Digest256 digest = new SHA3.Digest256();
 
