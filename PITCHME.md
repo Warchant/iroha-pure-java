@@ -218,15 +218,37 @@ val protoQuery = Query.builder("account@domain", time, counter)
 @[7](Or, build unsigned query (for testing purpose))
 
 ---
+@snap[north-west]
+**Quality Assurance**
+@snapend
+Library code is tested by sending transactions/queries directly to Iroha instance, using `testcontainers-iroha`.
 
-## Quality Assurance
++++
+@snap[north-west]
+**Quality Assurance**
+@snapend
+Static analyzers: sonarqube, codacy, LGTM
 
 +++
 
-- Library code is tested by sending transactions/queries directly to Iroha instance, using `testcontainers-iroha`.
-- Static analyzers: sonarqube, codacy, LGTM
-- License Compliance analysis with FOSSA
-- Code coverage is collected with codecov
+@snap[north-west]
+**Quality Assurance**
+@snapend
+
+License Compliance analysis with FOSSA
+
++++
+@snap[north-west]
+**Quality Assurance**
+@snapend
+
+Code coverage is collected with codecov
+
++++
+@snap[north-west]
+**API**
+@snapend
+
 - **Not all commands/queries from API are implemented**, but most of them. PRs are welcome!
 - **Not all validators are implemented**. PRs are welcome!
 
