@@ -3,7 +3,9 @@ Implementation of Iroha Client library
 
 ---
 
-## What?
+@snap[north-west]
+## Problem
+@snapend
 
 You want to be able to send transactions to iroha from Java client.
 
@@ -11,29 +13,51 @@ Iroha team provides Java bindings over Iroha C++ client library. Several problem
 
 +++
 
-JNI - you need to build C++ library for target architecture. To do so, you need to be able to build iroha (this is not fun).
+@snap[north-west]
+**Bindings**
+@snapend
+
+Use JNI - you need to build C++ library for target architecture. To do so, you need to be able to build iroha (this is not fun).
 
 +++
+
+@snap[north-west]
+**Bindings**
+@snapend
 
 Can not simply use maven to import lib, because of JNI.
 
 +++
 
-Bindings contain validation for all fields. This means that you can not create invalid transaction on client side.
+@snap[north-west]
+**Bindings**
+@snapend
+
+Contain validation for all fields. This means that you can not create invalid transaction on client side.
 
 This may be useful for testing purpose.
 
 +++
 
-Bindings have unstable API - API changes are enforced by iroha dev team.
+@snap[north-west]
+**Bindings**
+@snapend
+
+Have unstable proto API.
 
 +++
 
-Bindings are not versioned.
+@snap[north-west]
+**Bindings**
+@snapend
+
+Are not versioned.
 
 ---
 
-## Why?
+@snap[north-west]
+## Solution
+@snapend
 
 Iroha exposes public GRPC API. GRPC consumes protobuf objects.
 
@@ -64,7 +88,9 @@ Version policy is the folloving:
 
 - 1-1 mapping between iroha version and branch name
 - master contains latest code for latest iroha version
-- github releases policy will be changed after 1 stable release
+- github releases policy
+  - current: semver
+  - after stable iroha release - `iroha-{version}-{iroha-pure-java-version}`
 
 +++
 @snap[north-west]
@@ -221,7 +247,7 @@ val protoQuery = Query.builder("account@domain", time, counter)
 @snap[north-west]
 **Quality Assurance**
 @snapend
-Library code is tested by sending transactions/queries directly to Iroha instance, using `testcontainers-iroha`.
+Continuous integration and integration testing
 
 +++
 @snap[north-west]
@@ -246,11 +272,21 @@ Code coverage is collected with codecov
 
 +++
 @snap[north-west]
+**Quality Assurance**
+@snapend
+
+Peer code reviews
+
+---
+
+@snap[north-west]
 **API**
 @snapend
 
-- **Not all commands/queries from API are implemented**, but most of them. PRs are welcome!
-- **Not all validators are implemented**. PRs are welcome!
+- **Not all commands/queries from API are implemented**
+  But most of them. PRs are welcome!
+- **Not all validators are implemented**
+  PRs are welcome!
 
 ---
 
