@@ -3,6 +3,8 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/2d39dff34bac4bce86c628163415c962)](https://www.codacy.com/app/Warchant/iroha-pure-java?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Warchant/iroha-pure-java&amp;utm_campaign=Badge_Grade)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FWarchant%2Firoha-pure-java.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FWarchant%2Firoha-pure-java?ref=badge_shield)
 [![](https://jitpack.io/v/warchant/iroha-pure-java.svg)](https://jitpack.io/#warchant/iroha-pure-java)
+[![GitPitch](https://gitpitch.com/assets/badge.svg)](https://gitpitch.com/warchant/iroha-pure-java/master) 
+
 
 
 # iroha-pure-java
