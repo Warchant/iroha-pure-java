@@ -4,6 +4,7 @@ import io.reactivex.observers.TestObserver
 import iroha.protocol.Endpoint
 import iroha.protocol.Primitive
 import iroha.protocol.QryResponses
+import jp.co.soramitsu.crypto.ed25519.Ed25519Sha3
 import jp.co.soramitsu.iroha.testcontainers.IrohaContainer
 import jp.co.soramitsu.iroha.testcontainers.PeerConfig
 import jp.co.soramitsu.iroha.testcontainers.detail.GenesisBlockBuilder
@@ -34,7 +35,7 @@ class IntegrationTest extends Specification {
                             .createRole(
                             defaultRole,
                             // all permissions
-                            IntStream.range(0, 42)
+                            IntStream.range(0, 43)
                                     .boxed()
                                     .map(Primitive.RolePermission.&forNumber)
                                     .collect(Collectors.toList()) as Iterable)
@@ -59,7 +60,6 @@ class IntegrationTest extends Specification {
     def "big integration test"() {
         when: "subscribe on new blocks"
         def bq = BlocksQuery.builder(defaultAccountId, Instant.now(), 1L)
-                .getQuery()
                 .buildSigned(defaultKeypair)
 
         def t1 = new TestObserver<QryResponses.BlockQueryResponse>()
@@ -75,20 +75,29 @@ class IntegrationTest extends Specification {
         noExceptionThrown()
 
         when: "new valid transaction is sent"
+        def asset = "usd"
+        def account = "account1"
+        def domain = "domain"
+        def role = "role"
+        def kp = new Ed25519Sha3().generateKeypair()
         def tx = Transaction.builder(defaultAccountId, Instant.now())
-                .createRole("role", [Primitive.RolePermission.can_add_peer])
-                .createAccount("account1", defaultDomain, defaultKeypair.getPublic())
-                .createDomain("domain", defaultRole)
-                .grantPermission("account1@" + defaultDomain, Primitive.GrantablePermission.can_set_my_account_detail)
-                .grantPermissions("account1@" + defaultDomain,
-                [
-                        Primitive.GrantablePermission.can_remove_my_signatory,
-                        Primitive.GrantablePermission.can_add_my_signatory
-                ])
+                .createRole("${role}", [Primitive.RolePermission.can_add_peer])
+                .createAccount("${account}", defaultDomain, defaultKeypair.getPublic())
+                .createDomain("${domain}", defaultRole)
+                .createAccount("${account}@${domain}", defaultKeypair.getPublic())
+                .appendRole("${account}@${defaultDomain}", "${role}")
+                .detachRole("${account}@${defaultDomain}", "${role}")
+                .addSignatory("${account}@${defaultDomain}", kp.getPublic())
+                .removeSignatory("${account}@${defaultDomain}", kp.getPublic())
+                .grantPermission("${account}@${defaultDomain}", Primitive.GrantablePermission.can_set_my_account_detail)
+                .revokePermission("${account}@${defaultDomain}", Primitive.GrantablePermission.can_set_my_account_detail)
                 .setAccountDetail(defaultAccountId, "key", "value")
-                .createAsset("usd", defaultDomain, 2)
-                .addAssetQuantity("usd#" + defaultDomain, BigDecimal.TEN)
-                .transferAsset(defaultAccountId, "account1@domain", "usd#test", "", new BigDecimal(5))
+                .createAsset("${asset}", defaultDomain, 2)
+                .addAssetQuantity("${asset}#${defaultDomain}", BigDecimal.TEN)
+                .addAssetQuantity("${asset}#${defaultDomain}", "1")
+                .subtractAssetQuantity("${asset}#${defaultDomain}", "1")
+                .subtractAssetQuantity("${asset}#${defaultDomain}", BigDecimal.ONE)
+                .transferAsset(defaultAccountId, "${account}@${domain}", "${asset}#${defaultDomain}", "", new BigDecimal(5))
                 .sign(defaultKeypair)
                 .build()
 
@@ -101,7 +110,7 @@ class IntegrationTest extends Specification {
         t2.assertComplete()
         t2.assertNoErrors()
         t2.assertNoTimeout()
-        t1.assertValueCount(1)
+        t1.assertNoErrors()
         noExceptionThrown()
 
         when: "query account"

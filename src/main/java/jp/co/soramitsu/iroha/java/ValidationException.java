@@ -21,12 +21,14 @@ public class ValidationException extends IllegalArgumentException {
     ACCOUNT_NAME,
     ASSET_ID,
     ASSET_NAME,
+    DOMAIN,
     PUBKEY,
     PEER_ADDRESS,
     QUORUM,
     PRECISION,
     ROLE_NAME,
     DETAILS_KEY,
-    DETAILS_VALUE
+    DETAILS_VALUE,
+    TIMESTAMP
   }
 }

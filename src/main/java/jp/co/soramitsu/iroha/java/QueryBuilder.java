@@ -1,6 +1,6 @@
 package jp.co.soramitsu.iroha.java;
 
-import static jp.co.soramitsu.iroha.java.detail.Util.nonNull;
+import static jp.co.soramitsu.iroha.java.Utils.nonNull;
 
 import com.google.protobuf.ByteString;
 import iroha.protocol.Queries.GetAccount;

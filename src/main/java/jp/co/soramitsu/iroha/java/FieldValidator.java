@@ -7,14 +7,17 @@ import static jp.co.soramitsu.iroha.java.ValidationException.Type.ASSET_ID;
 import static jp.co.soramitsu.iroha.java.ValidationException.Type.ASSET_NAME;
 import static jp.co.soramitsu.iroha.java.ValidationException.Type.DETAILS_KEY;
 import static jp.co.soramitsu.iroha.java.ValidationException.Type.DETAILS_VALUE;
+import static jp.co.soramitsu.iroha.java.ValidationException.Type.DOMAIN;
 import static jp.co.soramitsu.iroha.java.ValidationException.Type.PEER_ADDRESS;
 import static jp.co.soramitsu.iroha.java.ValidationException.Type.PRECISION;
 import static jp.co.soramitsu.iroha.java.ValidationException.Type.PUBKEY;
 import static jp.co.soramitsu.iroha.java.ValidationException.Type.QUORUM;
 import static jp.co.soramitsu.iroha.java.ValidationException.Type.ROLE_NAME;
+import static jp.co.soramitsu.iroha.java.ValidationException.Type.TIMESTAMP;
 
 import java.math.BigDecimal;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.NonNull;
@@ -55,7 +58,11 @@ public class FieldValidator {
   }
 
   public void checkDomain(@NonNull String domain) {
-    // TODO
+    try {
+      URI uri = new URI(null, null, domain, 0, null, null, null);
+    } catch (URISyntaxException e) {
+      throw new ValidationException(DOMAIN, "Domain name is invalid: '%s'", domain);
+    }
   }
 
   private static final String accountDomainSplitToken = "@";
@@ -187,6 +194,8 @@ public class FieldValidator {
   }
 
   public void checkTimestamp(@NonNull Long time) {
-    // TODO
+    if (time < 0) {
+      throw new ValidationException(TIMESTAMP, "Time must be positive");
+    }
   }
 }

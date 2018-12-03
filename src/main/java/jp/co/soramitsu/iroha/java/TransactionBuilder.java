@@ -1,6 +1,6 @@
 package jp.co.soramitsu.iroha.java;
 
-import static jp.co.soramitsu.iroha.java.detail.Util.nonNull;
+import static jp.co.soramitsu.iroha.java.Utils.nonNull;
 
 import com.google.protobuf.ByteString;
 import iroha.protocol.Commands.AddAssetQuantity;
@@ -30,6 +30,7 @@ import java.time.Instant;
 import java.util.Date;
 import jp.co.soramitsu.crypto.ed25519.Ed25519Sha3.CryptoException;
 import jp.co.soramitsu.iroha.java.detail.BuildableAndSignable;
+import lombok.val;
 
 public class TransactionBuilder {
 
@@ -46,6 +47,8 @@ public class TransactionBuilder {
     }
 
     setQuorum(1 /* default value */);
+
+    this.validator = new FieldValidator();
   }
 
   /**
@@ -62,11 +65,6 @@ public class TransactionBuilder {
 
   public TransactionBuilder(String accountId, Long time) {
     init(accountId, time);
-  }
-
-  public TransactionBuilder enableValidation() {
-    this.validator = new FieldValidator();
-    return this;
   }
 
   public TransactionBuilder disableValidation() {
@@ -141,6 +139,23 @@ public class TransactionBuilder {
     return createAccount(
         accountName,
         domainid,
+        publicKey.getEncoded()
+    );
+  }
+
+  public TransactionBuilder createAccount(
+      String accountId,
+      PublicKey publicKey
+  ) {
+    if (nonNull(this.validator)) {
+      this.validator.checkAccountId(accountId);
+    }
+
+    val t = accountId.split("@");
+
+    return createAccount(
+        t[0],
+        t[1],
         publicKey.getEncoded()
     );
   }

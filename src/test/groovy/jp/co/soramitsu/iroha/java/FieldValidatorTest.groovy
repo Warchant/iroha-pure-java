@@ -90,6 +90,12 @@ class FieldValidatorTest extends Specification {
             case DETAILS_VALUE:
                 fv.checkAccountDetailsValue(string as String)
                 break
+            case TIMESTAMP:
+                fv.checkTimestamp(string as long)
+                break
+            case DOMAIN:
+                fv.checkDomain(string as String)
+                break
             default:
                 assert false
 
@@ -123,6 +129,9 @@ class FieldValidatorTest extends Specification {
         ROLE_NAME     | "" // empty role name
         DETAILS_KEY   | "" // empty key
         DETAILS_VALUE | "1" * 6000 // too big
+        TIMESTAMP     | -5 // can't be negative
+        DOMAIN        | "" // empty
+        DOMAIN        | "bogdan!com" // invalid domain
 
     }
 }
