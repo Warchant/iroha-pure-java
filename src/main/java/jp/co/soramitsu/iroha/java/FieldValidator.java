@@ -1,9 +1,12 @@
 package jp.co.soramitsu.iroha.java;
 
-import static jp.co.soramitsu.iroha.java.ValidationException.Type.ACCOUNT;
 import static jp.co.soramitsu.iroha.java.ValidationException.Type.ACCOUNT_ID;
+import static jp.co.soramitsu.iroha.java.ValidationException.Type.ACCOUNT_NAME;
 import static jp.co.soramitsu.iroha.java.ValidationException.Type.AMOUNT;
+import static jp.co.soramitsu.iroha.java.ValidationException.Type.ASSET_ID;
+import static jp.co.soramitsu.iroha.java.ValidationException.Type.ASSET_NAME;
 import static jp.co.soramitsu.iroha.java.ValidationException.Type.DETAILS_KEY;
+import static jp.co.soramitsu.iroha.java.ValidationException.Type.DETAILS_VALUE;
 import static jp.co.soramitsu.iroha.java.ValidationException.Type.PEER_ADDRESS;
 import static jp.co.soramitsu.iroha.java.ValidationException.Type.PRECISION;
 import static jp.co.soramitsu.iroha.java.ValidationException.Type.PUBKEY;
@@ -37,7 +40,7 @@ public class FieldValidator {
     val m = accountPattern.matcher(account);
     if (!m.matches()) {
       throw new ValidationException(
-          ACCOUNT,
+          ACCOUNT_NAME,
           "Invalid account. Expected %s, got %s",
           accountPattern.pattern(),
           account
@@ -83,7 +86,9 @@ public class FieldValidator {
   public void checkAssetId(@NonNull String assetId) {
     val t = assetId.split(assetDomainSplitToken);
     if (t.length != 2) {
-      throw new ValidationException(ACCOUNT_ID, "Valid format is asset#domain, got %s",
+      throw new ValidationException(
+          ASSET_ID,
+          "Valid format is asset#domain, got %s",
           assetId);
     }
 
@@ -92,7 +97,7 @@ public class FieldValidator {
       this.checkDomain(t[1]);
     } catch (ValidationException e) {
       throw new ValidationException(
-          ACCOUNT_ID,
+          ASSET_ID,
           "Valid format is account@domain, got %s. Details: %s.",
           assetId,
           e.getMessage()
@@ -106,7 +111,7 @@ public class FieldValidator {
     val m = accountDetailsKeyPattern.matcher(key);
     if (!m.matches()) {
       throw new ValidationException(
-          ACCOUNT,
+          DETAILS_KEY,
           "Invalid key. Expected %s, got %s",
           accountDetailsKeyPattern.pattern(),
           key
@@ -117,7 +122,7 @@ public class FieldValidator {
   public void checkAccountDetailsValue(@NonNull String value) {
     int len = 4096;
     if (!(value.length() <= len)) {
-      throw new ValidationException(DETAILS_KEY,
+      throw new ValidationException(DETAILS_VALUE,
           "Invalid details value, exceeded maximum length in %d. Got %d", len, value.length());
     }
   }
@@ -154,7 +159,7 @@ public class FieldValidator {
   public void checkAssetName(@NonNull String assetName) {
     val m = assetNamePattern.matcher(assetName);
     if (!m.matches()) {
-      throw new ValidationException(ACCOUNT,
+      throw new ValidationException(ASSET_NAME,
           "Invalid asset name. Expected %s, got %s",
           assetNamePattern.pattern(),
           assetName);
