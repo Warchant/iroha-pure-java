@@ -1,15 +1,24 @@
 package jp.co.soramitsu.iroha.java;
 
-import static java.util.Objects.nonNull;
+import static jp.co.soramitsu.iroha.java.detail.Util.nonNull;
 
+import com.google.protobuf.ByteString;
 import iroha.protocol.Queries.GetAccount;
 import iroha.protocol.Queries.GetAccountAssetTransactions;
 import iroha.protocol.Queries.GetAccountAssets;
 import iroha.protocol.Queries.GetAccountDetail;
+import iroha.protocol.Queries.GetAccountTransactions;
+import iroha.protocol.Queries.GetAssetInfo;
+import iroha.protocol.Queries.GetPendingTransactions;
+import iroha.protocol.Queries.GetRolePermissions;
+import iroha.protocol.Queries.GetRoles;
 import iroha.protocol.Queries.GetSignatories;
+import iroha.protocol.Queries.GetTransactions;
 import iroha.protocol.Queries.QueryPayloadMeta;
 import java.time.Instant;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class QueryBuilder {
 
@@ -159,12 +168,104 @@ public class QueryBuilder {
       String accountId,
       String key
   ) {
+    if (nonNull(this.validator)) {
+      this.validator.checkAccountId(accountId);
+      this.validator.checkAccountDetailsKey(key);
+    }
+
     Query query = newQuery();
 
     query.getProto().setGetAccountDetail(
         GetAccountDetail.newBuilder()
             .setAccountId(accountId)
             .setKey(key)
+            .build()
+    );
+
+    return query;
+  }
+
+  public Query getTransactions(List<byte[]> hashes) {
+    Query query = newQuery();
+
+    query.getProto().setGetTransactions(
+        GetTransactions.newBuilder()
+            .addAllTxHashes(
+                hashes
+                    .stream()
+                    .map(ByteString::copyFrom)
+                    .collect(Collectors.toList())
+            )
+            .build()
+    );
+
+    return query;
+  }
+
+  public Query getPendingTransactions() {
+    Query query = newQuery();
+
+    query.getProto().setGetPendingTransactions(
+        GetPendingTransactions.newBuilder()
+            .build()
+    );
+
+    return query;
+  }
+
+  public Query getAccountTransactions(String accountId) {
+    if (nonNull(this.validator)) {
+      this.validator.checkAccountId(accountId);
+    }
+
+    Query query = newQuery();
+
+    query.getProto().setGetAccountTransactions(
+        GetAccountTransactions.newBuilder()
+            .setAccountId(accountId)
+            .build()
+    );
+
+    return query;
+  }
+
+  public Query getAssetInfo(String assetId) {
+    if (nonNull(this.validator)) {
+      this.validator.checkAssetId(assetId);
+    }
+
+    Query query = newQuery();
+
+    query.getProto().setGetAssetInfo(
+        GetAssetInfo.newBuilder()
+            .setAssetId(assetId)
+            .build()
+    );
+
+    return query;
+  }
+
+  public Query getRoles() {
+    Query query = newQuery();
+
+    query.getProto().setGetRoles(
+        GetRoles.newBuilder()
+            .build()
+    );
+
+    return query;
+  }
+
+  public Query getRolePermissions(String roleId) {
+    if (nonNull(this.validator)) {
+      this.validator.checkRoleName(roleId);
+    }
+
+    Query query = newQuery();
+
+    query.getProto().setGetRolePermissions(
+        GetRolePermissions.newBuilder()
+            .setRoleId(roleId)
             .build()
     );
 
