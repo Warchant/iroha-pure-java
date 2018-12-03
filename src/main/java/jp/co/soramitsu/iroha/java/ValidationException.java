@@ -17,10 +17,10 @@ public class ValidationException extends IllegalArgumentException {
 
   public enum Type {
     AMOUNT,
+    ACCOUNT_ID,
     ACCOUNT_NAME,
     ASSET_ID,
     ASSET_NAME,
-    ACCOUNT_ID,
     PUBKEY,
     PEER_ADDRESS,
     QUORUM,

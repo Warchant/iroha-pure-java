@@ -15,7 +15,6 @@ import static jp.co.soramitsu.iroha.java.ValidationException.Type.ROLE_NAME;
 
 import java.math.BigDecimal;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.NonNull;
@@ -24,7 +23,14 @@ import lombok.val;
 public class FieldValidator {
 
   public void checkAmount(@NonNull String amount) {
-    BigDecimal am = new BigDecimal(amount);
+    BigDecimal am;
+
+    try {
+      am = new BigDecimal(amount);
+    } catch (Exception e) {
+      throw new ValidationException(AMOUNT, e.toString());
+    }
+
     if (am.signum() < 0) {
       throw new ValidationException(AMOUNT, "BigInteger must be positive");
     }
@@ -41,7 +47,7 @@ public class FieldValidator {
     if (!m.matches()) {
       throw new ValidationException(
           ACCOUNT_NAME,
-          "Invalid account. Expected %s, got %s",
+          "Invalid account. Expected '%s', got '%s'",
           accountPattern.pattern(),
           account
       );
@@ -57,7 +63,7 @@ public class FieldValidator {
   public void checkAccountId(@NonNull String accountId) {
     val t = accountId.split(accountDomainSplitToken);
     if (t.length != 2) {
-      throw new ValidationException(ACCOUNT_ID, "Valid format is account@domain, got %s",
+      throw new ValidationException(ACCOUNT_ID, "Valid format is account@domain, got '%s'",
           accountId);
     }
 
@@ -67,7 +73,7 @@ public class FieldValidator {
     } catch (ValidationException e) {
       throw new ValidationException(
           ACCOUNT_ID,
-          "Valid format is account@domain, got %s. Details: %s.",
+          "Valid format is account@domain, got '%s'. Details: '%s'.",
           accountId,
           e.getMessage()
       );
@@ -88,7 +94,7 @@ public class FieldValidator {
     if (t.length != 2) {
       throw new ValidationException(
           ASSET_ID,
-          "Valid format is asset#domain, got %s",
+          "Valid format is asset#domain, got '%s'",
           assetId);
     }
 
@@ -98,7 +104,7 @@ public class FieldValidator {
     } catch (ValidationException e) {
       throw new ValidationException(
           ASSET_ID,
-          "Valid format is account@domain, got %s. Details: %s.",
+          "Valid format is account@domain, got '%s'. Details: '%s'.",
           assetId,
           e.getMessage()
       );
@@ -112,7 +118,7 @@ public class FieldValidator {
     if (!m.matches()) {
       throw new ValidationException(
           DETAILS_KEY,
-          "Invalid key. Expected %s, got %s",
+          "Invalid key. Expected '%s', got '%s'",
           accountDetailsKeyPattern.pattern(),
           key
       );
@@ -123,22 +129,29 @@ public class FieldValidator {
     int len = 4096;
     if (!(value.length() <= len)) {
       throw new ValidationException(DETAILS_VALUE,
-          "Invalid details value, exceeded maximum length in %d. Got %d", len, value.length());
+          "Invalid details value, exceeded maximum length in '%d'. Got '%d'", len, value.length());
     }
   }
 
   public void checkPeerAddress(@NonNull String address) {
+    val m = String.format("Expected ip:port, got '%s'", address);
+    val t = address.split(":");
+    if (t.length != 2) {
+      throw new ValidationException(PEER_ADDRESS, m);
+    }
+
     try {
-      URI uri = new URI(address);
-    } catch (URISyntaxException e) {
-      throw new ValidationException(PEER_ADDRESS, "Invalid format in peer address. Got %s",
-          address);
+      String host = t[0];
+      int port = Integer.parseInt(t[1]);
+      URI uri = new URI(null, null, host, port, null, null, null);
+    } catch (Exception e) {
+      throw new ValidationException(PEER_ADDRESS, "%s. %s.", m, e.toString());
     }
   }
 
   public void checkPublicKey(@NonNull byte[] peerKey) {
     if (peerKey.length != 32) {
-      throw new ValidationException(PUBKEY, "Public key must be 32 bytes length, got %d",
+      throw new ValidationException(PUBKEY, "Public key must be 32 bytes length, got '%d'",
           peerKey.length);
     }
   }
@@ -150,7 +163,7 @@ public class FieldValidator {
     Matcher m = roleNamePattern.matcher(roleName);
     if (!m.find()) {
       throw new ValidationException(ROLE_NAME,
-          "Role name is invalid, should match: %s", roleNamePattern.pattern());
+          "Role name is invalid, should match: '%s'", roleNamePattern.pattern());
     }
   }
 
@@ -160,7 +173,7 @@ public class FieldValidator {
     val m = assetNamePattern.matcher(assetName);
     if (!m.matches()) {
       throw new ValidationException(ASSET_NAME,
-          "Invalid asset name. Expected %s, got %s",
+          "Invalid asset name. Expected '%s', got '%s'",
           assetNamePattern.pattern(),
           assetName);
     }
@@ -169,7 +182,7 @@ public class FieldValidator {
   public void checkPrecision(@NonNull Integer precision) {
     if (precision < 0 || precision > 255) {
       throw new ValidationException(PRECISION,
-          String.format("Invalid precision: %d. Should be 0<=precision<=255", precision));
+          String.format("Invalid precision: '%d'. Should be 0<=precision<=255", precision));
     }
   }
 
