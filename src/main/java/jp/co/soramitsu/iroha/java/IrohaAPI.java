@@ -22,11 +22,10 @@ import jp.co.soramitsu.iroha.java.detail.StreamObserverToSubject;
 import lombok.Getter;
 import lombok.SneakyThrows;
 
+@Getter
 public class IrohaAPI implements AutoCloseable, Closeable {
 
-  @Getter
   private URI uri;
-
   private ManagedChannel channel;
   private CommandServiceBlockingStub cmdStub;
   private CommandServiceStub cmdStreamingStub;
