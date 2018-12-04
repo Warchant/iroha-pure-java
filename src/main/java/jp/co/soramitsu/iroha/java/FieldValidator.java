@@ -111,7 +111,7 @@ public class FieldValidator {
     } catch (ValidationException e) {
       throw new ValidationException(
           ASSET_ID,
-          "Valid format is account@domain, got '%s'. Details: '%s'.",
+          "Valid format is asset#domain, got '%s'. Details: '%s'.",
           assetId,
           e.getMessage()
       );
