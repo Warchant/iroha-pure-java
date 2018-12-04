@@ -14,14 +14,19 @@ import static jp.co.soramitsu.iroha.java.ValidationException.Type.PUBKEY;
 import static jp.co.soramitsu.iroha.java.ValidationException.Type.QUORUM;
 import static jp.co.soramitsu.iroha.java.ValidationException.Type.ROLE_NAME;
 import static jp.co.soramitsu.iroha.java.ValidationException.Type.TIMESTAMP;
+import static jp.co.soramitsu.iroha.java.detail.Const.accountDetailsKeyPattern;
+import static jp.co.soramitsu.iroha.java.detail.Const.accountDetailsMaxLength;
 import static jp.co.soramitsu.iroha.java.detail.Const.accountIdDelimiter;
+import static jp.co.soramitsu.iroha.java.detail.Const.accountPattern;
+import static jp.co.soramitsu.iroha.java.detail.Const.assetIdDelimiter;
+import static jp.co.soramitsu.iroha.java.detail.Const.assetNamePattern;
 import static jp.co.soramitsu.iroha.java.detail.Const.hostPortDelimiter;
+import static jp.co.soramitsu.iroha.java.detail.Const.roleNamePattern;
 
 import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import lombok.NonNull;
 import lombok.val;
 
@@ -44,8 +49,6 @@ public class FieldValidator {
       throw new ValidationException(AMOUNT, "BigInteger does not fit into uint256");
     }
   }
-
-  private static final Pattern accountPattern = Pattern.compile("[a-z_0-9]{1,32}");
 
   public void checkAccount(@NonNull String account) {
     val m = accountPattern.matcher(account);
@@ -94,10 +97,9 @@ public class FieldValidator {
     }
   }
 
-  private static final String assetDomainSplitToken = "#";
 
   public void checkAssetId(@NonNull String assetId) {
-    val t = assetId.split(assetDomainSplitToken);
+    val t = assetId.split(assetIdDelimiter);
     if (t.length != 2) {
       throw new ValidationException(
           ASSET_ID,
@@ -118,7 +120,6 @@ public class FieldValidator {
     }
   }
 
-  private static final Pattern accountDetailsKeyPattern = Pattern.compile("[A-Za-z0-9_]{1,64}");
 
   public void checkAccountDetailsKey(@NonNull String key) {
     val m = accountDetailsKeyPattern.matcher(key);
@@ -132,7 +133,6 @@ public class FieldValidator {
     }
   }
 
-  private static final int accountDetailsMaxLength = 4096;
 
   public void checkAccountDetailsValue(@NonNull String value) {
     if (!(value.length() <= accountDetailsMaxLength)) {
@@ -165,9 +165,6 @@ public class FieldValidator {
     }
   }
 
-
-  private static Pattern roleNamePattern = Pattern.compile("[a-z_0-9]{1,32}");
-
   public void checkRoleName(@NonNull String roleName) {
     Matcher m = roleNamePattern.matcher(roleName);
     if (!m.find()) {
@@ -175,8 +172,6 @@ public class FieldValidator {
           "Role name is invalid, should match: '%s'", roleNamePattern.pattern());
     }
   }
-
-  private static final Pattern assetNamePattern = Pattern.compile("[a-z_0-9]{1,32}");
 
   public void checkAssetName(@NonNull String assetName) {
     val m = assetNamePattern.matcher(assetName);
