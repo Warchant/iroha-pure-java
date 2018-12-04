@@ -1,6 +1,7 @@
 package jp.co.soramitsu.iroha.java;
 
 import static jp.co.soramitsu.iroha.java.Utils.nonNull;
+import static jp.co.soramitsu.iroha.java.detail.Const.accountIdDelimiter;
 
 import com.google.protobuf.ByteString;
 import iroha.protocol.Commands.AddAssetQuantity;
@@ -151,7 +152,7 @@ public class TransactionBuilder {
       this.validator.checkAccountId(accountId);
     }
 
-    val t = accountId.split("@");
+    val t = accountId.split(accountIdDelimiter);
 
     return createAccount(
         t[0],

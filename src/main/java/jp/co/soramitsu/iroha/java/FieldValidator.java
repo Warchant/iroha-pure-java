@@ -14,6 +14,8 @@ import static jp.co.soramitsu.iroha.java.ValidationException.Type.PUBKEY;
 import static jp.co.soramitsu.iroha.java.ValidationException.Type.QUORUM;
 import static jp.co.soramitsu.iroha.java.ValidationException.Type.ROLE_NAME;
 import static jp.co.soramitsu.iroha.java.ValidationException.Type.TIMESTAMP;
+import static jp.co.soramitsu.iroha.java.detail.Const.accountIdDelimiter;
+import static jp.co.soramitsu.iroha.java.detail.Const.hostPortDelimiter;
 
 import java.math.BigDecimal;
 import java.net.URI;
@@ -65,10 +67,8 @@ public class FieldValidator {
     }
   }
 
-  private static final String accountDomainSplitToken = "@";
-
   public void checkAccountId(@NonNull String accountId) {
-    val t = accountId.split(accountDomainSplitToken);
+    val t = accountId.split(accountIdDelimiter);
     if (t.length != 2) {
       throw new ValidationException(ACCOUNT_ID, "Valid format is account@domain, got '%s'",
           accountId);
@@ -132,17 +132,19 @@ public class FieldValidator {
     }
   }
 
+  private static final int accountDetailsMaxLength = 4096;
+
   public void checkAccountDetailsValue(@NonNull String value) {
-    int len = 4096;
-    if (!(value.length() <= len)) {
+    if (!(value.length() <= accountDetailsMaxLength)) {
       throw new ValidationException(DETAILS_VALUE,
-          "Invalid details value, exceeded maximum length in '%d'. Got '%d'", len, value.length());
+          "Invalid details value, exceeded maximum length in '%d'. Got '%d'",
+          accountDetailsMaxLength, value.length());
     }
   }
 
   public void checkPeerAddress(@NonNull String address) {
     val m = String.format("Expected ip:port, got '%s'", address);
-    val t = address.split(":");
+    val t = address.split(hostPortDelimiter);
     if (t.length != 2) {
       throw new ValidationException(PEER_ADDRESS, m);
     }
