@@ -119,10 +119,10 @@ public class InlineTransactionStatusObserver extends TransactionStatusObserver {
   }
 
   @Override
-  public void onError(Throwable e) {
+  public void onError(Throwable t) {
     try {
-      this.onError.accept(e);
-    } catch (Exception e1) {
+      this.onError.accept(t);
+    } catch (Exception e) {
       Exceptions.propagate(e);
     }
   }
