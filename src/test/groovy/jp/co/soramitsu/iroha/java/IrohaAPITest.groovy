@@ -1,8 +1,7 @@
 package jp.co.soramitsu.iroha.java
 
 
-import io.reactivex.observers.TestObserver
-import iroha.protocol.Endpoint
+import jp.co.soramitsu.iroha.java.debug.LoggingTransactionStatusObserver
 import jp.co.soramitsu.iroha.testcontainers.IrohaContainer
 import spock.lang.Specification
 
@@ -11,6 +10,7 @@ import static jp.co.soramitsu.iroha.testcontainers.detail.GenesisBlockBuilder.*
 class IrohaAPITest extends Specification {
 
     private IrohaContainer iroha = new IrohaContainer()
+            .withLogger(null /* disable logger */)
 
     def setup() {
         iroha.start()
@@ -22,8 +22,9 @@ class IrohaAPITest extends Specification {
 
     def "valid transaction is accepted"() {
         given:
-        def obs = new TestObserver<Endpoint.ToriiResponse>()
         def api = iroha.getApi()
+        def failed = false
+        def committed = false
 
         when: "send valid transaction"
         def valid = Transaction.builder(defaultAccountId)
@@ -31,22 +32,26 @@ class IrohaAPITest extends Specification {
                 .sign(defaultKeyPair)
                 .build()
 
-        api.transaction(valid)
-                .doOnNext({ c -> println("VALUE: " + c) })
-                .doOnError({ e -> println("ERROR: " + e.toString()) })
-                .blockingSubscribe(obs)
+        def subscriber = TransactionStatusObserver.builder()
+                .onTransactionFailed({ failed = true })
+                .onTransactionCommited({ committed = true })
+                .build()
 
-        then: "observable is completed, no errors, and it received all valid statuses"
-        obs.assertComplete()
-        obs.assertNoErrors()
-        obs.assertNoTimeout()
-        obs.assertValueCount(4) // TODO: should be 3; fixed in beta-5+
+        def observable = api.transaction(valid)
+        observable.subscribe(new LoggingTransactionStatusObserver())
+        observable.blockingSubscribe(subscriber)
+
+        then:
+        noExceptionThrown()
+        !failed
+        committed
     }
 
     def "when sending stateless invalid tx, error is reported"() {
         given:
-        def obs = new TestObserver<Endpoint.ToriiResponse>()
         def api = iroha.getApi()
+        def failed = false
+        def committed = false
 
         when: "send stateless invalid transaction"
         // invalid account name in create account
@@ -56,22 +61,27 @@ class IrohaAPITest extends Specification {
                 .sign(defaultKeyPair)
                 .build()
 
-        api.transaction(statelessInvalid)
-                .doOnNext({ c -> println("VALUE: " + c) })
-                .doOnError({ e -> println("ERROR: " + e.toString()) })
-                .blockingSubscribe(obs)
+        def subscriber = TransactionStatusObserver.builder()
+                .onTransactionFailed({ failed = true })
+                .onTransactionCommited({ committed = true })
+                .build()
 
-        then: "on next returned stateless invalid, onError is called"
-        obs.assertComplete()
-        obs.assertValueCount(1)
-        obs.assertNoErrors()
-        obs.assertNoTimeout()
+        def observable = api.transaction(statelessInvalid)
+
+        observable.subscribe(new LoggingTransactionStatusObserver())
+        observable.blockingSubscribe(subscriber)
+
+        then:
+        noExceptionThrown()
+        failed
+        !committed
     }
 
     def "when sending stateful invalid tx, error is reported"() {
         given:
-        def obs = new TestObserver<Endpoint.ToriiResponse>()
         def api = iroha.getApi()
+        def failed = false
+        def committed = false
 
         when: "send stateful invalid transaction"
         // unknown creator
@@ -80,15 +90,18 @@ class IrohaAPITest extends Specification {
                 .sign(defaultKeyPair)
                 .build()
 
-        api.transaction(statefulInvalid)
-                .doOnNext({ c -> println("VALUE: " + c) })
-                .doOnError({ e -> println("ERROR: " + e.toString()) })
-                .blockingSubscribe(obs)
+        def subscriber = TransactionStatusObserver.builder()
+                .onTransactionFailed({ failed = true })
+                .onTransactionCommited({ committed = true })
+                .build()
 
-        then: "on next returned stateful invalid"
-        obs.assertComplete()
-        obs.assertValueCount(2)
-        obs.assertNoErrors()
-        obs.assertNoTimeout()
+        def observable = api.transaction(statefulInvalid)
+        observable.subscribe(new LoggingTransactionStatusObserver())
+        observable.blockingSubscribe(subscriber)
+
+        then:
+        noExceptionThrown()
+        failed
+        !committed
     }
 }
