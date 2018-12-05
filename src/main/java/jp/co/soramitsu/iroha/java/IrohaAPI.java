@@ -3,8 +3,7 @@ package jp.co.soramitsu.iroha.java;
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import io.reactivex.subjects.PublishSubject;
-import io.reactivex.subjects.Subject;
+import io.reactivex.Observable;
 import iroha.protocol.CommandServiceGrpc;
 import iroha.protocol.CommandServiceGrpc.CommandServiceBlockingStub;
 import iroha.protocol.CommandServiceGrpc.CommandServiceStub;
@@ -23,11 +22,10 @@ import jp.co.soramitsu.iroha.java.detail.StreamObserverToSubject;
 import lombok.Getter;
 import lombok.SneakyThrows;
 
+@Getter
 public class IrohaAPI implements AutoCloseable, Closeable {
 
-  @Getter
   private URI uri;
-
   private ManagedChannel channel;
   private CommandServiceBlockingStub cmdStub;
   private CommandServiceStub cmdStreamingStub;
@@ -50,8 +48,7 @@ public class IrohaAPI implements AutoCloseable, Closeable {
   }
 
 
-  public Subject<ToriiResponse> transaction(TransactionOuterClass.Transaction tx) {
-    PublishSubject<ToriiResponse> subject = PublishSubject.create();
+  public Observable<ToriiResponse> transaction(TransactionOuterClass.Transaction tx) {
     cmdStub.torii(tx);
 
     byte[] hash = Utils.hash(tx);
@@ -59,19 +56,20 @@ public class IrohaAPI implements AutoCloseable, Closeable {
         .setTxHash(ByteString.copyFrom(hash))
         .build();
 
-    cmdStreamingStub.statusStream(req, new StreamObserverToSubject<>(subject));
-
-    return subject;
+    return Observable.create(
+        o -> cmdStreamingStub.statusStream(req, new StreamObserverToSubject<>(o))
+    );
   }
 
   public QueryResponse query(Queries.Query query) {
     return queryStub.find(query);
   }
 
-  public Subject<BlockQueryResponse> blocksQuery(Queries.BlocksQuery query) {
-    PublishSubject<BlockQueryResponse> subject = PublishSubject.create();
-    queryStreamingStub.fetchCommits(query, new StreamObserverToSubject<>(subject));
-    return subject;
+  public Observable<BlockQueryResponse> blocksQuery(Queries.BlocksQuery query) {
+    return Observable
+        .create(o -> queryStreamingStub
+            .fetchCommits(query, new StreamObserverToSubject<>(o))
+        );
   }
 
   public void terminate() {

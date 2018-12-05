@@ -2,9 +2,12 @@ package jp.co.soramitsu.iroha.java;
 
 import static java.util.Objects.nonNull;
 
+import iroha.protocol.Queries;
 import iroha.protocol.Queries.QueryPayloadMeta;
+import java.security.KeyPair;
 import java.time.Instant;
 import java.util.Date;
+import jp.co.soramitsu.crypto.ed25519.Ed25519Sha3.CryptoException;
 
 public class BlocksQueryBuilder {
 
@@ -77,5 +80,13 @@ public class BlocksQueryBuilder {
 
   public BlocksQuery getQuery() {
     return newQuery();
+  }
+
+  public Queries.BlocksQuery buildSigned(KeyPair keyPair) throws CryptoException {
+    return newQuery().buildSigned(keyPair);
+  }
+
+  public Queries.BlocksQuery buildUnsigned() {
+    return newQuery().buildUnsigned();
   }
 }

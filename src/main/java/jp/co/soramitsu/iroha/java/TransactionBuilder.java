@@ -1,18 +1,24 @@
 package jp.co.soramitsu.iroha.java;
 
-import static java.util.Objects.nonNull;
+import static jp.co.soramitsu.iroha.java.Utils.nonNull;
+import static jp.co.soramitsu.iroha.java.detail.Const.accountIdDelimiter;
 
 import com.google.protobuf.ByteString;
 import iroha.protocol.Commands.AddAssetQuantity;
 import iroha.protocol.Commands.AddPeer;
+import iroha.protocol.Commands.AddSignatory;
 import iroha.protocol.Commands.AppendRole;
 import iroha.protocol.Commands.Command;
 import iroha.protocol.Commands.CreateAccount;
 import iroha.protocol.Commands.CreateAsset;
 import iroha.protocol.Commands.CreateDomain;
 import iroha.protocol.Commands.CreateRole;
+import iroha.protocol.Commands.DetachRole;
 import iroha.protocol.Commands.GrantPermission;
+import iroha.protocol.Commands.RemoveSignatory;
+import iroha.protocol.Commands.RevokePermission;
 import iroha.protocol.Commands.SetAccountDetail;
+import iroha.protocol.Commands.SubtractAssetQuantity;
 import iroha.protocol.Commands.TransferAsset;
 import iroha.protocol.Primitive.GrantablePermission;
 import iroha.protocol.Primitive.Peer;
@@ -25,6 +31,7 @@ import java.time.Instant;
 import java.util.Date;
 import jp.co.soramitsu.crypto.ed25519.Ed25519Sha3.CryptoException;
 import jp.co.soramitsu.iroha.java.detail.BuildableAndSignable;
+import lombok.val;
 
 public class TransactionBuilder {
 
@@ -41,6 +48,8 @@ public class TransactionBuilder {
     }
 
     setQuorum(1 /* default value */);
+
+    this.validator = new FieldValidator();
   }
 
   /**
@@ -57,11 +66,6 @@ public class TransactionBuilder {
 
   public TransactionBuilder(String accountId, Long time) {
     init(accountId, time);
-  }
-
-  public TransactionBuilder enableValidation() {
-    this.validator = new FieldValidator();
-    return this;
   }
 
   public TransactionBuilder disableValidation() {
@@ -136,6 +140,23 @@ public class TransactionBuilder {
     return createAccount(
         accountName,
         domainid,
+        publicKey.getEncoded()
+    );
+  }
+
+  public TransactionBuilder createAccount(
+      String accountId,
+      PublicKey publicKey
+  ) {
+    if (nonNull(this.validator)) {
+      this.validator.checkAccountId(accountId);
+    }
+
+    val t = accountId.split(accountIdDelimiter);
+
+    return createAccount(
+        t[0],
+        t[1],
         publicKey.getEncoded()
     );
   }
@@ -363,7 +384,7 @@ public class TransactionBuilder {
 
   public TransactionBuilder addAssetQuantity(
       String assetId,
-      BigDecimal amount
+      String amount
   ) {
     if (nonNull(this.validator)) {
       this.validator.checkAssetId(assetId);
@@ -375,13 +396,143 @@ public class TransactionBuilder {
             .setAddAssetQuantity(
                 AddAssetQuantity.newBuilder()
                     .setAssetId(assetId)
-                    .setAmount(amount.toPlainString())
+                    .setAmount(amount)
                     .build()
             )
             .build()
     );
 
     return this;
+  }
+
+  public TransactionBuilder addAssetQuantity(String assetId, BigDecimal amount) {
+    return this.addAssetQuantity(assetId, amount.toPlainString());
+  }
+
+  public TransactionBuilder addSignatory(String accountId, PublicKey publicKey) {
+    return this.addSignatory(accountId, publicKey.getEncoded());
+  }
+
+  public TransactionBuilder addSignatory(
+      String accountId,
+      byte[] publicKey
+  ) {
+    if (nonNull(this.validator)) {
+      this.validator.checkAccountId(accountId);
+      this.validator.checkPublicKey(publicKey);
+    }
+
+    tx.reducedPayload.addCommands(
+        Command.newBuilder()
+            .setAddSignatory(
+                AddSignatory.newBuilder()
+                    .setAccountId(accountId)
+                    .setPublicKey(ByteString.copyFrom(publicKey))
+                    .build()
+            )
+            .build()
+    );
+
+    return this;
+  }
+
+  public TransactionBuilder detachRole(
+      String accountId,
+      String roleName
+  ) {
+    if (nonNull(this.validator)) {
+      this.validator.checkAccountId(accountId);
+      this.validator.checkRoleName(roleName);
+    }
+
+    tx.reducedPayload.addCommands(
+        Command.newBuilder()
+            .setDetachRole(
+                DetachRole.newBuilder()
+                    .setAccountId(accountId)
+                    .setRoleName(roleName)
+                    .build()
+            )
+            .build()
+    );
+
+    return this;
+  }
+
+  public TransactionBuilder removeSignatory(
+      String accountId,
+      byte[] publicKey
+  ) {
+    if (nonNull(this.validator)) {
+      this.validator.checkAccountId(accountId);
+      this.validator.checkPublicKey(publicKey);
+    }
+
+    tx.reducedPayload.addCommands(
+        Command.newBuilder()
+            .setRemoveSign(
+                RemoveSignatory.newBuilder()
+                    .setAccountId(accountId)
+                    .setPublicKey(ByteString.copyFrom(publicKey))
+                    .build()
+            )
+            .build()
+    );
+
+    return this;
+  }
+
+  public TransactionBuilder removeSignatory(String accountId, PublicKey publicKey) {
+    return this.removeSignatory(accountId, publicKey.getEncoded());
+  }
+
+  public TransactionBuilder revokePermission(
+      String accountId,
+      GrantablePermission permission
+  ) {
+    if (nonNull(this.validator)) {
+      this.validator.checkAccountId(accountId);
+    }
+
+    tx.reducedPayload.addCommands(
+        Command.newBuilder()
+            .setRevokePermission(
+                RevokePermission.newBuilder()
+                    .setAccountId(accountId)
+                    .setPermission(permission)
+                    .build()
+            )
+            .build()
+    );
+
+    return this;
+  }
+
+  public TransactionBuilder subtractAssetQuantity(
+      String assetId,
+      String amount
+  ) {
+    if (nonNull(this.validator)) {
+      this.validator.checkAssetId(assetId);
+      this.validator.checkAmount(amount);
+    }
+
+    tx.reducedPayload.addCommands(
+        Command.newBuilder()
+            .setSubtractAssetQuantity(
+                SubtractAssetQuantity.newBuilder()
+                    .setAssetId(assetId)
+                    .setAmount(amount)
+                    .build()
+            )
+            .build()
+    );
+
+    return this;
+  }
+
+  public TransactionBuilder subtractAssetQuantity(String assetId, BigDecimal amount) {
+    return this.subtractAssetQuantity(assetId, amount.toPlainString());
   }
 
   public BuildableAndSignable<TransactionOuterClass.Transaction> sign(KeyPair keyPair)
