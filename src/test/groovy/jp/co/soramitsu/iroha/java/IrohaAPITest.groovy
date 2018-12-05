@@ -1,7 +1,6 @@
 package jp.co.soramitsu.iroha.java
 
 
-import jp.co.soramitsu.iroha.java.debug.LoggingTransactionStatusObserver
 import jp.co.soramitsu.iroha.testcontainers.IrohaContainer
 import spock.lang.Specification
 
@@ -38,7 +37,6 @@ class IrohaAPITest extends Specification {
                 .build()
 
         def observable = api.transaction(valid)
-        observable.subscribe(new LoggingTransactionStatusObserver())
         observable.blockingSubscribe(subscriber)
 
         then:
@@ -67,8 +65,6 @@ class IrohaAPITest extends Specification {
                 .build()
 
         def observable = api.transaction(statelessInvalid)
-
-        observable.subscribe(new LoggingTransactionStatusObserver())
         observable.blockingSubscribe(subscriber)
 
         then:
@@ -96,7 +92,6 @@ class IrohaAPITest extends Specification {
                 .build()
 
         def observable = api.transaction(statefulInvalid)
-        observable.subscribe(new LoggingTransactionStatusObserver())
         observable.blockingSubscribe(subscriber)
 
         then:

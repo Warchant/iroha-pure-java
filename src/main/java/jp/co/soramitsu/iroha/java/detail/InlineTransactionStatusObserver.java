@@ -11,6 +11,20 @@ import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.NoArgsConstructor;
 
+/**
+ * Builder, which can be used to build custom observers from lambdas.
+ *
+ * {@code
+ *
+ * <pre>
+ * TransactionStatusBuilder.builder()
+ *  .onTransactionSent(() -> handleSent())
+ *  .onTransactionFailed((t) -> handleFailure(t))
+ *  .onTransactionCommit((t) -> handleCommit(t))
+ *  .build();
+ * </pre>
+ * }
+ */
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
