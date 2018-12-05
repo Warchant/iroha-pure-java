@@ -17,33 +17,7 @@ This version is compatible with [`iroha-v1.0.0_beta-4`](https://github.com/hyper
 
 # example
 
-Transaction:
-
-```
-Transaction.builder(accountId, instant)
-        .createAccount(accountName, domainId, keyPair.getPublic())
-        .transferAsset(srcAccountId, dstAccountId, assetId, description, amount)
-        .setAccountDetail(accountId, key, value)
-        .sign(keyPair1)
-        .sign(keyPair2)
-        .build();
-```
-
-Query:
-```
-Query.builder(accountId, instant, counter)
-        .getAccountAssetTransactions(accountId, assetId)
-        .buildSigned(keyPair1);
-```
-
-Keypair:
-```
-KeyPair keypair1 = Ed25519Sha3.generateKeypair();
-KeyPair keypair1 = Ed25519Sha3.generateKeypair(new byte[]{..32 bytes seed..});
-
-```
-
-For usage examples, look at [tests](./src/test/groovy/jp/co/soramitsu/iroha/java/).
+For usage examples, look at [tests](./src/test/groovy/jp/co/soramitsu/iroha/java/) and [examples](./src/test/java/jp/co/soramitsu/iroha/java/) dirs.
 
 
 ## License
