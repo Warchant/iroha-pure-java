@@ -65,7 +65,7 @@ public class InlineTransactionStatusObserver extends TransactionStatusObserver {
     try {
       this.onTransactionSent.run();
     } catch (Exception e) {
-      Exceptions.propagate(e);
+      onError(e);
     }
   }
 
@@ -74,7 +74,7 @@ public class InlineTransactionStatusObserver extends TransactionStatusObserver {
     try {
       this.onTransactionFailed.accept(t);
     } catch (Exception e) {
-      Exceptions.propagate(e);
+      onError(e);
     }
   }
 
@@ -83,7 +83,7 @@ public class InlineTransactionStatusObserver extends TransactionStatusObserver {
     try {
       this.onStatelessValidationSuccess.accept(t);
     } catch (Exception e) {
-      Exceptions.propagate(e);
+      onError(e);
     }
   }
 
@@ -92,7 +92,7 @@ public class InlineTransactionStatusObserver extends TransactionStatusObserver {
     try {
       this.onStatefulValidationSuccess.accept(t);
     } catch (Exception e) {
-      Exceptions.propagate(e);
+      onError(e);
     }
   }
 
@@ -101,7 +101,7 @@ public class InlineTransactionStatusObserver extends TransactionStatusObserver {
     try {
       this.onTransactionCommited.accept(t);
     } catch (Exception e) {
-      Exceptions.propagate(e);
+      onError(e);
     }
   }
 
@@ -110,7 +110,7 @@ public class InlineTransactionStatusObserver extends TransactionStatusObserver {
     try {
       this.onNotReceived.accept(t);
     } catch (Exception e) {
-      Exceptions.propagate(e);
+      onError(e);
     }
   }
 
@@ -119,7 +119,7 @@ public class InlineTransactionStatusObserver extends TransactionStatusObserver {
     try {
       this.onMstFailed.accept(t);
     } catch (Exception e) {
-      Exceptions.propagate(e);
+      onError(e);
     }
   }
 
@@ -128,7 +128,7 @@ public class InlineTransactionStatusObserver extends TransactionStatusObserver {
     try {
       this.onUnrecognizedStatus.accept(t);
     } catch (Exception e) {
-      Exceptions.propagate(e);
+      onError(e);
     }
   }
 
@@ -146,7 +146,7 @@ public class InlineTransactionStatusObserver extends TransactionStatusObserver {
     try {
       this.onComplete.run();
     } catch (Exception e) {
-      Exceptions.propagate(e);
+      onError(e);
     }
   }
 }

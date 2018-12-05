@@ -8,7 +8,7 @@ plugins {
 }
 
 group = 'jp.co.soramitsu'
-version = '0.0.1-SNAPSHOT'
+version = 'iroha-v1.0.0_beta-4-ipj-1.0.0'
 sourceCompatibility = 1.8
 
 jar {
