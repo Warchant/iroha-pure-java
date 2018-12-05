@@ -18,12 +18,15 @@ import iroha.protocol.QueryServiceGrpc.QueryServiceStub;
 import iroha.protocol.TransactionOuterClass;
 import java.io.Closeable;
 import java.net.URI;
-import jp.co.soramitsu.iroha.java.detail.StreamObserverToSubject;
+import jp.co.soramitsu.iroha.java.detail.StreamObserverToEmitter;
 import lombok.Getter;
 import lombok.SneakyThrows;
 
+/**
+ * Class which provides convenient RX abstraction over Iroha API.
+ */
 @Getter
-public class IrohaAPI implements AutoCloseable, Closeable {
+public class IrohaAPI implements Closeable {
 
   private URI uri;
   private ManagedChannel channel;
@@ -48,6 +51,13 @@ public class IrohaAPI implements AutoCloseable, Closeable {
   }
 
 
+  /**
+   * Send transaction asynchronously.
+   *
+   * @param tx protobuf transaction
+   * @return observable. Use {@code Observable.blockingSubscribe(...)} or {@code
+   * Observable.subscribe} for synchronous or asynchronous subscription.
+   */
   public Observable<ToriiResponse> transaction(TransactionOuterClass.Transaction tx) {
     cmdStub.torii(tx);
 
@@ -57,19 +67,28 @@ public class IrohaAPI implements AutoCloseable, Closeable {
         .build();
 
     return Observable.create(
-        o -> cmdStreamingStub.statusStream(req, new StreamObserverToSubject<>(o))
+        o -> cmdStreamingStub.statusStream(req, new StreamObserverToEmitter<>(o))
     );
   }
 
+  /**
+   * Send query synchronously.
+   *
+   * @param query protobuf query
+   */
   public QueryResponse query(Queries.Query query) {
     return queryStub.find(query);
   }
 
+  /**
+   * Subscribe for blocks in iroha. You need to have special permission to do that.
+   *
+   * @param query protobuf query
+   */
   public Observable<BlockQueryResponse> blocksQuery(Queries.BlocksQuery query) {
-    return Observable
-        .create(o -> queryStreamingStub
-            .fetchCommits(query, new StreamObserverToSubject<>(o))
-        );
+    return Observable.create(
+        o -> queryStreamingStub.fetchCommits(query, new StreamObserverToEmitter<>(o))
+    );
   }
 
   public void terminate() {

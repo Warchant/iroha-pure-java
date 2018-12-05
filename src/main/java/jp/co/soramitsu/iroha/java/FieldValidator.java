@@ -30,6 +30,10 @@ import java.util.regex.Matcher;
 import lombok.NonNull;
 import lombok.val;
 
+
+/**
+ * Stateless validator for transaction and query fields.
+ */
 public class FieldValidator {
 
   public void checkAmount(@NonNull String amount) {

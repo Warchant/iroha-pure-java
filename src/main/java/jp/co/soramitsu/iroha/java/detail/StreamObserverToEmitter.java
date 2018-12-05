@@ -4,8 +4,11 @@ import io.grpc.stub.StreamObserver;
 import io.reactivex.Emitter;
 import lombok.Value;
 
+/**
+ * Helper class to convert {@link StreamObserver} to {@link Emitter}
+ */
 @Value
-public class StreamObserverToSubject<T> implements StreamObserver<T> {
+public class StreamObserverToEmitter<T> implements StreamObserver<T> {
 
   private Emitter<T> emitter;
 
