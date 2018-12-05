@@ -2,27 +2,33 @@ package jp.co.soramitsu.iroha.java;
 
 import lombok.Getter;
 
+@Getter
 public class ValidationException extends IllegalArgumentException {
 
-  public ValidationException(Type type, String msg) {
+  public ValidationException(Type type, String format, Object... args) {
     super(
-        String.format("%s: %s", type.toString(), msg)
+        String.format("%s: %s", type.toString(), String.format(format, args))
     );
+    this.type = type;
   }
 
+  private Type type;
 
-  @Getter
+
   public enum Type {
-    AMOUNT("amount"),
-    ACCOUNT("account"),
-    ACCOUNT_ID("account_id"),
-    QUORUM("quorum");
-
-
-    private String type;
-
-    Type(String s) {
-      this.type = s;
-    }
+    AMOUNT,
+    ACCOUNT_ID,
+    ACCOUNT_NAME,
+    ASSET_ID,
+    ASSET_NAME,
+    DOMAIN,
+    PUBKEY,
+    PEER_ADDRESS,
+    QUORUM,
+    PRECISION,
+    ROLE_NAME,
+    DETAILS_KEY,
+    DETAILS_VALUE,
+    TIMESTAMP
   }
 }
