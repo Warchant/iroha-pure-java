@@ -26,7 +26,7 @@ import lombok.SneakyThrows;
  * Class which provides convenient RX abstraction over Iroha API.
  */
 @Getter
-public class IrohaAPI implements AutoCloseable, Closeable {
+public class IrohaAPI implements Closeable {
 
   private URI uri;
   private ManagedChannel channel;
