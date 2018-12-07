@@ -113,7 +113,7 @@ class MstTest extends Specification {
         // send transaction from A to B
 
         and: "B signed transaction"
-        def tx2 = Transaction.parseFromProto(tx1).sign(keyPairB).build()
+        def tx2 = Transaction.parseFrom(tx1).sign(keyPairB).build()
 
         and: "then tx is sent to iroha"
         api.transaction(tx2)
