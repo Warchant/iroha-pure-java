@@ -1,5 +1,6 @@
 package jp.co.soramitsu.iroha.java;
 
+import com.google.protobuf.InvalidProtocolBufferException;
 import iroha.protocol.TransactionOuterClass;
 import iroha.protocol.TransactionOuterClass.Transaction.Payload;
 import iroha.protocol.TransactionOuterClass.Transaction.Payload.ReducedPayload;
@@ -8,6 +9,7 @@ import java.time.Instant;
 import java.util.Date;
 import jp.co.soramitsu.iroha.java.detail.BuildableAndSignable;
 import jp.co.soramitsu.iroha.java.detail.Hashable;
+import lombok.val;
 
 public class Transaction
     extends
@@ -30,6 +32,12 @@ public class Transaction
     super(Payload.newBuilder());
   }
 
+  /* default */ Transaction(TransactionOuterClass.Transaction tx) {
+    super(Payload.newBuilder(tx.getPayload()));
+    this.tx = TransactionOuterClass.Transaction.newBuilder(tx);
+    this.reducedPayload = ReducedPayload.newBuilder(tx.getPayload().getReducedPayload());
+  }
+
   @Override
   public BuildableAndSignable<TransactionOuterClass.Transaction> sign(KeyPair keyPair) {
     updatePayload();
@@ -45,6 +53,15 @@ public class Transaction
     return tx.build();
   }
 
+  public static Transaction parseFrom(TransactionOuterClass.Transaction input) {
+    return new Transaction(input);
+  }
+
+  public static Transaction parseFrom(byte[] input) throws InvalidProtocolBufferException {
+    val proto = TransactionOuterClass.Transaction.parseFrom(input);
+    return new Transaction(proto);
+  }
+
   public static TransactionBuilder builder(String accountId, Long date) {
     return new TransactionBuilder(accountId, date);
   }
@@ -58,6 +75,6 @@ public class Transaction
   }
 
   public static TransactionBuilder builder(String accountId) {
-    return builder(accountId, Instant.now());
+    return builder(accountId, System.currentTimeMillis());
   }
 }
