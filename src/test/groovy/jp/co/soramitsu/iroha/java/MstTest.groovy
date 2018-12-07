@@ -81,15 +81,18 @@ class MstTest extends Specification {
                 .onUnrecognizedStatus(p("unknown status", true))
                 .build()
         when:
-        api.transaction(tx()
+        def t1 = tx()
                 .sign(keyPairA)
                 .sign(keyPairB)
                 .build()
-        )
+
+        api.transaction(t1)
                 .blockingSubscribe(observer)
 
         then:
         noExceptionThrown()
+        t1.getSignaturesCount() == 2
+
     }
 
     def "two signers, different processes"() {
@@ -121,6 +124,7 @@ class MstTest extends Specification {
 
         then:
         noExceptionThrown()
+        tx2.getSignaturesCount() == 2
     }
 
     def p = { a, fail = false ->
