@@ -30,6 +30,12 @@ public class Transaction
     super(Payload.newBuilder());
   }
 
+  /* default */ Transaction(TransactionOuterClass.Transaction tx) {
+    super(Payload.newBuilder(tx.getPayload()));
+    this.tx = TransactionOuterClass.Transaction.newBuilder(tx);
+    this.reducedPayload = ReducedPayload.newBuilder(tx.getPayload().getReducedPayload());
+  }
+
   @Override
   public BuildableAndSignable<TransactionOuterClass.Transaction> sign(KeyPair keyPair) {
     updatePayload();
@@ -45,6 +51,10 @@ public class Transaction
     return tx.build();
   }
 
+  public static Transaction parseFromProto(TransactionOuterClass.Transaction input) {
+    return new Transaction(input);
+  }
+
   public static TransactionBuilder builder(String accountId, Long date) {
     return new TransactionBuilder(accountId, date);
   }
@@ -58,6 +68,6 @@ public class Transaction
   }
 
   public static TransactionBuilder builder(String accountId) {
-    return builder(accountId, Instant.now());
+    return builder(accountId, System.currentTimeMillis());
   }
 }
