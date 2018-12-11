@@ -4,12 +4,14 @@ package jp.co.soramitsu.iroha.java
 import jp.co.soramitsu.iroha.testcontainers.IrohaContainer
 import spock.lang.Specification
 
+import java.util.stream.Collectors
+import java.util.stream.IntStream
+
 import static jp.co.soramitsu.iroha.testcontainers.detail.GenesisBlockBuilder.*
 
 class IrohaAPITest extends Specification {
 
     private IrohaContainer iroha = new IrohaContainer()
-            .withLogger(null /* disable logger */)
 
     def setup() {
         iroha.start()
@@ -98,5 +100,42 @@ class IrohaAPITest extends Specification {
         noExceptionThrown()
         failed
         !committed
+    }
+
+    def "send transaction list"() {
+        given:
+        def api = iroha.getApi()
+        def txs = IntStream.range(0, 100)
+                .boxed()
+                .map(String.&valueOf)
+                .map(
+                { String name ->
+                    return Transaction.builder(defaultAccountId)
+                            .createAccount(name, defaultDomainName, defaultKeyPair.getPublic())
+                            .sign(defaultKeyPair)
+                            .build()
+                })
+                .collect(Collectors.toList())
+
+        when:
+        api.transactionListSync(txs)
+
+        then:
+        txs.stream()
+                .map(Utils.&hash)
+                .map(
+                { byte[] h ->
+                    boolean onCommitted = false
+
+                    def obs = TransactionStatusObserver.builder()
+                            .onTransactionCommited({ z -> onCommitted = true })
+                            .build()
+
+                    api.txStatus(h).blockingSubscribe(obs)
+
+                    return onCommitted
+                })
+                .allMatch({ p -> p })
+
     }
 }

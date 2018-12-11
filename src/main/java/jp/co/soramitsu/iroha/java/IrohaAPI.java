@@ -102,7 +102,7 @@ public class IrohaAPI implements Closeable {
    *
    * Blocking call.
    */
-  public void transactionList(Iterable<TransactionOuterClass.Transaction> txList) {
+  public void transactionListSync(Iterable<TransactionOuterClass.Transaction> txList) {
     cmdStub.listTorii(createTxList(txList));
   }
 
