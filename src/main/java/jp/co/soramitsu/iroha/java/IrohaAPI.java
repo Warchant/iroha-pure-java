@@ -61,7 +61,7 @@ public class IrohaAPI implements Closeable {
    * Observable.subscribe} for synchronous or asynchronous subscription.
    */
   public Observable<ToriiResponse> transaction(TransactionOuterClass.Transaction tx) {
-    cmdStub.torii(tx);
+    transactionSync(tx);
     byte[] hash = Utils.hash(tx);
     return txStatus(hash);
   }
