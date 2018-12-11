@@ -18,6 +18,7 @@ import iroha.protocol.Commands.GrantPermission;
 import iroha.protocol.Commands.RemoveSignatory;
 import iroha.protocol.Commands.RevokePermission;
 import iroha.protocol.Commands.SetAccountDetail;
+import iroha.protocol.Commands.SetAccountQuorum;
 import iroha.protocol.Commands.SubtractAssetQuantity;
 import iroha.protocol.Commands.TransferAsset;
 import iroha.protocol.Primitive.GrantablePermission;
@@ -529,6 +530,30 @@ public class TransactionBuilder {
     );
 
     return this;
+  }
+
+  public TransactionBuilder setAccountQuorum(
+      String accountId,
+      int quorum
+  ) {
+    if (nonNull(this.validator)) {
+      this.validator.checkAccountId(accountId);
+      this.validator.checkQuorum(quorum);
+    }
+
+    tx.reducedPayload.addCommands(
+        Command.newBuilder()
+            .setSetQuorum(
+                SetAccountQuorum.newBuilder()
+                    .setAccountId(accountId)
+                    .setQuorum(quorum)
+                    .build()
+            )
+            .build()
+    );
+
+    return this;
+
   }
 
   public TransactionBuilder subtractAssetQuantity(String assetId, BigDecimal amount) {

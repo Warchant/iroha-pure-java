@@ -279,17 +279,6 @@ Peer code reviews
 
 ---
 
-@snap[north-west]
-**API**
-@snapend
-
-- **Not all commands/queries from API are implemented**
-  But most of them. PRs are welcome!
-- **Not all validators are implemented**
-  PRs are welcome!
-
----
-
 # FIN
 
 ![](https://www.lfasiallc.com/wp-content/uploads/2017/11/logo_soramitsu-1.png)
