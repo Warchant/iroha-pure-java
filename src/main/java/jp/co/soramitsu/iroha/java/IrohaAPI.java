@@ -1,6 +1,8 @@
 package jp.co.soramitsu.iroha.java;
 
-import com.google.protobuf.ByteString;
+import static jp.co.soramitsu.iroha.java.Utils.createTxList;
+import static jp.co.soramitsu.iroha.java.Utils.createTxStatusRequest;
+
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.reactivex.Observable;
@@ -8,7 +10,6 @@ import iroha.protocol.CommandServiceGrpc;
 import iroha.protocol.CommandServiceGrpc.CommandServiceBlockingStub;
 import iroha.protocol.CommandServiceGrpc.CommandServiceStub;
 import iroha.protocol.Endpoint.ToriiResponse;
-import iroha.protocol.Endpoint.TxStatusRequest;
 import iroha.protocol.QryResponses.BlockQueryResponse;
 import iroha.protocol.QryResponses.QueryResponse;
 import iroha.protocol.Queries;
@@ -21,6 +22,7 @@ import java.net.URI;
 import jp.co.soramitsu.iroha.java.detail.StreamObserverToEmitter;
 import lombok.Getter;
 import lombok.SneakyThrows;
+import lombok.val;
 
 /**
  * Class which provides convenient RX abstraction over Iroha API.
@@ -54,27 +56,31 @@ public class IrohaAPI implements Closeable {
   /**
    * Send transaction asynchronously.
    *
-   * @param tx protobuf transaction
+   * @param tx protobuf transaction.
    * @return observable. Use {@code Observable.blockingSubscribe(...)} or {@code
    * Observable.subscribe} for synchronous or asynchronous subscription.
    */
   public Observable<ToriiResponse> transaction(TransactionOuterClass.Transaction tx) {
-    cmdStub.torii(tx);
-
+    transactionSync(tx);
     byte[] hash = Utils.hash(tx);
-    TxStatusRequest req = TxStatusRequest.newBuilder()
-        .setTxHash(ByteString.copyFrom(hash))
-        .build();
+    return txStatus(hash);
+  }
 
-    return Observable.create(
-        o -> cmdStreamingStub.statusStream(req, new StreamObserverToEmitter<>(o))
-    );
+  /**
+   * Send transaction synchronously.
+   *
+   * Blocking call.
+   *
+   * @param tx protobuf transaction.
+   */
+  public void transactionSync(TransactionOuterClass.Transaction tx) {
+    cmdStub.torii(tx);
   }
 
   /**
    * Send query synchronously.
    *
-   * @param query protobuf query
+   * @param query protobuf query.
    */
   public QueryResponse query(Queries.Query query) {
     return queryStub.find(query);
@@ -83,7 +89,7 @@ public class IrohaAPI implements Closeable {
   /**
    * Subscribe for blocks in iroha. You need to have special permission to do that.
    *
-   * @param query protobuf query
+   * @param query protobuf query.
    */
   public Observable<BlockQueryResponse> blocksQuery(Queries.BlocksQuery query) {
     return Observable.create(
@@ -91,6 +97,41 @@ public class IrohaAPI implements Closeable {
     );
   }
 
+  /**
+   * Synchronously send list of transactions.
+   *
+   * Blocking call.
+   */
+  public void transactionListSync(Iterable<TransactionOuterClass.Transaction> txList) {
+    cmdStub.listTorii(createTxList(txList));
+  }
+
+  /**
+   * Asynchronously ask for transaction status.
+   *
+   * @param txHash hash of transaction for status query.
+   * @return {@link Observable}
+   */
+  public Observable<ToriiResponse> txStatus(byte[] txHash) {
+    val req = createTxStatusRequest(txHash);
+    return Observable.create(
+        o -> cmdStreamingStub.statusStream(req, new StreamObserverToEmitter<>(o))
+    );
+  }
+
+  /**
+   * Synchronously ask to transaction status.
+   *
+   * @param txHash hash of transaction for status query
+   * @return {@link ToriiResponse} status code, error message (if any).
+   */
+  public ToriiResponse txStatusSync(byte[] txHash) {
+    return cmdStub.status(createTxStatusRequest(txHash));
+  }
+
+  /**
+   * Close GRPC connection.
+   */
   public void terminate() {
     if (!channel.isTerminated()) {
       channel.shutdownNow();
