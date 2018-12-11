@@ -1,7 +1,7 @@
 package jp.co.soramitsu.iroha.java;
 
-import static jp.co.soramitsu.iroha.java.detail.ProtoUtils.createTxList;
-import static jp.co.soramitsu.iroha.java.detail.ProtoUtils.createTxStatusRequest;
+import static jp.co.soramitsu.iroha.java.Utils.createTxList;
+import static jp.co.soramitsu.iroha.java.Utils.createTxStatusRequest;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;

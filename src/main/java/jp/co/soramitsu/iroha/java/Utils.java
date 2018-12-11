@@ -6,6 +6,8 @@ import static jp.co.soramitsu.crypto.ed25519.Ed25519Sha3.publicKeyFromBytes;
 
 import com.google.protobuf.ByteString;
 import iroha.protocol.BlockOuterClass;
+import iroha.protocol.Endpoint.TxList;
+import iroha.protocol.Endpoint.TxStatusRequest;
 import iroha.protocol.Primitive;
 import iroha.protocol.Primitive.Signature;
 import iroha.protocol.Queries;
@@ -58,5 +60,17 @@ public class Utils {
   // this method is here only because some old versions of Android do not have Objects.nonNull
   public static boolean nonNull(Object obj) {
     return obj != null;
+  }
+
+  public static TxStatusRequest createTxStatusRequest(byte[] hash) {
+    return TxStatusRequest.newBuilder()
+        .setTxHash(ByteString.copyFrom(hash))
+        .build();
+  }
+
+  public static TxList createTxList(Iterable<TransactionOuterClass.Transaction> list) {
+    return TxList.newBuilder()
+        .addAllTransactions(list)
+        .build();
   }
 }
