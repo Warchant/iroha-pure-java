@@ -29,7 +29,7 @@ import jp.co.soramitsu.iroha.java.detail.InlineTransactionStatusObserver.InlineT
  * <ol>
  * <li>onTransactionFailed - transaction did not pass stateful or stateless validation</li>
  * <li>onNotReceived - peer does not know about current transaction</li>
- * <li>onMstFailed - any Multi Signature Transaction failure</li>
+ * <li>onMstExpired - any Multi Signature Transaction failure</li>
  * <li>onUnrecognizedStatus - iroha returns some unrecognized status, most probably bug</li>
  * </ol>
  * </p>
@@ -42,7 +42,6 @@ public abstract class TransactionStatusObserver implements Observer<ToriiRespons
    * Transaction has been successfully sent.
    */
   public abstract void onTransactionSent();
-
 
   /**
    * Transaction is invalid. Statelessly or statefully.
@@ -75,12 +74,24 @@ public abstract class TransactionStatusObserver implements Observer<ToriiRespons
   /**
    * MultiSignatureTransaction failed to pass validastion.
    */
-  public abstract void onMstFailed(ToriiResponse t);
+  public abstract void onMstExpired(ToriiResponse t);
 
   /**
    * If you get this status, most likely this is Iroha bug.
    */
   public abstract void onUnrecognizedStatus(ToriiResponse t);
+
+  /**
+   * Multisignature transaction awaits for more signatures.
+   */
+  public abstract void onMstPending(ToriiResponse t);
+
+  public abstract void onRejected(ToriiResponse t);
+
+  /**
+   * Multisignature trasaction has enough signatures.
+   */
+  public abstract void onEnoughSignaturesCollected(ToriiResponse t);
 
   /**
    * Main router, which parses standard status stream and routes statuses over current transaction
@@ -103,10 +114,19 @@ public abstract class TransactionStatusObserver implements Observer<ToriiRespons
         this.onTransactionCommited(t);
         break;
       case MST_EXPIRED:
-        this.onMstFailed(t);
+        this.onMstExpired(t);
+        break;
+      case MST_PENDING:
+        this.onMstPending(t);
+        break;
+      case ENOUGH_SIGNATURES_COLLECTED:
+        this.onEnoughSignaturesCollected(t);
         break;
       case NOT_RECEIVED:
         this.onNotReceived(t);
+        break;
+      case REJECTED:
+        this.onRejected(t);
         break;
       default:
         this.onUnrecognizedStatus(t);

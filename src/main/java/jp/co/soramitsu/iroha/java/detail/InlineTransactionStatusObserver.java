@@ -55,7 +55,16 @@ public class InlineTransactionStatusObserver extends TransactionStatusObserver {
   private Consumer<? super ToriiResponse> onUnrecognizedStatus = Functions.emptyConsumer();
 
   @Default
-  private Consumer<? super ToriiResponse> onMstFailed = Functions.emptyConsumer();
+  private Consumer<? super ToriiResponse> onMstExpired = Functions.emptyConsumer();
+
+  @Default
+  private Consumer<? super ToriiResponse> onRejected = Functions.emptyConsumer();
+
+  @Default
+  private Consumer<? super ToriiResponse> onEnoughSignaturesCollected = Functions.emptyConsumer();
+
+  @Default
+  private Consumer<? super ToriiResponse> onMstPending = Functions.emptyConsumer();
 
   @Default
   private Consumer<? super Throwable> onError = Functions.emptyConsumer();
@@ -115,9 +124,9 @@ public class InlineTransactionStatusObserver extends TransactionStatusObserver {
   }
 
   @Override
-  public void onMstFailed(ToriiResponse t) {
+  public void onMstExpired(ToriiResponse t) {
     try {
-      this.onMstFailed.accept(t);
+      this.onMstExpired.accept(t);
     } catch (Exception e) {
       onError(e);
     }
@@ -127,6 +136,33 @@ public class InlineTransactionStatusObserver extends TransactionStatusObserver {
   public void onUnrecognizedStatus(ToriiResponse t) {
     try {
       this.onUnrecognizedStatus.accept(t);
+    } catch (Exception e) {
+      onError(e);
+    }
+  }
+
+  @Override
+  public void onMstPending(ToriiResponse t) {
+    try {
+      this.onMstPending.accept(t);
+    } catch (Exception e) {
+      onError(e);
+    }
+  }
+
+  @Override
+  public void onRejected(ToriiResponse t) {
+    try {
+      this.onRejected.accept(t);
+    } catch (Exception e) {
+      onError(e);
+    }
+  }
+
+  @Override
+  public void onEnoughSignaturesCollected(ToriiResponse t) {
+    try {
+      this.onEnoughSignaturesCollected.accept(t);
     } catch (Exception e) {
       onError(e);
     }

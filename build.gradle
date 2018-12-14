@@ -51,6 +51,7 @@ final def spockGenesisVersion = '0.6.0'
 final def lombokVersion = '1.18.4'
 final def testcontainersIroha = 'iroha-1.0.0_rc1-SNAPSHOT'
 final def rxjavaVersion = '2.2.4'
+final def jcabiVersion = '0.22.6'
 
 
 dependencies {
@@ -64,6 +65,7 @@ dependencies {
     testCompile "org.spockframework:spock-core:${spockVersion}"
 
     testCompile group: 'com.github.Warchant', name: 'testcontainers-iroha', version: testcontainersIroha
+    compile group: 'com.jcabi', name: 'jcabi-aspects', version: "${jcabiVersion}"
 }
 
 apply from: 'proto.gradle'

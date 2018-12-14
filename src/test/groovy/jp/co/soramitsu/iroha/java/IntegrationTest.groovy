@@ -24,7 +24,6 @@ class IntegrationTest extends Specification {
     final def defaultAccountId = String.format("%s@%s", defaultAccount, defaultDomain)
 
     IrohaContainer iroha = new IrohaContainer()
-            .withLogger(null /* disable logger */)
 
     IrohaAPI api
 
@@ -37,7 +36,7 @@ class IntegrationTest extends Specification {
                             .createRole(
                             defaultRole,
                             // all permissions
-                            IntStream.range(0, 43)
+                            IntStream.range(0, 45)
                                     .boxed()
                                     .map(Primitive.RolePermission.&forNumber)
                                     .collect(Collectors.toList()) as Iterable)
