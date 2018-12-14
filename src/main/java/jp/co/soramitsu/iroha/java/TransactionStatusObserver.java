@@ -5,6 +5,7 @@ import io.reactivex.disposables.Disposable;
 import iroha.protocol.Endpoint.ToriiResponse;
 import jp.co.soramitsu.iroha.java.detail.InlineTransactionStatusObserver;
 import jp.co.soramitsu.iroha.java.detail.InlineTransactionStatusObserver.InlineTransactionStatusObserverBuilder;
+import jp.co.soramitsu.iroha.java.detail.TransactionStatusObserverFace;
 
 /**
  * Subscriber for Iroha Transaction Statuses.
@@ -36,62 +37,8 @@ import jp.co.soramitsu.iroha.java.detail.InlineTransactionStatusObserver.InlineT
  *
  * @see io.reactivex.Observer
  */
-public abstract class TransactionStatusObserver implements Observer<ToriiResponse> {
-
-  /**
-   * Transaction has been successfully sent.
-   */
-  public abstract void onTransactionSent();
-
-  /**
-   * Transaction is invalid. Statelessly or statefully.
-   *
-   * @param t defails, why this transaction is invalid
-   */
-  public abstract void onTransactionFailed(ToriiResponse t);
-
-  /**
-   * Transaction passed stateless validation.
-   */
-  public abstract void onStatelessValidationSuccess(ToriiResponse t);
-
-  /**
-   * Transaction passed stateful validation.
-   */
-  public abstract void onStatefulValidationSuccess(ToriiResponse t);
-
-  /**
-   * Transaction has been committed. This means that transaction is written in the blockchain.
-   */
-  public abstract void onTransactionCommited(ToriiResponse t);
-
-  /**
-   * Iroha answers with NotReceived status only if transaction with given hash is unknown to this
-   * peer.
-   */
-  public abstract void onNotReceived(ToriiResponse t);
-
-  /**
-   * MultiSignatureTransaction failed to pass validastion.
-   */
-  public abstract void onMstExpired(ToriiResponse t);
-
-  /**
-   * If you get this status, most likely this is Iroha bug.
-   */
-  public abstract void onUnrecognizedStatus(ToriiResponse t);
-
-  /**
-   * Multisignature transaction awaits for more signatures.
-   */
-  public abstract void onMstPending(ToriiResponse t);
-
-  public abstract void onRejected(ToriiResponse t);
-
-  /**
-   * Multisignature trasaction has enough signatures.
-   */
-  public abstract void onEnoughSignaturesCollected(ToriiResponse t);
+public abstract class TransactionStatusObserver implements Observer<ToriiResponse>,
+    TransactionStatusObserverFace {
 
   /**
    * Main router, which parses standard status stream and routes statuses over current transaction

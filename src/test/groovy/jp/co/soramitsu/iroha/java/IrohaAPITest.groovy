@@ -1,6 +1,6 @@
 package jp.co.soramitsu.iroha.java
 
-
+import jp.co.soramitsu.iroha.java.debug.TestTransactionStatusObserver
 import jp.co.soramitsu.iroha.testcontainers.IrohaContainer
 import spock.lang.Specification
 
@@ -24,8 +24,6 @@ class IrohaAPITest extends Specification {
     def "valid transaction is accepted"() {
         given:
         def api = iroha.getApi()
-        def failed = false
-        def committed = false
 
         when: "send valid transaction"
         def valid = Transaction.builder(defaultAccountId)
@@ -33,25 +31,19 @@ class IrohaAPITest extends Specification {
                 .sign(defaultKeyPair)
                 .build()
 
-        def subscriber = TransactionStatusObserver.builder()
-                .onTransactionFailed({ failed = true })
-                .onTransactionCommited({ committed = true })
-                .build()
-
-        def observable = api.transaction(valid)
-        observable.blockingSubscribe(subscriber)
+        def sub = new TestTransactionStatusObserver()
+        api.transaction(valid).blockingSubscribe(sub)
 
         then:
         noExceptionThrown()
-        !failed
-        committed
+        sub.assertNTransactionSent(1)
+        sub.assertAllTransactionsCommitted()
+        sub.assertNoTransactionFailed()
     }
 
     def "when sending stateless invalid tx, error is reported"() {
         given:
         def api = iroha.getApi()
-        def failed = false
-        def committed = false
 
         when: "send stateless invalid transaction"
         // invalid account name in create account
@@ -61,25 +53,20 @@ class IrohaAPITest extends Specification {
                 .sign(defaultKeyPair)
                 .build()
 
-        def subscriber = TransactionStatusObserver.builder()
-                .onTransactionFailed({ failed = true })
-                .onTransactionCommited({ committed = true })
-                .build()
-
-        def observable = api.transaction(statelessInvalid)
-        observable.blockingSubscribe(subscriber)
+        def sub = new TestTransactionStatusObserver()
+        api.transaction(statelessInvalid).blockingSubscribe(sub)
 
         then:
         noExceptionThrown()
-        failed
-        !committed
+        sub.assertComplete()
+        sub.assertNTransactionSent(1)
+        sub.assertAllTransactionsFailed()
+        sub.assertNoTransactionCommitted()
     }
 
     def "when sending stateful invalid tx, error is reported"() {
         given:
         def api = iroha.getApi()
-        def failed = false
-        def committed = false
 
         when: "send stateful invalid transaction"
         // unknown creator
@@ -88,18 +75,14 @@ class IrohaAPITest extends Specification {
                 .sign(defaultKeyPair)
                 .build()
 
-        def subscriber = TransactionStatusObserver.builder()
-                .onTransactionFailed({ failed = true })
-                .onTransactionCommited({ committed = true })
-                .build()
-
-        def observable = api.transaction(statefulInvalid)
-        observable.blockingSubscribe(subscriber)
+        def sub = new TestTransactionStatusObserver()
+        api.transaction(statefulInvalid).blockingSubscribe(sub)
 
         then:
         noExceptionThrown()
-        failed
-        !committed
+        sub.assertNTransactionSent(1)
+        sub.assertAllTransactionsFailed()
+        sub.assertNoTransactionCommitted()
     }
 
     def "send transaction list"() {

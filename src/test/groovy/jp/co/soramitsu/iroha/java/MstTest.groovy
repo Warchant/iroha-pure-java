@@ -2,6 +2,7 @@ package jp.co.soramitsu.iroha.java
 
 
 import jp.co.soramitsu.crypto.ed25519.Ed25519Sha3
+import jp.co.soramitsu.iroha.java.debug.TestTransactionStatusObserver
 import jp.co.soramitsu.iroha.testcontainers.IrohaContainer
 import jp.co.soramitsu.iroha.testcontainers.PeerConfig
 import jp.co.soramitsu.iroha.testcontainers.detail.GenesisBlockBuilder
@@ -65,17 +66,8 @@ class MstTest extends Specification {
     }
 
     def "two signers, same process"() {
-        def observer = TransactionStatusObserver.builder()
-                .onError(p("error", true))
-                .onTransactionFailed(p("failed", true))
-                .onTransactionCommited(p("committed"))
-                .onStatelessValidationSuccess(p("stateless success"))
-                .onStatefulValidationSuccess(p("stateful success"))
-                .onMstExpired(p("mst failed", true))
-                .onNotReceived(p("not received", true))
-                .onUnrecognizedStatus(p("unknown status", true))
-                .onComplete({println("Complete!")})
-                .build()
+        def obs = new TestTransactionStatusObserver()
+
         when:
         def t1 = tx()
                 .sign(keyPairA)
@@ -83,57 +75,34 @@ class MstTest extends Specification {
                 .build()
 
         api.transaction(t1)
-                .blockingSubscribe(observer)
+                .blockingSubscribe(obs)
 
         then:
         noExceptionThrown()
         t1.getSignaturesCount() == 2
-
+        obs.assertNTransactionSent(1)
+        obs.assertAllTransactionsCommitted()
+        obs.assertNoTransactionFailed()
     }
 
     def "two signers, only one signed"() {
         given:
-        def onTxFailed = false
-        def observer = TransactionStatusObserver.builder()
-                .onError(p("error", true))
-                .onTransactionFailed(
-                { z ->
-                    p("failed")
-                    onTxFailed = true
-                })
-                .onTransactionCommited(p("committed", true))
-                .onStatelessValidationSuccess(p("stateless success"))
-                .onStatefulValidationSuccess(p("stateful success", true))
-                .onMstExpired(p("mst failed"))
-                .onNotReceived(p("not received", true))
-                .onUnrecognizedStatus(p("unknown status", true))
-                .onComplete({println("Complete!")})
-                .build()
+        def obs = new TestTransactionStatusObserver()
 
         when: "A signed transaction"
         def tx1 = tx().sign(keyPairA).build()
 
         and: "then tx is sent to iroha"
-        def obs = api.transaction(tx1)
-
-        obs.blockingSubscribe(observer)
+        api.transaction(tx1).blockingSubscribe(obs)
 
         then:
-        onTxFailed
+        obs.assertNTransactionSent(1)
+        obs.assertAllTransactionsFailed()
+        obs.assertNoTransactionCommitted()
     }
 
     def "two signers, different processes"() {
-        def observer = TransactionStatusObserver.builder()
-                .onError(p("error", true))
-                .onTransactionFailed(p("failed", true))
-                .onTransactionCommited(p("committed"))
-                .onStatelessValidationSuccess(p("stateless success"))
-                .onStatefulValidationSuccess(p("stateful success"))
-                .onMstExpired(p("mst failed", true))
-                .onNotReceived(p("not received", true))
-                .onUnrecognizedStatus(p("unknown status", true))
-                .onComplete({println("Complete!")})
-                .build()
+        def obs = new TestTransactionStatusObserver()
 
         when: "A signed transaction"
         def tx1 = tx().sign(keyPairA).build()
@@ -145,11 +114,14 @@ class MstTest extends Specification {
 
         and: "then tx is sent to iroha"
         api.transaction(tx2)
-                .blockingSubscribe(observer)
+                .blockingSubscribe(obs)
 
         then:
         noExceptionThrown()
         tx2.getSignaturesCount() == 2
+        obs.assertNTransactionSent(1)
+        obs.assertAllTransactionsCommitted()
+        obs.assertNoTransactionFailed()
     }
 
     def p = { a, fail = false ->
