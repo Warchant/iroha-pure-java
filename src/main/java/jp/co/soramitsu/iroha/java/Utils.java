@@ -5,7 +5,7 @@ import static jp.co.soramitsu.crypto.ed25519.Ed25519Sha3.privateKeyFromBytes;
 import static jp.co.soramitsu.crypto.ed25519.Ed25519Sha3.publicKeyFromBytes;
 
 import com.google.protobuf.ByteString;
-import iroha.protocol.BlockOuterClass;
+import iroha.protocol.BlockOuterClass.Block;
 import iroha.protocol.BlockOuterClass.Block_v1;
 import iroha.protocol.Endpoint.TxList;
 import iroha.protocol.Endpoint.TxStatusRequest;
@@ -39,13 +39,23 @@ public class Utils {
     return sha3.digest(data);
   }
 
+  public static byte[] hash(Block b) {
+    switch (b.getBlockVersionCase()) {
+      case BLOCK_V1:
+        return hash(b.getBlockV1());
+      default:
+        throw new IllegalArgumentException(
+            String.format("Block has undefined version: %s", b.getBlockVersionCase()));
+    }
+  }
+
   public static byte[] hash(Queries.Query q) {
     val sha3 = new SHA3.Digest256();
     val data = q.getPayload().toByteArray();
     return sha3.digest(data);
   }
 
-  static <T extends Hashable> Primitive.Signature sign(T t, KeyPair kp) {
+  /* default */ static <T extends Hashable> Primitive.Signature sign(T t, KeyPair kp) {
     byte[] rawSignature = new Ed25519Sha3().rawSign(t.hash(), kp);
 
     return Signature.newBuilder()
