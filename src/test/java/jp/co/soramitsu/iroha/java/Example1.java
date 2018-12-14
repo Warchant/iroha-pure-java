@@ -140,7 +140,7 @@ public class Example1 {
         .onTransactionFailed(t -> System.out.println(String.format(
             "transaction %s failed with msg: %s",
             DatatypeConverter.printHexBinary(t.getTxHash().toByteArray()),
-            t.getErrorMessage()
+            t.getErrOrCmdName()
         )))
         // executed when got any exception in handlers or grpc
         .onError(e -> System.out.println("Failed with exception: " + e))

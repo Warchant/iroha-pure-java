@@ -126,7 +126,7 @@ public class TransactionBuilder {
                 CreateAccount.newBuilder()
                     .setAccountName(accountName)
                     .setDomainId(domainid)
-                    .setMainPubkey(ByteString.copyFrom(publicKey)).build()
+                    .setPublicKey(ByteString.copyFrom(publicKey)).build()
             ).build()
     );
 
@@ -471,7 +471,7 @@ public class TransactionBuilder {
 
     tx.reducedPayload.addCommands(
         Command.newBuilder()
-            .setRemoveSign(
+            .setRemoveSignatory(
                 RemoveSignatory.newBuilder()
                     .setAccountId(accountId)
                     .setPublicKey(ByteString.copyFrom(publicKey))
@@ -543,7 +543,7 @@ public class TransactionBuilder {
 
     tx.reducedPayload.addCommands(
         Command.newBuilder()
-            .setSetQuorum(
+            .setSetAccountQuorum(
                 SetAccountQuorum.newBuilder()
                     .setAccountId(accountId)
                     .setQuorum(quorum)

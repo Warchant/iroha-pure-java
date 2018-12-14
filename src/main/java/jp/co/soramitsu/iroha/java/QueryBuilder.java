@@ -137,7 +137,7 @@ public class QueryBuilder {
 
     Query query = newQuery();
 
-    query.getProto().setGetAccountSignatories(
+    query.getProto().setGetSignatories(
         GetSignatories.newBuilder()
             .setAccountId(accountId)
             .build()

@@ -6,16 +6,16 @@ import static jp.co.soramitsu.iroha.java.Utils.createTxStatusRequest;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.reactivex.Observable;
-import iroha.protocol.CommandServiceGrpc;
-import iroha.protocol.CommandServiceGrpc.CommandServiceBlockingStub;
-import iroha.protocol.CommandServiceGrpc.CommandServiceStub;
+import iroha.protocol.CommandService_v1Grpc;
+import iroha.protocol.CommandService_v1Grpc.CommandService_v1BlockingStub;
+import iroha.protocol.CommandService_v1Grpc.CommandService_v1Stub;
 import iroha.protocol.Endpoint.ToriiResponse;
 import iroha.protocol.QryResponses.BlockQueryResponse;
 import iroha.protocol.QryResponses.QueryResponse;
 import iroha.protocol.Queries;
-import iroha.protocol.QueryServiceGrpc;
-import iroha.protocol.QueryServiceGrpc.QueryServiceBlockingStub;
-import iroha.protocol.QueryServiceGrpc.QueryServiceStub;
+import iroha.protocol.QueryService_v1Grpc;
+import iroha.protocol.QueryService_v1Grpc.QueryService_v1BlockingStub;
+import iroha.protocol.QueryService_v1Grpc.QueryService_v1Stub;
 import iroha.protocol.TransactionOuterClass;
 import java.io.Closeable;
 import java.net.URI;
@@ -32,10 +32,10 @@ public class IrohaAPI implements Closeable {
 
   private URI uri;
   private ManagedChannel channel;
-  private CommandServiceBlockingStub cmdStub;
-  private CommandServiceStub cmdStreamingStub;
-  private QueryServiceBlockingStub queryStub;
-  private QueryServiceStub queryStreamingStub;
+  private CommandService_v1BlockingStub cmdStub;
+  private CommandService_v1Stub cmdStreamingStub;
+  private QueryService_v1BlockingStub queryStub;
+  private QueryService_v1Stub queryStreamingStub;
 
   public IrohaAPI(URI uri) {
     this(uri.getHost(), uri.getPort());
@@ -44,10 +44,10 @@ public class IrohaAPI implements Closeable {
   @SneakyThrows
   public IrohaAPI(String host, int port) {
     channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext().build();
-    cmdStub = CommandServiceGrpc.newBlockingStub(channel);
-    queryStub = QueryServiceGrpc.newBlockingStub(channel);
-    cmdStreamingStub = CommandServiceGrpc.newStub(channel);
-    queryStreamingStub = QueryServiceGrpc.newStub(channel);
+    cmdStub = CommandService_v1Grpc.newBlockingStub(channel);
+    queryStub = QueryService_v1Grpc.newBlockingStub(channel);
+    cmdStreamingStub = CommandService_v1Grpc.newStub(channel);
+    queryStreamingStub = QueryService_v1Grpc.newStub(channel);
 
     this.uri = new URI("grpc", null, host, port, null, null, null);
   }

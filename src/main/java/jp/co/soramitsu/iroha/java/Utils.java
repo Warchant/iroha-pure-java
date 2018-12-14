@@ -6,6 +6,7 @@ import static jp.co.soramitsu.crypto.ed25519.Ed25519Sha3.publicKeyFromBytes;
 
 import com.google.protobuf.ByteString;
 import iroha.protocol.BlockOuterClass;
+import iroha.protocol.BlockOuterClass.Block_v1;
 import iroha.protocol.Endpoint.TxList;
 import iroha.protocol.Endpoint.TxStatusRequest;
 import iroha.protocol.Primitive;
@@ -32,7 +33,7 @@ public class Utils {
     return sha3.digest(data);
   }
 
-  public static byte[] hash(BlockOuterClass.Block b) {
+  public static byte[] hash(Block_v1 b) {
     val sha3 = new SHA3.Digest256();
     val data = b.getPayload().toByteArray();
     return sha3.digest(data);
@@ -51,7 +52,7 @@ public class Utils {
         .setSignature(
             ByteString.copyFrom(rawSignature)
         )
-        .setPubkey(
+        .setPublicKey(
             ByteString.copyFrom(kp.getPublic().getEncoded())
         )
         .build();
