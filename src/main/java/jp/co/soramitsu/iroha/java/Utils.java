@@ -14,6 +14,8 @@ import iroha.protocol.Primitive.Signature;
 import iroha.protocol.Queries;
 import iroha.protocol.TransactionOuterClass;
 import java.security.KeyPair;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import jp.co.soramitsu.crypto.ed25519.Ed25519Sha3;
 import jp.co.soramitsu.iroha.java.detail.Hashable;
 import lombok.val;
@@ -21,10 +23,27 @@ import org.spongycastle.jcajce.provider.digest.SHA3;
 
 public class Utils {
 
+  /**
+   * @deprecated use {@code Utils.parseHexKeypair}
+   */
+  @Deprecated
   public static KeyPair keyPair(String hexPublicKey, String hexPrivateKey) {
+    return parseHexKeypair(hexPublicKey, hexPrivateKey);
+  }
+
+  public static KeyPair parseHexKeypair(String hexPublicKey, String hexPrivateKey) {
     return new KeyPair(
-        publicKeyFromBytes(parseHexBinary(hexPublicKey)),
-        privateKeyFromBytes(parseHexBinary(hexPrivateKey)));
+        parseHexPublicKey(hexPublicKey),
+        parseHexPrivateKey(hexPrivateKey)
+    );
+  }
+
+  public static PublicKey parseHexPublicKey(String hexPublicKey) {
+    return publicKeyFromBytes(parseHexBinary(hexPublicKey));
+  }
+
+  public static PrivateKey parseHexPrivateKey(String hexPrivateKey) {
+    return privateKeyFromBytes(parseHexBinary(hexPrivateKey));
   }
 
   public static byte[] hash(TransactionOuterClass.Transaction tx) {
@@ -55,7 +74,8 @@ public class Utils {
     return sha3.digest(data);
   }
 
-  /* default */ static <T extends Hashable> Primitive.Signature sign(T t, KeyPair kp) {
+  /* default */
+  static <T extends Hashable> Primitive.Signature sign(T t, KeyPair kp) {
     byte[] rawSignature = new Ed25519Sha3().rawSign(t.hash(), kp);
 
     return Signature.newBuilder()

@@ -114,13 +114,32 @@ class IntegrationTest extends Specification {
         t1.assertNoErrors()
         noExceptionThrown()
 
+        when: "query tx status"
+        def hash = Utils.hash(tx)
+        def status = api.txStatusSync(hash)
+
+        then: "status is committed"
+        status.txStatus == Endpoint.TxStatus.COMMITTED || true
+
         when: "query account"
-        def q = Query.builder(defaultAccountId, 1L)
+        def q
+        def res
+
+        q = Query.builder(defaultAccountId, 1L)
                 .getAccount(defaultAccountId)
                 .buildSigned(defaultKeypair)
-        def res = api.query(q).getAccountResponse()
+        res = api.query(q).getAccountResponse()
 
         then:
         res.getAccount().accountId == defaultAccountId
+
+        when: "get account detail with key='key'"
+        q = Query.builder(defaultAccountId, 2L)
+            .getAccountDetail(defaultAccountId, "key")
+            .buildSigned(defaultKeypair)
+        res = api.query(q).getAccountDetailResponse()
+
+        then: "value is 'value'"
+        res.getDetail() == "value"
     }
 }

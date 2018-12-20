@@ -41,9 +41,7 @@ public class Transaction
   @Override
   public BuildableAndSignable<TransactionOuterClass.Transaction> sign(KeyPair keyPair) {
     updatePayload();
-
     tx.addSignatures(Utils.sign(this, keyPair));
-
     return this;
   }
 

@@ -173,6 +173,8 @@ public class TransactionBuilder {
       this.validator.checkAccountId(sourceAccount);
       this.validator.checkAccountId(destinationAccount);
       this.validator.checkAssetId(assetId);
+      this.validator.checkDescription(description);
+      this.validator.checkAmount(amount);
     }
 
     tx.reducedPayload.addCommands(

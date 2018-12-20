@@ -32,6 +32,7 @@ class FieldValidatorTest extends Specification {
         fv.checkQuorum(quorum)
         fv.checkRoleName(role)
         fv.checkTimestamp(time)
+        fv.checkDescription(description)
 
         then:
         noExceptionThrown()
@@ -49,6 +50,7 @@ class FieldValidatorTest extends Specification {
         quorum = 5
         publicKey = new Ed25519Sha3().generateKeypair().getPublic().getEncoded()
         time = Instant.now().toEpochMilli()
+        description = "description"
     }
 
     def "invalid account is invalid"() {
@@ -96,8 +98,11 @@ class FieldValidatorTest extends Specification {
             case DOMAIN:
                 fv.checkDomain(string as String)
                 break
+            case DESCRIPTION:
+                fv.checkDescription(string as String)
+                break
             default:
-                assert false
+                throw new IllegalStateException("Something went wrong")
 
         }
 
@@ -132,6 +137,7 @@ class FieldValidatorTest extends Specification {
         TIMESTAMP     | -5 // can't be negative
         DOMAIN        | "" // empty
         DOMAIN        | "bogdan!com" // invalid domain
+        DESCRIPTION   | "1" * 100 // too long
 
     }
 }

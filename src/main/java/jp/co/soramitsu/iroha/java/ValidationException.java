@@ -29,6 +29,7 @@ public class ValidationException extends IllegalArgumentException {
     ROLE_NAME,
     DETAILS_KEY,
     DETAILS_VALUE,
-    TIMESTAMP
+    TIMESTAMP,
+    DESCRIPTION
   }
 }
