@@ -5,6 +5,7 @@ import static jp.co.soramitsu.iroha.java.ValidationException.Type.ACCOUNT_NAME;
 import static jp.co.soramitsu.iroha.java.ValidationException.Type.AMOUNT;
 import static jp.co.soramitsu.iroha.java.ValidationException.Type.ASSET_ID;
 import static jp.co.soramitsu.iroha.java.ValidationException.Type.ASSET_NAME;
+import static jp.co.soramitsu.iroha.java.ValidationException.Type.DESCRIPTION;
 import static jp.co.soramitsu.iroha.java.ValidationException.Type.DETAILS_KEY;
 import static jp.co.soramitsu.iroha.java.ValidationException.Type.DETAILS_VALUE;
 import static jp.co.soramitsu.iroha.java.ValidationException.Type.DOMAIN;
@@ -98,6 +99,10 @@ public class FieldValidator {
   public void checkQuorum(int quorum) {
     if (quorum < 1) {
       throw new ValidationException(QUORUM, "Quorum must be positive");
+    }
+
+    if (quorum > 128) {
+      throw new ValidationException(QUORUM, "Quorum should be 0 < quorum <= 128; given %d", quorum);
     }
   }
 
@@ -197,6 +202,17 @@ public class FieldValidator {
   public void checkTimestamp(@NonNull Long time) {
     if (time < 0) {
       throw new ValidationException(TIMESTAMP, "Time must be positive");
+    }
+  }
+
+  public void checkDescription(String description) {
+    if (description == null) {
+      return;
+    }
+
+    int len = description.length();
+    if (len > 64) {
+      throw new ValidationException(DESCRIPTION, "Max length is 64, given string length is '%d'", len);
     }
   }
 }
