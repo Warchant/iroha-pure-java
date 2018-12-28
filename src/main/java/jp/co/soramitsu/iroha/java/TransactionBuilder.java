@@ -3,7 +3,6 @@ package jp.co.soramitsu.iroha.java;
 import static jp.co.soramitsu.iroha.java.Utils.nonNull;
 import static jp.co.soramitsu.iroha.java.detail.Const.accountIdDelimiter;
 
-import com.google.protobuf.ByteString;
 import iroha.protocol.Commands.AddAssetQuantity;
 import iroha.protocol.Commands.AddPeer;
 import iroha.protocol.Commands.AddSignatory;
@@ -30,6 +29,7 @@ import java.security.KeyPair;
 import java.security.PublicKey;
 import java.time.Instant;
 import java.util.Date;
+import javax.xml.bind.DatatypeConverter;
 import jp.co.soramitsu.crypto.ed25519.Ed25519Sha3.CryptoException;
 import jp.co.soramitsu.iroha.java.detail.BuildableAndSignable;
 import lombok.val;
@@ -126,7 +126,7 @@ public class TransactionBuilder {
                 CreateAccount.newBuilder()
                     .setAccountName(accountName)
                     .setDomainId(domainid)
-                    .setPublicKey(ByteString.copyFrom(publicKey)).build()
+                    .setPublicKey(Utils.toHex(publicKey)).build()
             ).build()
     );
 
@@ -244,6 +244,8 @@ public class TransactionBuilder {
       this.validator.checkPublicKey(peerKey);
     }
 
+    val hex = DatatypeConverter.printHexBinary(peerKey);
+
     tx.reducedPayload.addCommands(
         Command.newBuilder()
             .setAddPeer(
@@ -251,7 +253,7 @@ public class TransactionBuilder {
                     .setPeer(
                         Peer.newBuilder()
                             .setAddress(address)
-                            .setPeerKey(ByteString.copyFrom(peerKey))
+                            .setPeerKey(Utils.toHex(peerKey))
                     ).build()
             ).build()
     );
@@ -430,7 +432,7 @@ public class TransactionBuilder {
             .setAddSignatory(
                 AddSignatory.newBuilder()
                     .setAccountId(accountId)
-                    .setPublicKey(ByteString.copyFrom(publicKey))
+                    .setPublicKey(Utils.toHex(publicKey))
                     .build()
             )
             .build()
@@ -476,7 +478,7 @@ public class TransactionBuilder {
             .setRemoveSignatory(
                 RemoveSignatory.newBuilder()
                     .setAccountId(accountId)
-                    .setPublicKey(ByteString.copyFrom(publicKey))
+                    .setPublicKey(Utils.toHex(publicKey))
                     .build()
             )
             .build()

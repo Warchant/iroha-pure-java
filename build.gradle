@@ -8,7 +8,7 @@ plugins {
 }
 
 group = 'jp.co.soramitsu'
-version = 'iroha-v1.0.0_beta-4-ipj-1.0.0'
+version = 'iroha-v1.0.0_rc2-ipj-1.0.0'
 sourceCompatibility = 1.8
 
 jar {
@@ -49,7 +49,7 @@ final def spockVersion = '1.2-groovy-2.4'
 final def edVersion = '2.0.1'
 final def spockGenesisVersion = '0.6.0'
 final def lombokVersion = '1.18.4'
-final def testcontainersIroha = 'iroha-1.0.0_rc2-SNAPSHOT'
+final def testcontainersIroha = 'v1.0.0_rc2-SNAPSHOT'
 final def rxjavaVersion = '2.2.4'
 final def jcabiVersion = '0.22.6'
 

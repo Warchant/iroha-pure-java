@@ -139,7 +139,7 @@ public class Example1 {
         // executed when stateless or stateful validation is failed
         .onTransactionFailed(t -> System.out.println(String.format(
             "transaction %s failed with msg: %s",
-            DatatypeConverter.printHexBinary(t.getTxHash().toByteArray()),
+            t.getTxHash(),
             t.getErrOrCmdName()
         )))
         // executed when got any exception in handlers or grpc

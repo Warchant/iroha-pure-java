@@ -4,7 +4,6 @@ import static javax.xml.bind.DatatypeConverter.parseHexBinary;
 import static jp.co.soramitsu.crypto.ed25519.Ed25519Sha3.privateKeyFromBytes;
 import static jp.co.soramitsu.crypto.ed25519.Ed25519Sha3.publicKeyFromBytes;
 
-import com.google.protobuf.ByteString;
 import iroha.protocol.BlockOuterClass.Block;
 import iroha.protocol.BlockOuterClass.Block_v1;
 import iroha.protocol.Endpoint.TxList;
@@ -16,6 +15,7 @@ import iroha.protocol.TransactionOuterClass;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import javax.xml.bind.DatatypeConverter;
 import jp.co.soramitsu.crypto.ed25519.Ed25519Sha3;
 import jp.co.soramitsu.iroha.java.detail.Hashable;
 import lombok.val;
@@ -80,10 +80,10 @@ public class Utils {
 
     return Signature.newBuilder()
         .setSignature(
-            ByteString.copyFrom(rawSignature)
+            Utils.toHex(rawSignature)
         )
         .setPublicKey(
-            ByteString.copyFrom(kp.getPublic().getEncoded())
+            Utils.toHex(kp.getPublic().getEncoded())
         )
         .build();
   }
@@ -95,7 +95,7 @@ public class Utils {
 
   public static TxStatusRequest createTxStatusRequest(byte[] hash) {
     return TxStatusRequest.newBuilder()
-        .setTxHash(ByteString.copyFrom(hash))
+        .setTxHash(Utils.toHex(hash))
         .build();
   }
 
@@ -103,5 +103,9 @@ public class Utils {
     return TxList.newBuilder()
         .addAllTransactions(list)
         .build();
+  }
+
+  public static String toHex(byte[] b) {
+    return DatatypeConverter.printHexBinary(b);
   }
 }

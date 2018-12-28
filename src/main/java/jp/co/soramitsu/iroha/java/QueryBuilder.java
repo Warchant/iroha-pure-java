@@ -2,7 +2,6 @@ package jp.co.soramitsu.iroha.java;
 
 import static jp.co.soramitsu.iroha.java.Utils.nonNull;
 
-import com.google.protobuf.ByteString;
 import iroha.protocol.Queries.GetAccount;
 import iroha.protocol.Queries.GetAccountAssetTransactions;
 import iroha.protocol.Queries.GetAccountAssets;
@@ -193,7 +192,7 @@ public class QueryBuilder {
             .addAllTxHashes(
                 hashes
                     .stream()
-                    .map(ByteString::copyFrom)
+                    .map(Utils::toHex)
                     .collect(Collectors.toList())
             )
             .build()
