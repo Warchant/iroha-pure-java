@@ -1,24 +1,25 @@
 package jp.co.soramitsu.iroha.java.debug;
 
-import io.reactivex.observers.TestObserver;
 import iroha.protocol.Endpoint.ToriiResponse;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import jp.co.soramitsu.iroha.java.detail.TransactionStatusObserverFace;
+import jp.co.soramitsu.iroha.java.TransactionStatusObserver;
 
-public class TestTransactionStatusObserver extends TestObserver<ToriiResponse> implements
-    TransactionStatusObserverFace {
+public class TestTransactionStatusObserver extends TransactionStatusObserver {
 
   private RuntimeException fail(String format, Object... args) {
     return new RuntimeException(String.format(format, args));
   }
 
-  private AtomicInteger sent = new AtomicInteger();
-  private AtomicInteger committed = new AtomicInteger();
-  private AtomicInteger failed = new AtomicInteger();
+  private AtomicInteger sent = new AtomicInteger(0);
+  private AtomicInteger committed = new AtomicInteger(0);
+  private AtomicInteger failed = new AtomicInteger(0);
+  private AtomicBoolean completed = new AtomicBoolean(false);
+  private Throwable errored;
 
-  public TestTransactionStatusObserver assertNTransactionSent(int n) {
+  public TestTransactionStatusObserver assertNTransactionsSent(int n) {
     if (sent.get() != n) {
-      throw fail("assertNTransactionSent: sent %d, expected %d", sent.get(), n);
+      throw fail("assertNTransactionsSent: sent %d, expected %d", sent.get(), n);
     }
 
     return this;
@@ -65,6 +66,35 @@ public class TestTransactionStatusObserver extends TestObserver<ToriiResponse> i
     return assertNTransactionsCommitted(sent.get());
   }
 
+  public TestTransactionStatusObserver assertComplete() {
+    if (!completed.get()) {
+      throw fail("Observable is not completed");
+    }
+    return this;
+  }
+
+  public TestTransactionStatusObserver assertError() {
+    if (errored == null) {
+      throw fail("Expected error, got noerr");
+    }
+    return this;
+  }
+
+  public TestTransactionStatusObserver assertNoErrors() {
+    if (errored != null) {
+      throw fail("Expected no errors, got %s", errored);
+    }
+    return this;
+  }
+
+  public <T> TestTransactionStatusObserver assertError(Class<T> e) {
+    if (errored.getClass().isInstance(e)) {
+      throw fail("Errored with %s, expected with %s", errored.getClass().toString(),
+          e.toString());
+    }
+    return this;
+  }
+
 
   @Override
   public void onTransactionSent() {
@@ -74,10 +104,22 @@ public class TestTransactionStatusObserver extends TestObserver<ToriiResponse> i
   @Override
   public void onTransactionFailed(ToriiResponse t) {
     failed.incrementAndGet();
+    // TODO(@Warchant): store statuses and add API to check them
+    System.out.println(t);
   }
 
   @Override
   public void onTransactionCommited(ToriiResponse t) {
     committed.incrementAndGet();
+  }
+
+  @Override
+  public void onError(Throwable e) {
+    errored = e;
+  }
+
+  @Override
+  public void onComplete() {
+    completed.set(true);
   }
 }

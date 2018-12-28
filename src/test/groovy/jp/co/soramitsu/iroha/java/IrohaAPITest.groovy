@@ -36,7 +36,7 @@ class IrohaAPITest extends Specification {
 
         then:
         noExceptionThrown()
-        sub.assertNTransactionSent(1)
+        sub.assertNTransactionsSent(1)
         sub.assertAllTransactionsCommitted()
         sub.assertNoTransactionFailed()
     }
@@ -59,7 +59,7 @@ class IrohaAPITest extends Specification {
         then:
         noExceptionThrown()
         sub.assertComplete()
-        sub.assertNTransactionSent(1)
+        sub.assertNTransactionsSent(1)
         sub.assertAllTransactionsFailed()
         sub.assertNoTransactionCommitted()
     }
@@ -80,7 +80,7 @@ class IrohaAPITest extends Specification {
 
         then:
         noExceptionThrown()
-        sub.assertNTransactionSent(1)
+        sub.assertNTransactionsSent(1)
         sub.assertAllTransactionsFailed()
         sub.assertNoTransactionCommitted()
     }
