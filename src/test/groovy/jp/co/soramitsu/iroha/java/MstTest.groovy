@@ -80,7 +80,7 @@ class MstTest extends Specification {
         then:
         noExceptionThrown()
         t1.getSignaturesCount() == 2
-        obs.assertNTransactionSent(1)
+        obs.assertNTransactionsSent(1)
         obs.assertAllTransactionsCommitted()
         obs.assertNoTransactionFailed()
     }
@@ -96,7 +96,7 @@ class MstTest extends Specification {
         api.transaction(tx1).blockingSubscribe(obs)
 
         then:
-        obs.assertNTransactionSent(1)
+        obs.assertNTransactionsSent(1)
         obs.assertAllTransactionsFailed()
         obs.assertNoTransactionCommitted()
     }
@@ -119,7 +119,7 @@ class MstTest extends Specification {
         then:
         noExceptionThrown()
         tx2.getSignaturesCount() == 2
-        obs.assertNTransactionSent(1)
+        obs.assertNTransactionsSent(1)
         obs.assertAllTransactionsCommitted()
         obs.assertNoTransactionFailed()
     }

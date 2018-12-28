@@ -5,6 +5,7 @@ import iroha.protocol.Endpoint
 import iroha.protocol.Primitive
 import iroha.protocol.QryResponses
 import jp.co.soramitsu.crypto.ed25519.Ed25519Sha3
+import jp.co.soramitsu.iroha.java.debug.TestTransactionStatusObserver
 import jp.co.soramitsu.iroha.testcontainers.IrohaContainer
 import jp.co.soramitsu.iroha.testcontainers.PeerConfig
 import jp.co.soramitsu.iroha.testcontainers.detail.GenesisBlockBuilder
@@ -102,15 +103,16 @@ class IntegrationTest extends Specification {
                 .sign(defaultKeypair)
                 .build()
 
-        def t2 = new TestObserver<Endpoint.ToriiResponse>()
+        def t2 = new TestTransactionStatusObserver()
         api.transaction(tx)
                 .blockingSubscribe(t2)
 
         then: "status stream works as expected"
-        t2.assertSubscribed()
+        t2.assertNTransactionsSent(1)
         t2.assertComplete()
         t2.assertNoErrors()
-        t2.assertNoTimeout()
+        t2.assertNoTransactionFailed()
+        t2.assertAllTransactionsCommitted()
         t1.assertNoErrors()
         noExceptionThrown()
 
@@ -135,11 +137,12 @@ class IntegrationTest extends Specification {
 
         when: "get account detail with key='key'"
         q = Query.builder(defaultAccountId, 2L)
-            .getAccountDetail(defaultAccountId, "key")
-            .buildSigned(defaultKeypair)
+                .getAccountDetail(defaultAccountId, "key")
+                .buildSigned(defaultKeypair)
         res = api.query(q).getAccountDetailResponse()
 
         then: "value is 'value'"
+        // FIXME(@Warchant): returns { "test@test" : {"key" : "value"} } for some reason
         res.getDetail() == "value"
     }
 }

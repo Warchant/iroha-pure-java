@@ -122,7 +122,7 @@ class TransactionStatusObserverTest extends Specification {
                 .blockingSubscribe(obs)
 
         then:
-        obs.assertNTransactionSent(1)
+        obs.assertNTransactionsSent(1)
         obs.assertNoTransactionFailed()
         obs.assertAllTransactionsCommitted()
         obs.assertComplete()

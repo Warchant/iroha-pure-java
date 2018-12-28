@@ -17,9 +17,9 @@ public class TestTransactionStatusObserver extends TransactionStatusObserver {
   private AtomicBoolean completed = new AtomicBoolean(false);
   private Throwable errored;
 
-  public TestTransactionStatusObserver assertNTransactionSent(int n) {
+  public TestTransactionStatusObserver assertNTransactionsSent(int n) {
     if (sent.get() != n) {
-      throw fail("assertNTransactionSent: sent %d, expected %d", sent.get(), n);
+      throw fail("assertNTransactionsSent: sent %d, expected %d", sent.get(), n);
     }
 
     return this;
@@ -80,6 +80,13 @@ public class TestTransactionStatusObserver extends TransactionStatusObserver {
     return this;
   }
 
+  public TestTransactionStatusObserver assertNoErrors() {
+    if (errored != null) {
+      throw fail("Expected no errors, got %s", errored);
+    }
+    return this;
+  }
+
   public <T> TestTransactionStatusObserver assertError(Class<T> e) {
     if (errored.getClass().isInstance(e)) {
       throw fail("Errored with %s, expected with %s", errored.getClass().toString(),
@@ -97,6 +104,8 @@ public class TestTransactionStatusObserver extends TransactionStatusObserver {
   @Override
   public void onTransactionFailed(ToriiResponse t) {
     failed.incrementAndGet();
+    // TODO(@Warchant): store statuses and add API to check them
+    System.out.println(t);
   }
 
   @Override
