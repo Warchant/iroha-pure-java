@@ -9,22 +9,26 @@ import jp.co.soramitsu.iroha.testcontainers.detail.GenesisBlockBuilder
 import jp.co.soramitsu.iroha.testcontainers.detail.IrohaConfig
 import spock.lang.Specification
 
+import java.util.concurrent.atomic.AtomicInteger
+
+import static jp.co.soramitsu.iroha.testcontainers.detail.GenesisBlockBuilder.defaultDomainName
+
 class MstTest extends Specification {
 
-    def crypto = new Ed25519Sha3()
+    static def crypto = new Ed25519Sha3()
 
-    def keyPairA = crypto.generateKeypair()
-    def keyPairB = crypto.generateKeypair()
-    def mstAccountId = "mst@test"
+    static def keyPairA = crypto.generateKeypair()
+    static def keyPairB = crypto.generateKeypair()
+    static def mstAccountId = "mst@test"
 
-    def getPeerConfig() {
+    static def getPeerConfig() {
         return PeerConfig.builder()
                 .irohaConfig(getIrohaConfig())
                 .genesisBlock(getGenesisBlock())
                 .build()
     }
 
-    def getGenesisBlock() {
+    static def getGenesisBlock() {
         return new GenesisBlockBuilder()
                 .addDefaultTransaction()
                 .addTransaction(
@@ -37,31 +41,32 @@ class MstTest extends Specification {
                 .build()
     }
 
-    def getIrohaConfig() {
+    static def getIrohaConfig() {
         return IrohaConfig.builder()
                 .mst_enable(true)
                 .build()
     }
 
-    def tx() {
-        def tx = Transaction.builder(mstAccountId)
-                .createAsset("usd", GenesisBlockBuilder.defaultDomainName, 2)
-                .build()
+    static AtomicInteger counter = new AtomicInteger(0)
 
-        return tx
+    def tx() {
+        int i = counter.getAndIncrement()
+        return Transaction.builder(mstAccountId)
+                .createAsset("usd${i}", defaultDomainName, 2)
+                .build()
     }
 
-    def iroha = new IrohaContainer()
+    static IrohaAPI api
+    static def iroha = new IrohaContainer()
             .withPeerConfig(getPeerConfig())
 
-    def api
 
-    def setup() {
+    def setupSpec() {
         iroha.start()
         api = iroha.getApi()
     }
 
-    def cleanup() {
+    def cleanupSpec() {
         iroha.stop()
     }
 
@@ -122,15 +127,5 @@ class MstTest extends Specification {
         obs.assertNTransactionsSent(1)
         obs.assertAllTransactionsCommitted()
         obs.assertNoTransactionFailed()
-    }
-
-    def p = { a, fail = false ->
-        { b ->
-            if (fail) {
-                throw new RuntimeException(b as String)
-            }
-
-            println("${a}: ${b}")
-        }
     }
 }

@@ -17,17 +17,17 @@ import java.util.stream.IntStream
 
 class IntegrationTest extends Specification {
 
-    final def defaultAccount = "test"
-    final def defaultRole = "default"
-    final def defaultDomain = "test"
-    final def defaultKeypair = GenesisBlockBuilder.defaultKeyPair
-    final def defaultAccountId = String.format("%s@%s", defaultAccount, defaultDomain)
+    static final def defaultAccount = "test"
+    static final def defaultRole = "default"
+    static final def defaultDomain = "test"
+    static final def defaultKeypair = GenesisBlockBuilder.defaultKeyPair
+    static final def defaultAccountId = String.format("%s@%s", defaultAccount, defaultDomain)
 
-    IrohaContainer iroha = new IrohaContainer()
+    static IrohaContainer iroha = new IrohaContainer()
 
-    IrohaAPI api
+    static IrohaAPI api
 
-    PeerConfig config = PeerConfig.builder()
+    static PeerConfig config = PeerConfig.builder()
             .genesisBlock(
             new GenesisBlockBuilder()
                     .addTransaction(Transaction.builder((String) null, Instant.now())
@@ -46,14 +46,13 @@ class IntegrationTest extends Specification {
     ).build()
 
 
-    def setup() {
+    def setupSpec() {
         iroha.withPeerConfig(config)
                 .start()
-
-        api = new IrohaAPI(iroha.toriiAddress)
+        api = iroha.getApi()
     }
 
-    def cleanup() {
+    def cleanupSpec() {
         iroha.stop()
     }
 

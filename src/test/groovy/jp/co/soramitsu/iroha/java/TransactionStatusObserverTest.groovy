@@ -1,7 +1,6 @@
 package jp.co.soramitsu.iroha.java
 
 import io.reactivex.Observable
-import iroha.protocol.Endpoint
 import iroha.protocol.Endpoint.ToriiResponse
 import jp.co.soramitsu.iroha.java.debug.TestTransactionStatusObserver
 import jp.co.soramitsu.iroha.testcontainers.IrohaContainer
@@ -24,7 +23,7 @@ class TransactionStatusObserverTest extends Specification {
         }).build()
 
         when:
-        Observable.just(new Endpoint.ToriiResponse())
+        Observable.just(new ToriiResponse())
                 .blockingSubscribe(observer)
 
         then:
@@ -88,7 +87,8 @@ class TransactionStatusObserverTest extends Specification {
         then:
         sent.get()
         esc.get()
-        slvsucc.get()
+        // stateless validation success statuc can be omitted by iroha, so we do not expect it any more
+//        slvsucc.get()
         sfvsucc.get()
         committed.get()
         !rejected.get()

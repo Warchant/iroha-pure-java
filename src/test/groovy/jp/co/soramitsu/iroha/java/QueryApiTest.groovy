@@ -1,7 +1,6 @@
 package jp.co.soramitsu.iroha.java
 
-import iroha.protocol.BlockOuterClass
-import iroha.protocol.TransactionOuterClass
+
 import jp.co.soramitsu.iroha.java.debug.Account
 import jp.co.soramitsu.iroha.testcontainers.IrohaContainer
 import jp.co.soramitsu.iroha.testcontainers.PeerConfig
@@ -18,18 +17,21 @@ class QueryApiTest extends Specification {
     static Account A = Account.create("a@test")
     static Account B = Account.create("b@test")
 
+    static IrohaAPI api
     static def iroha = new IrohaContainer()
             .withPeerConfig(
             PeerConfig.builder()
                     .genesisBlock(getGenesisBlock())
                     .build())
 
-    static {
+    def setupSpec() {
         iroha.start()
         api = iroha.getApi()
     }
 
-    static IrohaAPI api
+    def cleanupSpec() {
+        iroha.stop()
+    }
 
     static def setDetail(Account account, String key, String value) {
         return builder(account.id)

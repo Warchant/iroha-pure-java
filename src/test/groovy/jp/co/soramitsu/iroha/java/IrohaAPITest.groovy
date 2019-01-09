@@ -11,13 +11,13 @@ import static jp.co.soramitsu.iroha.testcontainers.detail.GenesisBlockBuilder.*
 
 class IrohaAPITest extends Specification {
 
-    private IrohaContainer iroha = new IrohaContainer()
-
-    def setup() {
+    static private IrohaContainer iroha = new IrohaContainer()
+    
+    def setupSpec() {
         iroha.start()
     }
 
-    def cleanup() {
+    def cleanupSpec() {
         iroha.stop()
     }
 
