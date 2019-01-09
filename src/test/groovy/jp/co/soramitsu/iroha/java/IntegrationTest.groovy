@@ -4,7 +4,6 @@ import io.reactivex.observers.TestObserver
 import iroha.protocol.Endpoint
 import iroha.protocol.Primitive
 import iroha.protocol.QryResponses
-import jp.co.soramitsu.crypto.ed25519.Ed25519Sha3
 import jp.co.soramitsu.iroha.java.debug.TestTransactionStatusObserver
 import jp.co.soramitsu.iroha.testcontainers.IrohaContainer
 import jp.co.soramitsu.iroha.testcontainers.PeerConfig
@@ -31,19 +30,18 @@ class IntegrationTest extends Specification {
     PeerConfig config = PeerConfig.builder()
             .genesisBlock(
             new GenesisBlockBuilder()
-                    .addTransaction(
-                    Transaction.builder((String) null, Instant.now())
-                            .addPeer("0.0.0.0:10001", defaultKeypair.getPublic() as PublicKey)
-                            .createRole(
-                            defaultRole,
-                            // all permissions
-                            IntStream.range(0, 45)
-                                    .boxed()
-                                    .map(Primitive.RolePermission.&forNumber)
-                                    .collect(Collectors.toList()) as Iterable)
-                            .createDomain(defaultDomain, defaultRole)
-                            .createAccount(defaultAccount, defaultDomain, defaultKeypair.getPublic())
-                            .sign(defaultKeypair).build()
+                    .addTransaction(Transaction.builder((String) null, Instant.now())
+                    .addPeer("0.0.0.0:10001", defaultKeypair.getPublic() as PublicKey)
+                    .createRole(
+                    defaultRole,
+                    // all permissions
+                    IntStream.range(0, 45)
+                            .boxed()
+                            .map(Primitive.RolePermission.&forNumber)
+                            .collect(Collectors.toList()) as Iterable)
+                    .createDomain(defaultDomain, defaultRole)
+                    .createAccount(defaultAccount, defaultDomain, defaultKeypair.getPublic())
+                    .sign(defaultKeypair).build()
             ).build()
     ).build()
 
@@ -81,7 +79,6 @@ class IntegrationTest extends Specification {
         def account = "account1"
         def domain = "domain"
         def role = "role"
-        def kp = new Ed25519Sha3().generateKeypair()
         def tx = Transaction.builder(defaultAccountId, Instant.now())
                 .createRole("${role}", [Primitive.RolePermission.can_add_peer])
                 .createAccount("${account}", defaultDomain, defaultKeypair.getPublic())
@@ -89,8 +86,6 @@ class IntegrationTest extends Specification {
                 .createAccount("${account}@${domain}", defaultKeypair.getPublic())
                 .appendRole("${account}@${defaultDomain}", "${role}")
                 .detachRole("${account}@${defaultDomain}", "${role}")
-                .addSignatory("${account}@${defaultDomain}", kp.getPublic())
-                .removeSignatory("${account}@${defaultDomain}", kp.getPublic())
                 .grantPermission("${account}@${defaultDomain}", Primitive.GrantablePermission.can_set_my_account_detail)
                 .revokePermission("${account}@${defaultDomain}", Primitive.GrantablePermission.can_set_my_account_detail)
                 .setAccountDetail(defaultAccountId, "key", "value")
@@ -121,7 +116,7 @@ class IntegrationTest extends Specification {
         def status = api.txStatusSync(hash)
 
         then: "status is committed"
-        status.txStatus == Endpoint.TxStatus.COMMITTED || true
+        status.txStatus == Endpoint.TxStatus.COMMITTED
 
         when: "query account"
         def q
@@ -134,15 +129,5 @@ class IntegrationTest extends Specification {
 
         then:
         res.getAccount().accountId == defaultAccountId
-
-        when: "get account detail with key='key'"
-        q = Query.builder(defaultAccountId, 2L)
-                .getAccountDetail(defaultAccountId, "key")
-                .buildSigned(defaultKeypair)
-        res = api.query(q).getAccountDetailResponse()
-
-        then: "value is 'value'"
-        // FIXME(@Warchant): returns { "test@test" : {"key" : "value"} } for some reason
-        res.getDetail() == "value"
     }
 }

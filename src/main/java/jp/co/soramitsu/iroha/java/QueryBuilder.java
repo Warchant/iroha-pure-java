@@ -18,6 +18,7 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.val;
 
 public class QueryBuilder {
 
@@ -163,23 +164,44 @@ public class QueryBuilder {
     return query;
   }
 
+  /**
+   * Get account detail. Each field is optional.
+   *
+   * @param accountId where to get "detail"; can be null
+   * @param writer filter by writer; can be null
+   * @param key filter by key; can be null
+   */
   public Query getAccountDetail(
       String accountId,
+      String writer,
       String key
   ) {
-    if (nonNull(this.validator)) {
-      this.validator.checkAccountId(accountId);
-      this.validator.checkAccountDetailsKey(key);
+
+    val b = GetAccountDetail.newBuilder();
+
+    if (nonNull(accountId)) {
+      if (nonNull(this.validator)) {
+        this.validator.checkAccountId(accountId);
+      }
+      b.setAccountId(accountId);
+    }
+
+    if (nonNull(writer)) {
+      if (nonNull(this.validator)) {
+        this.validator.checkAccountId(writer);
+      }
+      b.setWriter(writer);
+    }
+
+    if (nonNull(key)) {
+      if (nonNull(this.validator)) {
+        this.validator.checkAccountDetailsKey(key);
+      }
+      b.setKey(key);
     }
 
     Query query = newQuery();
-
-    query.getProto().setGetAccountDetail(
-        GetAccountDetail.newBuilder()
-            .setAccountId(accountId)
-            .setKey(key)
-            .build()
-    );
+    query.getProto().setGetAccountDetail(b);
 
     return query;
   }
@@ -190,8 +212,7 @@ public class QueryBuilder {
     query.getProto().setGetTransactions(
         GetTransactions.newBuilder()
             .addAllTxHashes(
-                hashes
-                    .stream()
+                hashes.stream()
                     .map(Utils::toHex)
                     .collect(Collectors.toList())
             )
