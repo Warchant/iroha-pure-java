@@ -3,9 +3,11 @@ package jp.co.soramitsu.iroha.java;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import iroha.protocol.Endpoint.ToriiResponse;
+import iroha.protocol.Endpoint.TxStatus;
 import jp.co.soramitsu.iroha.java.detail.InlineTransactionStatusObserver;
 import jp.co.soramitsu.iroha.java.detail.InlineTransactionStatusObserver.InlineTransactionStatusObserverBuilder;
 import jp.co.soramitsu.iroha.java.detail.TransactionStatusObserverFace;
+import jp.co.soramitsu.iroha.java.routers.TxStatusRouter;
 
 /**
  * Subscriber for Iroha Transaction Statuses.
@@ -40,45 +42,30 @@ import jp.co.soramitsu.iroha.java.detail.TransactionStatusObserverFace;
 public abstract class TransactionStatusObserver implements Observer<ToriiResponse>,
     TransactionStatusObserverFace {
 
+  private TxStatusRouter router = new TxStatusRouter();
+
+  public TransactionStatusObserver() {
+    router.handle(TxStatus.STATELESS_VALIDATION_FAILED, this::onTransactionFailed);
+    router.handle(TxStatus.STATEFUL_VALIDATION_FAILED, this::onTransactionFailed);
+    router.handle(TxStatus.STATELESS_VALIDATION_SUCCESS, this::onStatelessValidationSuccess);
+    router.handle(TxStatus.STATEFUL_VALIDATION_SUCCESS, this::onStatefulValidationSuccess);
+    router.handle(TxStatus.COMMITTED, this::onTransactionCommited);
+    router.handle(TxStatus.MST_EXPIRED, this::onMstExpired);
+    router.handle(TxStatus.MST_PENDING, this::onMstPending);
+    router.handle(TxStatus.ENOUGH_SIGNATURES_COLLECTED, this::onEnoughSignaturesCollected);
+    router.handle(TxStatus.NOT_RECEIVED, this::onNotReceived);
+    router.handle(TxStatus.REJECTED, this::onRejected);
+
+    router.handleDefault(this::onUnrecognizedStatus);
+  }
+
   /**
    * Main router, which parses standard status stream and routes statuses over current transaction
    * lifecycle.
    */
   @Override
   public final void onNext(ToriiResponse t) {
-    switch (t.getTxStatus()) {
-      case STATELESS_VALIDATION_FAILED:
-      case STATEFUL_VALIDATION_FAILED:
-        this.onTransactionFailed(t);
-        break;
-      case STATELESS_VALIDATION_SUCCESS:
-        this.onStatelessValidationSuccess(t);
-        break;
-      case STATEFUL_VALIDATION_SUCCESS:
-        this.onStatefulValidationSuccess(t);
-        break;
-      case COMMITTED:
-        this.onTransactionCommited(t);
-        break;
-      case MST_EXPIRED:
-        this.onMstExpired(t);
-        break;
-      case MST_PENDING:
-        this.onMstPending(t);
-        break;
-      case ENOUGH_SIGNATURES_COLLECTED:
-        this.onEnoughSignaturesCollected(t);
-        break;
-      case NOT_RECEIVED:
-        this.onNotReceived(t);
-        break;
-      case REJECTED:
-        this.onRejected(t);
-        break;
-      default:
-        this.onUnrecognizedStatus(t);
-        break;
-    }
+    router.process(t);
   }
 
   /**

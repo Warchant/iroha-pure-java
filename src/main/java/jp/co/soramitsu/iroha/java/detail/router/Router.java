@@ -35,7 +35,7 @@ public class Router<T, R> {
   private Consumer<T> defaultHandler = c -> {
   };
   private Map<R, Consumer<T>> handlers = new HashMap<>();
-  private Function<T, T> middleware;
+  private Function<T, T> middleware = c -> c;
 
   @NonNull
   private final Function<T, R> getType;
@@ -46,7 +46,7 @@ public class Router<T, R> {
   }
 
   public Router use(Function<T, T> m) {
-    this.middleware = this.middleware == null ? m : this.middleware.andThen(m);
+    this.middleware = this.middleware.andThen(m);
     return this;
   }
 
