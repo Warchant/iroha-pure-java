@@ -17,7 +17,7 @@ Please read [contribuition guide](./CONTRIBUTING.md).
 
 # compatibility with iroha
 
-This version is compatible with [`iroha-v1.0.0_rc1`](https://github.com/hyperledger/iroha/releases/tag/1.0.0_rc1) only.
+This version is compatible with [`iroha-v1.0.0_rc2`](https://github.com/hyperledger/iroha/releases/tag/1.0.0_rc2) only.
 
 # example
 
