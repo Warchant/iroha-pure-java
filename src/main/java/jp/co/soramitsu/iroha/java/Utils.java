@@ -46,6 +46,12 @@ public class Utils {
     return privateKeyFromBytes(parseHexBinary(hexPrivateKey));
   }
 
+  public static byte[] reducedHash(TransactionOuterClass.Transaction tx) {
+    val sha3 = new SHA3.Digest256();
+    val data = tx.getPayload().getReducedPayload().toByteArray();
+    return sha3.digest(data);
+  }
+
   public static byte[] hash(TransactionOuterClass.Transaction tx) {
     val sha3 = new SHA3.Digest256();
     val data = tx.getPayload().toByteArray();
