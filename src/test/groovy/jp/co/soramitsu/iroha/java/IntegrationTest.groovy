@@ -4,6 +4,7 @@ import io.reactivex.observers.TestObserver
 import iroha.protocol.Endpoint
 import iroha.protocol.Primitive
 import iroha.protocol.QryResponses
+import iroha.protocol.TransactionOuterClass
 import jp.co.soramitsu.iroha.java.debug.TestTransactionStatusObserver
 import jp.co.soramitsu.iroha.testcontainers.IrohaContainer
 import jp.co.soramitsu.iroha.testcontainers.PeerConfig
@@ -128,5 +129,59 @@ class IntegrationTest extends Specification {
 
         then:
         res.getAccount().accountId == defaultAccountId
+
+        when: "transactions batch is created and sent to iroha"
+        def anotherAccount = "anotheraccount"
+        def now = Instant.now()
+        def anotherAccountId = "${anotherAccount}@${defaultDomain}"
+        def batchPrototype = [
+                Transaction.builder(defaultAccountId, now)
+                        .createAccount("${anotherAccount}", defaultDomain, defaultKeypair.getPublic())
+                        .sign(defaultKeypair)
+                        .build(),
+                Transaction.builder(defaultAccountId, now)
+                        .appendRole(anotherAccountId, "${role}")
+                        .sign(defaultKeypair)
+                        .build(),
+                Transaction.builder(defaultAccountId, now)
+                        .setAccountDetail(anotherAccountId, "key", "value")
+                        .sign(defaultKeypair)
+                        .build()
+        ]
+        def batch_reduced_hashes = [
+                Utils.toHex(Utils.reducedHash(batchPrototype.get(0))),
+                Utils.toHex(Utils.reducedHash(batchPrototype.get(1))),
+                Utils.toHex(Utils.reducedHash(batchPrototype.get(2)))
+        ]
+        def batch = [
+                Transaction.builder(defaultAccountId, now)
+                        .createAccount("${anotherAccount}", defaultDomain, defaultKeypair.getPublic())
+                        .setBatchMeta(TransactionOuterClass.Transaction.Payload.BatchMeta.BatchType.ORDERED, batch_reduced_hashes)
+                        .sign(defaultKeypair)
+                        .build(),
+                Transaction.builder(defaultAccountId, now)
+                        .appendRole(anotherAccountId, "${role}")
+                        .setBatchMeta(TransactionOuterClass.Transaction.Payload.BatchMeta.BatchType.ORDERED, batch_reduced_hashes)
+                        .sign(defaultKeypair)
+                        .build(),
+                Transaction.builder(defaultAccountId, now)
+                        .setAccountDetail(anotherAccountId, "key", "value")
+                        .setBatchMeta(TransactionOuterClass.Transaction.Payload.BatchMeta.BatchType.ORDERED, batch_reduced_hashes)
+                        .sign(defaultKeypair)
+                        .build()
+        ]
+        api.transactionListSync(batch)
+        Thread.sleep(2000)
+        then: "transaction result was committed"
+        def queryResponse = api.query(
+                Query.builder(defaultAccountId, 1)
+                        .getAccount(anotherAccountId)
+                        .buildSigned(defaultKeypair)
+        ).getAccountResponse()
+
+        then: "account is created, role is appended and details are set"
+        queryResponse.account.accountId == anotherAccountId
+        queryResponse.accountRolesCount == 2
+        queryResponse.getAccount().jsonData == "{\"test@test\": {\"key\": \"value\"}}"
     }
 }
