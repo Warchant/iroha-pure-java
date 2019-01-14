@@ -3,6 +3,7 @@ package jp.co.soramitsu.iroha.java;
 import com.google.protobuf.InvalidProtocolBufferException;
 import iroha.protocol.TransactionOuterClass;
 import iroha.protocol.TransactionOuterClass.Transaction.Payload;
+import iroha.protocol.TransactionOuterClass.Transaction.Payload.BatchMeta;
 import iroha.protocol.TransactionOuterClass.Transaction.Payload.ReducedPayload;
 import java.security.KeyPair;
 import java.time.Instant;
@@ -21,10 +22,19 @@ public class Transaction
 
   /* default */ ReducedPayload.Builder reducedPayload = ReducedPayload.newBuilder();
 
+  /* default */ BatchMeta.Builder batchMeta = BatchMeta.newBuilder();
+
   /* default */ void updatePayload() {
     tx.setPayload(
         getProto()
             .setReducedPayload(reducedPayload)
+    );
+  }
+
+  /* default */ void updateBatch() {
+    tx.setPayload(
+        getProto()
+            .setBatch(batchMeta)
     );
   }
 
@@ -36,6 +46,7 @@ public class Transaction
     super(Payload.newBuilder(tx.getPayload()));
     this.tx = TransactionOuterClass.Transaction.newBuilder(tx);
     this.reducedPayload = ReducedPayload.newBuilder(tx.getPayload().getReducedPayload());
+    this.batchMeta = BatchMeta.newBuilder(tx.getPayload().getBatch());
   }
 
   @Override

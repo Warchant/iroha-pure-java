@@ -3,6 +3,7 @@ package jp.co.soramitsu.iroha.java;
 import static jp.co.soramitsu.iroha.java.Utils.nonNull;
 import static jp.co.soramitsu.iroha.java.detail.Const.accountIdDelimiter;
 
+import com.google.protobuf.ByteString;
 import iroha.protocol.Commands.AddAssetQuantity;
 import iroha.protocol.Commands.AddPeer;
 import iroha.protocol.Commands.AddSignatory;
@@ -24,6 +25,7 @@ import iroha.protocol.Primitive.GrantablePermission;
 import iroha.protocol.Primitive.Peer;
 import iroha.protocol.Primitive.RolePermission;
 import iroha.protocol.TransactionOuterClass;
+import iroha.protocol.TransactionOuterClass.Transaction.Payload.BatchMeta.BatchType;
 import java.math.BigDecimal;
 import java.security.KeyPair;
 import java.security.PublicKey;
@@ -562,6 +564,14 @@ public class TransactionBuilder {
 
   public TransactionBuilder subtractAssetQuantity(String assetId, BigDecimal amount) {
     return this.subtractAssetQuantity(assetId, amount.toPlainString());
+  }
+
+  public TransactionBuilder setBatchMeta(BatchType batchType, Iterable<String> hashes) {
+    tx.batchMeta.setType(batchType);
+    tx.batchMeta.addAllReducedHashes(hashes);
+    tx.updateBatch();
+
+    return this;
   }
 
   public BuildableAndSignable<TransactionOuterClass.Transaction> sign(KeyPair keyPair)
