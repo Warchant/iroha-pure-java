@@ -5,7 +5,6 @@ import iroha.protocol.Primitive.RolePermission;
 import java.math.BigDecimal;
 import java.security.KeyPair;
 import java.util.Arrays;
-import javax.xml.bind.DatatypeConverter;
 import jp.co.soramitsu.crypto.ed25519.Ed25519Sha3;
 import jp.co.soramitsu.iroha.testcontainers.IrohaContainer;
 import jp.co.soramitsu.iroha.testcontainers.PeerConfig;
@@ -45,7 +44,7 @@ public class Example1 {
         // first transaction
         .addTransaction(
             // transactions in genesis block can have no creator
-            Transaction.builder(null)
+            Transaction.builder((String) null)
                 // by default peer is listening on port 10001
                 .addPeer("0.0.0.0:10001", peerKeypair.getPublic())
                 // create default "user" role

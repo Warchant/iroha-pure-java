@@ -12,9 +12,12 @@ import iroha.protocol.Primitive;
 import iroha.protocol.Primitive.Signature;
 import iroha.protocol.Queries;
 import iroha.protocol.TransactionOuterClass;
+import iroha.protocol.TransactionOuterClass.Transaction.Payload.BatchMeta.BatchType;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import javax.xml.bind.DatatypeConverter;
 import jp.co.soramitsu.crypto.ed25519.Ed25519Sha3;
 import jp.co.soramitsu.iroha.java.detail.Hashable;
@@ -114,6 +117,34 @@ public class Utils {
     return TxList.newBuilder()
         .addAllTransactions(list)
         .build();
+  }
+
+  public static Iterable<TransactionOuterClass.Transaction> createTxOrderedBatch(
+      Iterable<TransactionOuterClass.Transaction> list, KeyPair keyPair) {
+    return createBatch(list, BatchType.ORDERED, keyPair);
+  }
+
+  public static Iterable<TransactionOuterClass.Transaction> createTxAtomicBatch(
+      Iterable<TransactionOuterClass.Transaction> list, KeyPair keyPair) {
+    return createBatch(list, BatchType.ATOMIC, keyPair);
+
+  }
+
+  private static Iterable<String> getBatchHashes(Iterable<TransactionOuterClass.Transaction> list) {
+    return StreamSupport.stream(list.spliterator(), false)
+        .map(tx -> toHex(reducedHash(tx))).collect(Collectors.toList());
+  }
+
+  private static Iterable<TransactionOuterClass.Transaction> createBatch(
+      Iterable<TransactionOuterClass.Transaction> list, BatchType batchType, KeyPair keyPair) {
+    final Iterable<String> batchHashes = getBatchHashes(list);
+    return StreamSupport.stream(list.spliterator(), false)
+        .map(tx -> {
+          TransactionBuilder builder = Transaction.builder(tx);
+          builder.setBatchMeta(batchType, batchHashes);
+          return builder.sign(keyPair).build();
+        })
+        .collect(Collectors.toList());
   }
 
   public static String toHex(byte[] b) {

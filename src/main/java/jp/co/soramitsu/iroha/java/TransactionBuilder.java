@@ -3,7 +3,6 @@ package jp.co.soramitsu.iroha.java;
 import static jp.co.soramitsu.iroha.java.Utils.nonNull;
 import static jp.co.soramitsu.iroha.java.detail.Const.accountIdDelimiter;
 
-import com.google.protobuf.ByteString;
 import iroha.protocol.Commands.AddAssetQuantity;
 import iroha.protocol.Commands.AddPeer;
 import iroha.protocol.Commands.AddSignatory;
@@ -26,6 +25,7 @@ import iroha.protocol.Primitive.Peer;
 import iroha.protocol.Primitive.RolePermission;
 import iroha.protocol.TransactionOuterClass;
 import iroha.protocol.TransactionOuterClass.Transaction.Payload.BatchMeta.BatchType;
+import iroha.protocol.TransactionOuterClass.Transaction.Payload.ReducedPayload;
 import java.math.BigDecimal;
 import java.security.KeyPair;
 import java.security.PublicKey;
@@ -69,6 +69,12 @@ public class TransactionBuilder {
 
   public TransactionBuilder(String accountId, Long time) {
     init(accountId, time);
+  }
+
+  public TransactionBuilder(TransactionOuterClass.Transaction transaction) {
+    tx = new Transaction(transaction);
+    final ReducedPayload reducedPayload = transaction.getPayload().getReducedPayload();
+    init(reducedPayload.getCreatorAccountId(), reducedPayload.getCreatedTime());
   }
 
   public TransactionBuilder disableValidation() {

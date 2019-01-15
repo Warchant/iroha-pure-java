@@ -4,7 +4,6 @@ import io.reactivex.observers.TestObserver
 import iroha.protocol.Endpoint
 import iroha.protocol.Primitive
 import iroha.protocol.QryResponses
-import iroha.protocol.TransactionOuterClass.Transaction.Payload.BatchMeta.BatchType
 import jp.co.soramitsu.iroha.java.debug.TestTransactionStatusObserver
 import jp.co.soramitsu.iroha.testcontainers.IrohaContainer
 import jp.co.soramitsu.iroha.testcontainers.PeerConfig
@@ -133,30 +132,22 @@ class IntegrationTest extends Specification {
         when: "transactions batch is created and sent to iroha"
         def anotherAccount = "anotheraccount"
         def anotherAccountId = "${anotherAccount}@${defaultDomain}"
-        def batchPrepare = [
+        def batch = [
                 Transaction.builder(defaultAccountId, Instant.now())
-                        .createAccount("${anotherAccount}", defaultDomain, defaultKeypair.getPublic()),
+                        .createAccount("${anotherAccount}", defaultDomain, defaultKeypair.getPublic())
+                        .build().build(),
                 Transaction.builder(defaultAccountId, Instant.now())
-                        .appendRole(anotherAccountId, "${role}"),
+                        .appendRole(anotherAccountId, "${role}")
+                        .build().build(),
                 Transaction.builder(defaultAccountId, Instant.now())
                         .setAccountDetail(anotherAccountId, "key", "value")
+                        .build().build()
         ]
-        def batchReducedHashes = batchPrepare
-                .stream()
-                .map({ batchTxBuilder -> batchTxBuilder.build() })
-                .map({ batchTx -> ((Transaction) batchTx).getReducedHashHex() })
-                .collect(Collectors.toList())
-        def batch = batchPrepare
-                .stream()
-                .map({ batchTxBuilder ->
-            batchTxBuilder.setBatchMeta(BatchType.ORDERED, batchReducedHashes)
-            batchTxBuilder.sign(defaultKeypair).build()
-        })
-                .collect(Collectors.toList())
 
-        api.transactionListSync(batch)
+        def trueBatch = Utils.createTxAtomicBatch(batch, defaultKeypair)
+        api.transactionListSync(trueBatch)
         Thread.sleep(2000)
-        
+
         then: "transaction result was committed"
         def queryResponse = api.query(
                 Query.builder(defaultAccountId, 1)

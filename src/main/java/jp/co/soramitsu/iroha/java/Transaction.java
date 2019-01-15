@@ -98,4 +98,8 @@ public class Transaction
   public static TransactionBuilder builder(String accountId) {
     return builder(accountId, System.currentTimeMillis());
   }
+
+  public static TransactionBuilder builder(TransactionOuterClass.Transaction transaction) {
+    return new TransactionBuilder(transaction);
+  }
 }
