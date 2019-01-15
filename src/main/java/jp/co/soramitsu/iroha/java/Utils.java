@@ -140,7 +140,7 @@ public class Utils {
     final Iterable<String> batchHashes = getBatchHashes(list);
     return StreamSupport.stream(list.spliterator(), false)
         .map(tx -> {
-          TransactionBuilder builder = Transaction.builder(tx);
+          TransactionBuilder builder = Transaction.parseFrom(tx).makeMutable();
           builder.setBatchMeta(batchType, batchHashes);
           return builder.sign(keyPair).build();
         })

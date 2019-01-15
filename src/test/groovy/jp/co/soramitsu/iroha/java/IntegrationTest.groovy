@@ -135,13 +135,16 @@ class IntegrationTest extends Specification {
         def atomicBatch = [
                 Transaction.builder(defaultAccountId, Instant.now())
                         .createAccount("${anotherAccount}", defaultDomain, defaultKeypair.getPublic())
-                        .build().build(),
+                        .sign(defaultKeypair)
+                        .build(),
                 Transaction.builder(defaultAccountId, Instant.now())
                         .appendRole(anotherAccountId, "${role}")
-                        .build().build(),
+                        .sign(defaultKeypair)
+                        .build(),
                 Transaction.builder(defaultAccountId, Instant.now())
                         .setAccountDetail(anotherAccountId, "key", "value")
-                        .build().build()
+                        .sign(defaultKeypair)
+                        .build()
         ]
 
         def trueBatch = Utils.createTxAtomicBatch(atomicBatch, defaultKeypair)
@@ -166,13 +169,15 @@ class IntegrationTest extends Specification {
         def orderedBatch = [
                 Transaction.builder(defaultAccountId, Instant.now())
                         .createAccount("${anotherAccount}", defaultDomain, defaultKeypair.getPublic())
-                        .build().build(),
+                        .sign(defaultKeypair)
+                        .build(),
                 Transaction.builder(defaultAccountId, Instant.now())
                         .appendRole(anotherAccountId, "unknownrole")
                         .build().build(),
                 Transaction.builder(defaultAccountId, Instant.now())
                         .setAccountDetail(anotherAccountId, "key", "value")
-                        .build().build()
+                        .sign(defaultKeypair)
+                        .build()
         ]
 
         trueBatch = Utils.createTxOrderedBatch(orderedBatch, defaultKeypair)

@@ -25,7 +25,6 @@ import iroha.protocol.Primitive.Peer;
 import iroha.protocol.Primitive.RolePermission;
 import iroha.protocol.TransactionOuterClass;
 import iroha.protocol.TransactionOuterClass.Transaction.Payload.BatchMeta.BatchType;
-import iroha.protocol.TransactionOuterClass.Transaction.Payload.ReducedPayload;
 import java.math.BigDecimal;
 import java.security.KeyPair;
 import java.security.PublicKey;
@@ -39,9 +38,10 @@ import lombok.val;
 public class TransactionBuilder {
 
   private FieldValidator validator;
-  private Transaction tx = new Transaction();
+  private Transaction tx;
 
   private void init(String accountId, Long time) {
+    tx = new Transaction();
     if (nonNull(accountId)) {
       setCreatorAccountId(accountId);
     }
@@ -71,10 +71,8 @@ public class TransactionBuilder {
     init(accountId, time);
   }
 
-  public TransactionBuilder(TransactionOuterClass.Transaction transaction) {
-    tx = new Transaction(transaction);
-    final ReducedPayload reducedPayload = transaction.getPayload().getReducedPayload();
-    init(reducedPayload.getCreatorAccountId(), reducedPayload.getCreatedTime());
+  /* default */ TransactionBuilder(Transaction transaction) {
+    tx = transaction;
   }
 
   public TransactionBuilder disableValidation() {
