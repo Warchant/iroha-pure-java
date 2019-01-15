@@ -10,7 +10,6 @@ import java.time.Instant;
 import java.util.Date;
 import jp.co.soramitsu.iroha.java.detail.BuildableAndSignable;
 import jp.co.soramitsu.iroha.java.detail.Hashable;
-import jp.co.soramitsu.iroha.java.detail.Mutable;
 import jp.co.soramitsu.iroha.java.detail.ReducedHashable;
 import lombok.val;
 
@@ -18,8 +17,7 @@ public class Transaction
     extends
     Hashable<TransactionOuterClass.Transaction.Payload.Builder>  // should be Payload.Builder
     implements BuildableAndSignable<TransactionOuterClass.Transaction>,
-    ReducedHashable,
-    Mutable<TransactionBuilder> {
+    ReducedHashable {
 
   private TransactionOuterClass.Transaction.Builder tx = TransactionOuterClass.Transaction
       .newBuilder();
@@ -76,11 +74,8 @@ public class Transaction
     return Utils.toHex(getReducedHash());
   }
 
-  @Override
   public TransactionBuilder makeMutable() {
-    while (tx.getSignaturesCount() > 0) {
-      tx.removeSignatures(0);
-    }
+    tx.clearSignatures();
     return new TransactionBuilder(this);
   }
 

@@ -130,14 +130,15 @@ public class Utils {
 
   }
 
-  private static Iterable<String> getBatchHashes(Iterable<TransactionOuterClass.Transaction> list) {
+  private static Iterable<String> getBatchHashesHex(
+      Iterable<TransactionOuterClass.Transaction> list) {
     return StreamSupport.stream(list.spliterator(), false)
         .map(tx -> toHex(reducedHash(tx))).collect(Collectors.toList());
   }
 
   private static Iterable<TransactionOuterClass.Transaction> createBatch(
       Iterable<TransactionOuterClass.Transaction> list, BatchType batchType, KeyPair keyPair) {
-    final Iterable<String> batchHashes = getBatchHashes(list);
+    final Iterable<String> batchHashes = getBatchHashesHex(list);
     return StreamSupport.stream(list.spliterator(), false)
         .map(tx -> {
           TransactionBuilder builder = Transaction.parseFrom(tx).makeMutable();
