@@ -1,5 +1,6 @@
 package jp.co.soramitsu.iroha.java;
 
+import iroha.protocol.QryResponses.AccountResponse;
 import java.security.KeyPair;
 import java.util.concurrent.atomic.AtomicInteger;
 import jp.co.soramitsu.iroha.java.debug.Account;
@@ -45,6 +46,16 @@ public class QueryAPI {
     val adr = res.getAccountDetailResponse();
 
     return adr.getDetail();
+  }
+
+  public AccountResponse getAccount(String accountId) {
+    val q = Query.builder(this.accountId, counter.getAndIncrement())
+        .getAccount(accountId)
+        .buildSigned(keyPair);
+
+    val res = api.query(q);
+
+    return res.getAccountResponse();
   }
 
 }

@@ -133,18 +133,21 @@ public class Utils {
   private static Iterable<String> getBatchHashesHex(
       Iterable<TransactionOuterClass.Transaction> list) {
     return StreamSupport.stream(list.spliterator(), false)
-        .map(tx -> toHex(reducedHash(tx))).collect(Collectors.toList());
+        .map(tx -> toHex(reducedHash(tx)))
+        .collect(Collectors.toList());
   }
 
   private static Iterable<TransactionOuterClass.Transaction> createBatch(
       Iterable<TransactionOuterClass.Transaction> list, BatchType batchType, KeyPair keyPair) {
     final Iterable<String> batchHashes = getBatchHashesHex(list);
     return StreamSupport.stream(list.spliterator(), false)
-        .map(tx -> {
-          TransactionBuilder builder = Transaction.parseFrom(tx).makeMutable();
-          builder.setBatchMeta(batchType, batchHashes);
-          return builder.sign(keyPair).build();
-        })
+        .map(tx -> Transaction
+            .parseFrom(tx)
+            .makeMutable()
+            .setBatchMeta(batchType, batchHashes)
+            .sign(keyPair)
+            .build()
+        )
         .collect(Collectors.toList());
   }
 
