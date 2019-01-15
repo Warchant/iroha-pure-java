@@ -118,82 +118,70 @@ class IntegrationTest extends Specification {
         status.txStatus == Endpoint.TxStatus.COMMITTED
 
         when: "query account"
-        def q
-        def res
-
-        q = Query.builder(defaultAccountId, 1L)
-                .getAccount(defaultAccountId)
-                .buildSigned(defaultKeypair)
-        res = api.query(q).getAccountResponse()
+        def qapi = new QueryAPI(api, defaultAccountId, defaultKeypair)
+        def res = qapi.getAccount(defaultAccountId)
 
         then:
         res.getAccount().accountId == defaultAccountId
 
         when: "transactions atomic batch is created and sent to iroha"
-        def anotherAccount = "anotheraccount"
+        def anotherAccount = "a"
         def anotherAccountId = "${anotherAccount}@${defaultDomain}"
         def atomicBatch = [
                 Transaction.builder(defaultAccountId, Instant.now())
-                        .createAccount("${anotherAccount}", defaultDomain, defaultKeypair.getPublic())
+                        .createAccount(anotherAccount, defaultDomain, defaultKeypair.getPublic())
                         .sign(defaultKeypair)
                         .build(),
                 Transaction.builder(defaultAccountId, Instant.now())
-                        .appendRole(anotherAccountId, "${role}")
+                        .appendRole(anotherAccountId, role)
                         .sign(defaultKeypair)
                         .build(),
                 Transaction.builder(defaultAccountId, Instant.now())
-                        .setAccountDetail(anotherAccountId, "key", "value")
+                        .setAccountDetail(anotherAccountId, "key", "value1")
                         .sign(defaultKeypair)
                         .build()
         ]
 
         def trueBatch = Utils.createTxAtomicBatch(atomicBatch, defaultKeypair)
         api.transactionListSync(trueBatch)
-        Thread.sleep(2000)
+        Thread.sleep(4000)
 
         then: "transaction result was committed"
-        def atomicResponse = api.query(
-                Query.builder(defaultAccountId, 1)
-                        .getAccount(anotherAccountId)
-                        .buildSigned(defaultKeypair)
-        ).getAccountResponse()
+        def atomicResponse = qapi.getAccount(anotherAccountId)
 
         then: "account is created, role is appended and details are set"
         atomicResponse.account.accountId == anotherAccountId
         atomicResponse.accountRolesCount == 2
-        atomicResponse.getAccount().jsonData == "{\"test@test\": {\"key\": \"value\"}}"
+        atomicResponse.getAccount().jsonData == "{\"test@test\": {\"key\": \"value1\"}}"
 
         when: "transactions ordered batch is created and sent to iroha"
-        anotherAccount = "anotherone"
+        anotherAccount = "b"
         anotherAccountId = "${anotherAccount}@${defaultDomain}"
         def orderedBatch = [
                 Transaction.builder(defaultAccountId, Instant.now())
-                        .createAccount("${anotherAccount}", defaultDomain, defaultKeypair.getPublic())
+                        .createAccount(anotherAccount, defaultDomain, defaultKeypair.getPublic())
                         .sign(defaultKeypair)
                         .build(),
+                // invalid tx, intentionally
                 Transaction.builder(defaultAccountId, Instant.now())
                         .appendRole(anotherAccountId, "unknownrole")
                         .build().build(),
                 Transaction.builder(defaultAccountId, Instant.now())
-                        .setAccountDetail(anotherAccountId, "key", "value")
+                        .setAccountDetail(anotherAccountId, "key", "value2")
                         .sign(defaultKeypair)
                         .build()
         ]
 
         trueBatch = Utils.createTxOrderedBatch(orderedBatch, defaultKeypair)
         api.transactionListSync(trueBatch)
-        Thread.sleep(2000)
+        Thread.sleep(4000)
 
         then: "transaction result was committed partially"
-        def orderedResponse = api.query(
-                Query.builder(defaultAccountId, 1)
-                        .getAccount(anotherAccountId)
-                        .buildSigned(defaultKeypair)
-        ).getAccountResponse()
+        def orderedResponse = qapi.getAccount(anotherAccountId)
 
         then: "account is created, role is NOT appended and details are set"
         orderedResponse.account.accountId == anotherAccountId
-        orderedResponse.accountRolesCount == 1
-        orderedResponse.getAccount().jsonData == "{\"test@test\": {\"key\": \"value\"}}"
+        orderedResponse.accountRolesCount == 1 // 2nd tx is invalid, batch processed
+        orderedResponse.getAccount().jsonData == "{\"test@test\": {\"key\": \"value2\"}}"
     }
 }
