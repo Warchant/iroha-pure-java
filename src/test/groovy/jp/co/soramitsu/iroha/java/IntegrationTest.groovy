@@ -129,10 +129,10 @@ class IntegrationTest extends Specification {
         then:
         res.getAccount().accountId == defaultAccountId
 
-        when: "transactions batch is created and sent to iroha"
+        when: "transactions atomic batch is created and sent to iroha"
         def anotherAccount = "anotheraccount"
         def anotherAccountId = "${anotherAccount}@${defaultDomain}"
-        def batch = [
+        def atomicBatch = [
                 Transaction.builder(defaultAccountId, Instant.now())
                         .createAccount("${anotherAccount}", defaultDomain, defaultKeypair.getPublic())
                         .build().build(),
@@ -144,20 +144,51 @@ class IntegrationTest extends Specification {
                         .build().build()
         ]
 
-        def trueBatch = Utils.createTxAtomicBatch(batch, defaultKeypair)
+        def trueBatch = Utils.createTxAtomicBatch(atomicBatch, defaultKeypair)
         api.transactionListSync(trueBatch)
         Thread.sleep(2000)
 
         then: "transaction result was committed"
-        def queryResponse = api.query(
+        def atomicResponse = api.query(
                 Query.builder(defaultAccountId, 1)
                         .getAccount(anotherAccountId)
                         .buildSigned(defaultKeypair)
         ).getAccountResponse()
 
         then: "account is created, role is appended and details are set"
-        queryResponse.account.accountId == anotherAccountId
-        queryResponse.accountRolesCount == 2
-        queryResponse.getAccount().jsonData == "{\"test@test\": {\"key\": \"value\"}}"
+        atomicResponse.account.accountId == anotherAccountId
+        atomicResponse.accountRolesCount == 2
+        atomicResponse.getAccount().jsonData == "{\"test@test\": {\"key\": \"value\"}}"
+
+        when: "transactions ordered batch is created and sent to iroha"
+        anotherAccount = "anotherone"
+        anotherAccountId = "${anotherAccount}@${defaultDomain}"
+        def orderedBatch = [
+                Transaction.builder(defaultAccountId, Instant.now())
+                        .createAccount("${anotherAccount}", defaultDomain, defaultKeypair.getPublic())
+                        .build().build(),
+                Transaction.builder(defaultAccountId, Instant.now())
+                        .appendRole(anotherAccountId, "unknownrole")
+                        .build().build(),
+                Transaction.builder(defaultAccountId, Instant.now())
+                        .setAccountDetail(anotherAccountId, "key", "value")
+                        .build().build()
+        ]
+
+        trueBatch = Utils.createTxOrderedBatch(orderedBatch, defaultKeypair)
+        api.transactionListSync(trueBatch)
+        Thread.sleep(2000)
+
+        then: "transaction result was committed partially"
+        def orderedResponse = api.query(
+                Query.builder(defaultAccountId, 1)
+                        .getAccount(anotherAccountId)
+                        .buildSigned(defaultKeypair)
+        ).getAccountResponse()
+
+        then: "account is created, role is NOT appended and details are set"
+        orderedResponse.account.accountId == anotherAccountId
+        orderedResponse.accountRolesCount == 1
+        orderedResponse.getAccount().jsonData == "{\"test@test\": {\"key\": \"value\"}}"
     }
 }
