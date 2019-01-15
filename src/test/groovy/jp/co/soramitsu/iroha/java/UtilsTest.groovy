@@ -26,5 +26,13 @@ class UtilsTest extends Specification {
 
         then:
         h2 == h1
+
+        // To prevent inconsistent build
+        when: "reduced hashes are equal"
+        def r1 = tx.getReducedHashHex()
+        def r2 = Utils.toHex(Utils.reducedHash(tx.build()))
+
+        then:
+        r2 == r1
     }
 }

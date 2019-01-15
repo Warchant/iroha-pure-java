@@ -24,6 +24,7 @@ import iroha.protocol.Primitive.GrantablePermission;
 import iroha.protocol.Primitive.Peer;
 import iroha.protocol.Primitive.RolePermission;
 import iroha.protocol.TransactionOuterClass;
+import iroha.protocol.TransactionOuterClass.Transaction.Payload.BatchMeta.BatchType;
 import java.math.BigDecimal;
 import java.security.KeyPair;
 import java.security.PublicKey;
@@ -37,9 +38,10 @@ import lombok.val;
 public class TransactionBuilder {
 
   private FieldValidator validator;
-  private Transaction tx = new Transaction();
+  private Transaction tx;
 
   private void init(String accountId, Long time) {
+    tx = new Transaction();
     if (nonNull(accountId)) {
       setCreatorAccountId(accountId);
     }
@@ -67,6 +69,10 @@ public class TransactionBuilder {
 
   public TransactionBuilder(String accountId, Long time) {
     init(accountId, time);
+  }
+
+  /* default */ TransactionBuilder(Transaction transaction) {
+    tx = transaction;
   }
 
   public TransactionBuilder disableValidation() {
@@ -562,6 +568,14 @@ public class TransactionBuilder {
 
   public TransactionBuilder subtractAssetQuantity(String assetId, BigDecimal amount) {
     return this.subtractAssetQuantity(assetId, amount.toPlainString());
+  }
+
+  public TransactionBuilder setBatchMeta(BatchType batchType, Iterable<String> hashes) {
+    tx.batchMeta.setType(batchType);
+    tx.batchMeta.addAllReducedHashes(hashes);
+    tx.updateBatch();
+
+    return this;
   }
 
   public BuildableAndSignable<TransactionOuterClass.Transaction> sign(KeyPair keyPair)

@@ -5,7 +5,6 @@ import iroha.protocol.Primitive.RolePermission;
 import java.math.BigDecimal;
 import java.security.KeyPair;
 import java.util.Arrays;
-import javax.xml.bind.DatatypeConverter;
 import jp.co.soramitsu.crypto.ed25519.Ed25519Sha3;
 import jp.co.soramitsu.iroha.testcontainers.IrohaContainer;
 import jp.co.soramitsu.iroha.testcontainers.PeerConfig;
