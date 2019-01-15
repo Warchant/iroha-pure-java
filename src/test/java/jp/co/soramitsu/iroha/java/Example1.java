@@ -44,7 +44,7 @@ public class Example1 {
         // first transaction
         .addTransaction(
             // transactions in genesis block can have no creator
-            Transaction.builder((String) null)
+            Transaction.builder(null)
                 // by default peer is listening on port 10001
                 .addPeer("0.0.0.0:10001", peerKeypair.getPublic())
                 // create default "user" role
