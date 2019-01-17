@@ -9,6 +9,8 @@ import static jp.co.soramitsu.iroha.java.ValidationException.Type.DESCRIPTION;
 import static jp.co.soramitsu.iroha.java.ValidationException.Type.DETAILS_KEY;
 import static jp.co.soramitsu.iroha.java.ValidationException.Type.DETAILS_VALUE;
 import static jp.co.soramitsu.iroha.java.ValidationException.Type.DOMAIN;
+import static jp.co.soramitsu.iroha.java.ValidationException.Type.HASH_LENGTH;
+import static jp.co.soramitsu.iroha.java.ValidationException.Type.PAGE_SIZE;
 import static jp.co.soramitsu.iroha.java.ValidationException.Type.PEER_ADDRESS;
 import static jp.co.soramitsu.iroha.java.ValidationException.Type.PRECISION;
 import static jp.co.soramitsu.iroha.java.ValidationException.Type.PUBKEY;
@@ -212,7 +214,22 @@ public class FieldValidator {
 
     int len = description.length();
     if (len > 64) {
-      throw new ValidationException(DESCRIPTION, "Max length is 64, given string length is '%d'", len);
+      throw new ValidationException(DESCRIPTION, "Max length is 64, given string length is '%d'",
+          len);
+    }
+  }
+
+  public void checkPageSize(@NonNull Integer size) {
+    if (size < 1) {
+      throw new ValidationException(PAGE_SIZE, "Page size must be bigger than 0, got '%d'", size);
+    }
+  }
+
+  public void checkHashLength(@NonNull String hash) {
+    int length = hash.length();
+    if (length != 64) {
+      throw new ValidationException(HASH_LENGTH, "Hash length must be equal to 64, got '%d'",
+          length);
     }
   }
 }

@@ -30,6 +30,8 @@ public class ValidationException extends IllegalArgumentException {
     DETAILS_KEY,
     DETAILS_VALUE,
     TIMESTAMP,
-    DESCRIPTION
+    DESCRIPTION,
+    PAGE_SIZE,
+    HASH_LENGTH
   }
 }
