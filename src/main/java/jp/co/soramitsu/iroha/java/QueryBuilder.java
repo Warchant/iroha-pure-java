@@ -94,11 +94,27 @@ public class QueryBuilder {
 
   public Query getAccountAssetTransactions(
       String accountId,
-      String assetId
+      String assetId,
+      Integer pageSize
+  ) {
+    return getAccountAssetTransactions(
+        accountId,
+        assetId,
+        pageSize,
+        null
+    );
+  }
+
+  public Query getAccountAssetTransactions(
+      String accountId,
+      String assetId,
+      Integer pageSize,
+      String firstHashHex
   ) {
     if (nonNull(this.validator)) {
       this.validator.checkAccountId(accountId);
       this.validator.checkAssetId(assetId);
+      this.validator.checkPageSize(pageSize);
     }
 
     Query query = newQuery();
@@ -107,6 +123,9 @@ public class QueryBuilder {
         GetAccountAssetTransactions.newBuilder()
             .setAccountId(accountId)
             .setAssetId(assetId)
+            .setPaginationMeta(
+                getPaginationMeta(pageSize, firstHashHex)
+            )
             .build()
     );
 
