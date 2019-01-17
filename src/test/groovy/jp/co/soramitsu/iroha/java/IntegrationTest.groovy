@@ -183,5 +183,19 @@ class IntegrationTest extends Specification {
         orderedResponse.account.accountId == anotherAccountId
         orderedResponse.accountRolesCount == 1 // 2nd tx is invalid, batch processed
         orderedResponse.getAccount().jsonData == "{\"test@test\": {\"key\": \"value2\"}}"
+
+        when: "get account transaction query is executed"
+        def queryResponse = qapi.getAccountTransactions(defaultAccountId, 100)
+
+        then: "response is valid containing single page with 6 tx and no pointer on the next"
+        queryResponse.transactionsCount == 6
+        queryResponse.nextTxHash.isEmpty()
+
+        when: "get account asset transaction query is executed"
+        queryResponse = qapi.getAccountAssetTransactions(defaultAccountId, "${asset}#${defaultDomain}", 100)
+
+        then: "response is valid containing single page with 1 tx and no pointer on the next"
+        queryResponse.transactionsCount == 1
+        queryResponse.nextTxHash.isEmpty()
     }
 }

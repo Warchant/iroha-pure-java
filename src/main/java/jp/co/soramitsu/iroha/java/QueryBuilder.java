@@ -14,6 +14,8 @@ import iroha.protocol.Queries.GetRoles;
 import iroha.protocol.Queries.GetSignatories;
 import iroha.protocol.Queries.GetTransactions;
 import iroha.protocol.Queries.QueryPayloadMeta;
+import iroha.protocol.Queries.TxPaginationMeta;
+import iroha.protocol.Queries.TxPaginationMeta.Builder;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
@@ -91,11 +93,14 @@ public class QueryBuilder {
 
   public Query getAccountAssetTransactions(
       String accountId,
-      String assetId
+      String assetId,
+      Integer pageSize,
+      String firstHashHex
   ) {
     if (nonNull(this.validator)) {
       this.validator.checkAccountId(accountId);
       this.validator.checkAssetId(assetId);
+      this.validator.checkPageSize(pageSize);
     }
 
     Query query = newQuery();
@@ -104,6 +109,9 @@ public class QueryBuilder {
         GetAccountAssetTransactions.newBuilder()
             .setAccountId(accountId)
             .setAssetId(assetId)
+            .setPaginationMeta(
+                getPaginationMeta(pageSize, firstHashHex)
+            )
             .build()
     );
 
@@ -233,7 +241,7 @@ public class QueryBuilder {
     return query;
   }
 
-  public Query getAccountTransactions(String accountId) {
+  public Query getAccountTransactions(String accountId, Integer pageSize, String firstHashHex) {
     if (nonNull(this.validator)) {
       this.validator.checkAccountId(accountId);
     }
@@ -243,10 +251,29 @@ public class QueryBuilder {
     query.getProto().setGetAccountTransactions(
         GetAccountTransactions.newBuilder()
             .setAccountId(accountId)
+            .setPaginationMeta(
+                getPaginationMeta(pageSize, firstHashHex)
+            )
             .build()
     );
 
     return query;
+  }
+
+  private TxPaginationMeta getPaginationMeta(Integer pageSize, String firstHashHex) {
+    if (nonNull(this.validator)) {
+      this.validator.checkPageSize(pageSize);
+      if (firstHashHex != null) {
+        this.validator.checkHashLength(firstHashHex);
+      }
+    }
+
+    Builder paginationMetaBuilder = TxPaginationMeta.newBuilder().setPageSize(pageSize);
+    if (firstHashHex != null) {
+      paginationMetaBuilder.setFirstTxHash(firstHashHex);
+    }
+
+    return paginationMetaBuilder.build();
   }
 
   public Query getAssetInfo(String assetId) {
