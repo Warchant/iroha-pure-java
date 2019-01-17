@@ -94,19 +94,6 @@ public class QueryBuilder {
   public Query getAccountAssetTransactions(
       String accountId,
       String assetId,
-      Integer pageSize
-  ) {
-    return getAccountAssetTransactions(
-        accountId,
-        assetId,
-        pageSize,
-        null
-    );
-  }
-
-  public Query getAccountAssetTransactions(
-      String accountId,
-      String assetId,
       Integer pageSize,
       String firstHashHex
   ) {
@@ -252,10 +239,6 @@ public class QueryBuilder {
     );
 
     return query;
-  }
-
-  public Query getAccountTransactions(String accountId, Integer pageSize) {
-    return getAccountTransactions(accountId, pageSize, null);
   }
 
   public Query getAccountTransactions(String accountId, Integer pageSize, String firstHashHex) {

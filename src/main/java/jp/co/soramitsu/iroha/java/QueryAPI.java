@@ -1,6 +1,7 @@
 package jp.co.soramitsu.iroha.java;
 
 import iroha.protocol.QryResponses.AccountResponse;
+import iroha.protocol.QryResponses.TransactionsPageResponse;
 import java.security.KeyPair;
 import java.util.concurrent.atomic.AtomicInteger;
 import jp.co.soramitsu.iroha.java.debug.Account;
@@ -58,4 +59,34 @@ public class QueryAPI {
     return res.getAccountResponse();
   }
 
+  public TransactionsPageResponse getAccountTransactions(String accountId, Integer pageSize,
+      String firstHashHex) {
+    val q = Query.builder(this.accountId, counter.getAndIncrement())
+        .getAccountTransactions(accountId, pageSize, firstHashHex)
+        .buildSigned(keyPair);
+
+    val res = api.query(q);
+
+    return res.getTransactionsPageResponse();
+  }
+
+  public TransactionsPageResponse getAccountTransactions(String accountId, Integer pageSize) {
+    return getAccountTransactions(accountId, pageSize, null);
+  }
+
+  public TransactionsPageResponse getAccountAssetTransactions(String accountId, String assetId,
+      Integer pageSize, String firstHashHex) {
+    val q = Query.builder(this.accountId, counter.getAndIncrement())
+        .getAccountAssetTransactions(accountId, assetId, pageSize, firstHashHex)
+        .buildSigned(keyPair);
+
+    val res = api.query(q);
+
+    return res.getTransactionsPageResponse();
+  }
+
+  public TransactionsPageResponse getAccountAssetTransactions(String accountId, String assetId,
+      Integer pageSize) {
+    return getAccountAssetTransactions(accountId, assetId, pageSize, null);
+  }
 }
