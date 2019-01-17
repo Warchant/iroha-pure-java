@@ -36,7 +36,6 @@ public class QueryBuilder {
     setCreatorAccountId(accountId);
     setCreatedTime(time);
     setCounter(counter);
-    enableValidation();
   }
 
   public QueryBuilder(String accountId, Instant time, long counter) {
