@@ -1,7 +1,6 @@
 package jp.co.soramitsu.iroha.java
 
 import io.reactivex.observers.TestObserver
-import iroha.protocol.Commands
 import iroha.protocol.Endpoint
 import iroha.protocol.Primitive
 import iroha.protocol.QryResponses
@@ -214,5 +213,15 @@ class IntegrationTest extends Specification {
         createAccountCommand.domainId == defaultDomain
         createAccountCommand.publicKey == hexedKey
         transaction.signaturesList.get(0).publicKey == hexedKey
+
+        when: "get asset info query is executed"
+        queryResponse = qapi.getAssetInfo("${asset}#${defaultDomain}")
+
+        then: "response is valid containing description of correct asset"
+        def responseAsset = queryResponse.asset
+
+        responseAsset.assetId == "${asset}#${defaultDomain}"
+        responseAsset.domainId == defaultDomain
+        responseAsset.precision == 2
     }
 }
