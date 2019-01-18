@@ -59,7 +59,7 @@ class TransactionStatusObserverTest extends Specification {
 
         def obs = TransactionStatusObserver.builder()
                 .onRejected(p(rejected))
-                .onTransactionCommited(p(committed))
+                .onTransactionCommitted(p(committed))
                 .onTransactionSent(p(sent))
                 .onTransactionFailed(p(failed))
                 .onError(p(error))

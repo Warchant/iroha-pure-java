@@ -33,7 +33,7 @@ public interface TransactionStatusObserverFace {
   /**
    * Transaction has been committed. This means that transaction is written in the blockchain.
    */
-  default void onTransactionCommited(ToriiResponse t) {
+  default void onTransactionCommitted(ToriiResponse t) {
   }
 
   /**

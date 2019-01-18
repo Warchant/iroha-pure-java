@@ -109,7 +109,7 @@ public class TestTransactionStatusObserver extends TransactionStatusObserver {
   }
 
   @Override
-  public void onTransactionCommited(ToriiResponse t) {
+  public void onTransactionCommitted(ToriiResponse t) {
     committed.incrementAndGet();
   }
 
