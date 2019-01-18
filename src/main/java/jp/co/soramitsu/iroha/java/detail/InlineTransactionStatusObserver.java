@@ -40,7 +40,7 @@ public class InlineTransactionStatusObserver extends TransactionStatusObserver {
   private Consumer<? super ToriiResponse> onTransactionFailed = Functions.emptyConsumer();
 
   @Default
-  private Consumer<? super ToriiResponse> onTransactionCommited = Functions.emptyConsumer();
+  private Consumer<? super ToriiResponse> onTransactionCommitted = Functions.emptyConsumer();
 
   @Default
   private Consumer<? super ToriiResponse> onStatelessValidationSuccess = Functions.emptyConsumer();
@@ -106,9 +106,9 @@ public class InlineTransactionStatusObserver extends TransactionStatusObserver {
   }
 
   @Override
-  public void onTransactionCommited(ToriiResponse t) {
+  public void onTransactionCommitted(ToriiResponse t) {
     try {
-      this.onTransactionCommited.accept(t);
+      this.onTransactionCommitted.accept(t);
     } catch (Exception e) {
       onError(e);
     }

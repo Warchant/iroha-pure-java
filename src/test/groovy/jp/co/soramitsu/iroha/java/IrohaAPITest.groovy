@@ -111,7 +111,7 @@ class IrohaAPITest extends Specification {
                     boolean onCommitted = false
 
                     def obs = TransactionStatusObserver.builder()
-                            .onTransactionCommited({ z -> onCommitted = true })
+                            .onTransactionCommitted({ z -> onCommitted = true })
                             .build()
 
                     api.txStatus(h).blockingSubscribe(obs)
