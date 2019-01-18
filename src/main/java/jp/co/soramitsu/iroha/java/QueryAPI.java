@@ -6,6 +6,7 @@ import iroha.protocol.QryResponses.TransactionsResponse;
 import java.security.KeyPair;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import jp.co.soramitsu.iroha.java.debug.Account;
 import lombok.Getter;
 import lombok.NonNull;
@@ -93,6 +94,14 @@ public class QueryAPI {
   }
 
   public TransactionsResponse getTransactions(List<byte[]> hashes) {
+    return getTransactions(
+        hashes.stream()
+            .map(Utils::toHex)
+            .collect(Collectors.toList())
+    );
+  }
+
+  public TransactionsResponse getTransactions(Iterable<String> hashes) {
     val q = Query.builder(this.accountId, counter.getAndIncrement())
         .getTransactions(hashes)
         .buildSigned(keyPair);

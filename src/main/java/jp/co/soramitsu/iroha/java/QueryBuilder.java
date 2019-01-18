@@ -215,15 +215,19 @@ public class QueryBuilder {
   }
 
   public Query getTransactions(List<byte[]> hashes) {
+    return getTransactions(
+        hashes.stream()
+            .map(Utils::toHex)
+            .collect(Collectors.toList())
+    );
+  }
+
+  public Query getTransactions(Iterable<String> hashes) {
     Query query = newQuery();
 
     query.getProto().setGetTransactions(
         GetTransactions.newBuilder()
-            .addAllTxHashes(
-                hashes.stream()
-                    .map(Utils::toHex)
-                    .collect(Collectors.toList())
-            )
+            .addAllTxHashes(hashes)
             .build()
     );
 
