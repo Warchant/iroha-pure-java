@@ -223,5 +223,16 @@ class IntegrationTest extends Specification {
         responseAsset.assetId == "${asset}#${defaultDomain}"
         responseAsset.domainId == defaultDomain
         responseAsset.precision == 2
+        
+        when: "get account assets query is executed"
+        queryResponse = qapi.getAccountAssets(defaultAccountId)
+
+        then: "response is valid containing single asset description transaction"
+        queryResponse.accountAssetsCount == 1
+        def accountAsset = queryResponse.accountAssetsList.get(0)
+
+        accountAsset.assetId == "${asset}#${defaultDomain}"
+        accountAsset.accountId == defaultAccountId
+        accountAsset.balance == "4"
     }
 }
