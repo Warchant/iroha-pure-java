@@ -2,7 +2,9 @@ package jp.co.soramitsu.iroha.java;
 
 import iroha.protocol.QryResponses.AccountResponse;
 import iroha.protocol.QryResponses.TransactionsPageResponse;
+import iroha.protocol.QryResponses.TransactionsResponse;
 import java.security.KeyPair;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import jp.co.soramitsu.iroha.java.debug.Account;
 import lombok.Getter;
@@ -88,5 +90,15 @@ public class QueryAPI {
   public TransactionsPageResponse getAccountAssetTransactions(String accountId, String assetId,
       Integer pageSize) {
     return getAccountAssetTransactions(accountId, assetId, pageSize, null);
+  }
+
+  public TransactionsResponse getTransactions(List<byte[]> hashes) {
+    val q = Query.builder(this.accountId, counter.getAndIncrement())
+        .getTransactions(hashes)
+        .buildSigned(keyPair);
+
+    val res = api.query(q);
+
+    return res.getTransactionsResponse();
   }
 }

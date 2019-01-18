@@ -1,6 +1,7 @@
 package jp.co.soramitsu.iroha.java
 
 import io.reactivex.observers.TestObserver
+import iroha.protocol.Commands
 import iroha.protocol.Endpoint
 import iroha.protocol.Primitive
 import iroha.protocol.QryResponses
@@ -197,5 +198,21 @@ class IntegrationTest extends Specification {
         then: "response is valid containing single page with 1 tx and no pointer on the next"
         queryResponse.transactionsCount == 1
         queryResponse.nextTxHash.isEmpty()
+
+        when: "get transactions query is executed"
+        queryResponse = qapi.getTransactions(Collections.singletonList(Utils.hash(trueBatch.iterator().next())))
+
+        then: "response is valid containing single correct transaction"
+        queryResponse.transactionsCount == 1
+
+        def transaction = queryResponse.transactionsList.get(0)
+        def hexedKey = Utils.toHex(defaultKeypair.getPublic().getEncoded())
+        def createAccountCommand = transaction.payload.reducedPayload.commandsList.get(0).getCreateAccount()
+
+        createAccountCommand != null
+        createAccountCommand.accountName == anotherAccount
+        createAccountCommand.domainId == defaultDomain
+        createAccountCommand.publicKey == hexedKey
+        transaction.signaturesList.get(0).publicKey == hexedKey
     }
 }
