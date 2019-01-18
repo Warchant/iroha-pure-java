@@ -49,7 +49,7 @@ public abstract class TransactionStatusObserver implements Observer<ToriiRespons
     router.handle(TxStatus.STATEFUL_VALIDATION_FAILED, this::onTransactionFailed);
     router.handle(TxStatus.STATELESS_VALIDATION_SUCCESS, this::onStatelessValidationSuccess);
     router.handle(TxStatus.STATEFUL_VALIDATION_SUCCESS, this::onStatefulValidationSuccess);
-    router.handle(TxStatus.COMMITTED, this::onTransactionCommited);
+    router.handle(TxStatus.COMMITTED, this::onTransactionCommitted);
     router.handle(TxStatus.MST_EXPIRED, this::onMstExpired);
     router.handle(TxStatus.MST_PENDING, this::onMstPending);
     router.handle(TxStatus.ENOUGH_SIGNATURES_COLLECTED, this::onEnoughSignaturesCollected);

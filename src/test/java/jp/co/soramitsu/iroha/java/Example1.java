@@ -144,7 +144,7 @@ public class Example1 {
         // executed when got any exception in handlers or grpc
         .onError(e -> System.out.println("Failed with exception: " + e))
         // executed when we receive "committed" status
-        .onTransactionCommited((t) -> System.out.println("Committed :)"))
+        .onTransactionCommitted((t) -> System.out.println("Committed :)"))
         // executed when transfer is complete (failed or succeed) and observable is closed
         .onComplete(() -> System.out.println("Complete"))
         .build();
