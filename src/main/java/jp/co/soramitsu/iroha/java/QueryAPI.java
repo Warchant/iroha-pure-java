@@ -1,5 +1,6 @@
 package jp.co.soramitsu.iroha.java;
 
+import iroha.protocol.QryResponses.AccountAssetResponse;
 import iroha.protocol.QryResponses.AccountResponse;
 import iroha.protocol.QryResponses.AssetResponse;
 import iroha.protocol.QryResponses.TransactionsPageResponse;
@@ -120,5 +121,15 @@ public class QueryAPI {
     val res = api.query(q);
 
     return res.getAssetResponse();
+  }
+
+  public AccountAssetResponse getAccountAssets(String accountId) {
+    val q = Query.builder(this.accountId, counter.getAndIncrement())
+        .getAccountAssets(accountId)
+        .buildSigned(keyPair);
+
+    val res = api.query(q);
+
+    return res.getAccountAssetsResponse();
   }
 }
