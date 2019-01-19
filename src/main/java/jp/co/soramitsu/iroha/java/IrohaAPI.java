@@ -3,6 +3,7 @@ package jp.co.soramitsu.iroha.java;
 import static jp.co.soramitsu.iroha.java.Utils.createTxList;
 import static jp.co.soramitsu.iroha.java.Utils.createTxStatusRequest;
 
+import io.grpc.Context;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.reactivex.Observable;
@@ -20,6 +21,8 @@ import iroha.protocol.TransactionOuterClass;
 import java.io.Closeable;
 import java.net.URI;
 import jp.co.soramitsu.iroha.java.detail.StreamObserverToEmitter;
+import jp.co.soramitsu.iroha.java.subscription.SubscriptionStrategy;
+import jp.co.soramitsu.iroha.java.subscription.WaitUntilCompleted;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.val;
@@ -61,9 +64,14 @@ public class IrohaAPI implements Closeable {
    * Observable.subscribe} for synchronous or asynchronous subscription.
    */
   public Observable<ToriiResponse> transaction(TransactionOuterClass.Transaction tx) {
+    return transaction(tx, WaitUntilCompleted.INSTANCE);
+  }
+
+  public Observable<ToriiResponse> transaction(TransactionOuterClass.Transaction tx,
+      SubscriptionStrategy strategy) {
     transactionSync(tx);
     byte[] hash = Utils.hash(tx);
-    return txStatus(hash);
+    return strategy.subscribe(this, hash);
   }
 
   /**
