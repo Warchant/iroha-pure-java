@@ -150,7 +150,6 @@ class WaitForTerminalStatusTest extends Specification {
         })
 
         def throwable = new RuntimeException("<<nasty error>>")
-        int counter = 0
         def responses = makeResponseList([
                 TxStatus.ENOUGH_SIGNATURES_COLLECTED,
                 TxStatus.STATELESS_VALIDATION_SUCCESS,
@@ -159,15 +158,16 @@ class WaitForTerminalStatusTest extends Specification {
         ])
 
         IrohaAPI api = Mock(IrohaAPI) {
-            txStatus(_) >> {
+            // first ERRORS subscriptions, iroha returns error
+            ERRORS * txStatus(_) >> {
                 // first 5 subscriptions client gets onError
-                if (counter++ < ERRORS) {
-                    return Observable.create({ o ->
-                        o.onError(throwable)
-                    })
-                }
+                return Observable.create({ o ->
+                    o.onError(throwable)
+                })
+            }
 
-                // 6-th subscription client gets non-terminal, then terminal status
+            // next subscription client gets few non-terminal statuses, then terminal status
+            1 * txStatus(_) >> {
                 return Observable.create({ o ->
                     responses.forEach({ response ->
                         println("[Iroha].onNext(${response.txStatus})")
@@ -234,6 +234,8 @@ class WaitForTerminalStatusTest extends Specification {
                         o.onComplete()
                     })
                 }
+
+                throw new RuntimeException("TEST FAILED: subscribed more than len(responses) times")
             }
         }
 
