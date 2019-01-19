@@ -53,13 +53,18 @@ public class WaitForTerminalStatus implements SubscriptionStrategy {
   }
 
   /**
-   * Executed when Iroha sends.
+   * Executed when Iroha sends onError. You can add your listener to log errors or handle them
+   * somehow.
    */
   public WaitForTerminalStatus doOnError(Consumer<Throwable> consumer) {
     this.onError = consumer;
     return this;
   }
 
+  /**
+   * Executed when Iroha sends onComplete. You can add your listener to log/handle stream
+   * completions.
+   */
   public WaitForTerminalStatus doOnComplete(Action action) {
     this.onComplete = action;
     return this;
