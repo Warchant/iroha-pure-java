@@ -20,11 +20,13 @@ import lombok.val;
 
 /**
  * This is an implementation of a transaction status subscription strategy, when subscriber does
- * re-subscription unless it receives terminal status for transaction.
+ * re-subscription unless it receives terminal status from Iroha.
  *
- * If Iroha ends stream with onComplete or onError AND terminal status has not yet been received,
- * subscriber executes {@link TimeoutStrategy#nextTimeout()} to possibly wait some time, then
- * re-subscribes again.
+ * If Iroha status stream ends with onComplete or onError AND terminal status has not yet been
+ * received, subscriber executes {@link TimeoutStrategy#nextTimeout()} to possibly wait some time,
+ * then re-subscribes again.
+ *
+ * onComplete is executed when Iroha sends terminal status only.
  *
  * @implNote When terminating status is received, RPC call is not cancelled and this may leak
  * resources if Iroha does not close stream after the terminal status.
