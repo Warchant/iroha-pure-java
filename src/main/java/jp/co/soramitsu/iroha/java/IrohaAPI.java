@@ -54,7 +54,7 @@ public class IrohaAPI implements Closeable {
     this.uri = new URI("grpc", null, host, port, null, null, null);
   }
 
-  private static final WaitUntilCompleted waitUntilCompleted = new WaitUntilCompleted();
+  private static final WaitUntilCompleted defaultStrategy = new WaitUntilCompleted();
 
   /**
    * Send transaction asynchronously.
@@ -64,7 +64,7 @@ public class IrohaAPI implements Closeable {
    * Observable.subscribe} for synchronous or asynchronous subscription.
    */
   public Observable<ToriiResponse> transaction(TransactionOuterClass.Transaction tx) {
-    return transaction(tx, waitUntilCompleted);
+    return transaction(tx, defaultStrategy);
   }
 
   public Observable<ToriiResponse> transaction(TransactionOuterClass.Transaction tx,
