@@ -57,11 +57,12 @@ public class IrohaAPI implements Closeable {
   private static final WaitUntilCompleted defaultStrategy = new WaitUntilCompleted();
 
   /**
-   * Send transaction asynchronously.
+   * Send transaction synchronously, then subscribe for transaction status stream.
    *
    * @param tx protobuf transaction.
    * @return observable. Use {@code Observable.blockingSubscribe(...)} or {@code
    * Observable.subscribe} for synchronous or asynchronous subscription.
+   * @implNote uses {@link WaitUntilCompleted} subscription strategy by default.
    */
   public Observable<ToriiResponse> transaction(TransactionOuterClass.Transaction tx) {
     return transaction(tx, defaultStrategy);
