@@ -5,7 +5,7 @@ import iroha.protocol.Endpoint.ToriiResponse;
 import jp.co.soramitsu.iroha.java.IrohaAPI;
 
 /**
- * Wait until observable calls onComplete
+ * Wait until Iroha calls onComplete once. Does not resubscribe.
  */
 public class WaitUntilCompleted implements SubscriptionStrategy {
 
