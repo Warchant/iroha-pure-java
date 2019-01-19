@@ -144,7 +144,7 @@ class IntegrationTest extends Specification {
 
         def trueBatch = Utils.createTxAtomicBatch(atomicBatch, defaultKeypair)
         api.transactionListSync(trueBatch)
-        Thread.sleep(4000)
+        Thread.sleep(10000)
 
         then: "transaction result was committed"
         def atomicResponse = qapi.getAccount(anotherAccountId)
@@ -174,7 +174,7 @@ class IntegrationTest extends Specification {
 
         trueBatch = Utils.createTxOrderedBatch(orderedBatch, defaultKeypair)
         api.transactionListSync(trueBatch)
-        Thread.sleep(4000)
+        Thread.sleep(10000)
 
         then: "transaction result was committed partially"
         def orderedResponse = qapi.getAccount(anotherAccountId)
@@ -223,7 +223,7 @@ class IntegrationTest extends Specification {
         responseAsset.assetId == "${asset}#${defaultDomain}"
         responseAsset.domainId == defaultDomain
         responseAsset.precision == 2
-        
+
         when: "get account assets query is executed"
         queryResponse = qapi.getAccountAssets(defaultAccountId)
 

@@ -119,6 +119,5 @@ class IrohaAPITest extends Specification {
                     return onCommitted
                 })
                 .allMatch({ p -> p })
-
     }
 }

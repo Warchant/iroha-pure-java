@@ -52,6 +52,9 @@ final def lombokVersion = '1.18.4'
 final def testcontainersIroha = 'v1.0.0_rc2-SNAPSHOT'
 final def rxjavaVersion = '2.2.4'
 final def jcabiVersion = '0.22.6'
+final def cglibVersion = '3.2.10'
+final def bytebuddyVersion = '1.9.6'
+final def objgenesisVersion = '3.0.1'
 
 
 dependencies {
@@ -66,6 +69,11 @@ dependencies {
 
     testCompile group: 'com.github.Warchant', name: 'testcontainers-iroha', version: testcontainersIroha
     compile group: 'com.jcabi', name: 'jcabi-aspects', version: "${jcabiVersion}"
+
+    // for mocking in groovy
+    testCompile("net.bytebuddy:byte-buddy:${bytebuddyVersion}")
+    testCompile("org.objenesis:objenesis:${objgenesisVersion}")
+    testCompile("cglib:cglib-nodep:${cglibVersion}")
 }
 
 apply from: 'proto.gradle'
