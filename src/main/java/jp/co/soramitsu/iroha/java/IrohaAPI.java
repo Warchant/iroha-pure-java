@@ -3,7 +3,6 @@ package jp.co.soramitsu.iroha.java;
 import static jp.co.soramitsu.iroha.java.Utils.createTxList;
 import static jp.co.soramitsu.iroha.java.Utils.createTxStatusRequest;
 
-import io.grpc.Context;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.reactivex.Observable;
@@ -55,6 +54,7 @@ public class IrohaAPI implements Closeable {
     this.uri = new URI("grpc", null, host, port, null, null, null);
   }
 
+  private static final WaitUntilCompleted waitUntilCompleted = new WaitUntilCompleted();
 
   /**
    * Send transaction asynchronously.
@@ -64,7 +64,7 @@ public class IrohaAPI implements Closeable {
    * Observable.subscribe} for synchronous or asynchronous subscription.
    */
   public Observable<ToriiResponse> transaction(TransactionOuterClass.Transaction tx) {
-    return transaction(tx, WaitUntilCompleted.INSTANCE);
+    return transaction(tx, waitUntilCompleted);
   }
 
   public Observable<ToriiResponse> transaction(TransactionOuterClass.Transaction tx,

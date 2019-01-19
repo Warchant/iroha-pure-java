@@ -7,8 +7,7 @@ import jp.co.soramitsu.iroha.java.IrohaAPI;
 /**
  * Wait until observable calls onComplete
  */
-public enum WaitUntilCompleted implements SubscriptionStrategy {
-  INSTANCE;
+public class WaitUntilCompleted implements SubscriptionStrategy {
 
   @Override
   public Observable<ToriiResponse> subscribe(IrohaAPI api, byte[] txhash) {
