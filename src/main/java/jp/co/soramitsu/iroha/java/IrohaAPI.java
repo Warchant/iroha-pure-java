@@ -3,6 +3,7 @@ package jp.co.soramitsu.iroha.java;
 import static jp.co.soramitsu.iroha.java.Utils.createTxList;
 import static jp.co.soramitsu.iroha.java.Utils.createTxStatusRequest;
 
+import io.grpc.Channel;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.reactivex.Observable;
@@ -19,6 +20,7 @@ import iroha.protocol.QueryService_v1Grpc.QueryService_v1Stub;
 import iroha.protocol.TransactionOuterClass;
 import java.io.Closeable;
 import java.net.URI;
+import java.security.KeyPair;
 import jp.co.soramitsu.iroha.java.detail.StreamObserverToEmitter;
 import jp.co.soramitsu.iroha.java.subscription.SubscriptionStrategy;
 import jp.co.soramitsu.iroha.java.subscription.WaitUntilCompleted;
@@ -29,14 +31,21 @@ import lombok.val;
 /**
  * Class which provides convenient RX abstraction over Iroha API.
  */
-@Getter
 public class IrohaAPI implements Closeable {
 
+  private static final WaitUntilCompleted defaultStrategy = new WaitUntilCompleted();
+
+  @Getter
   private URI uri;
+  @Getter
   private ManagedChannel channel;
+  @Getter
   private CommandService_v1BlockingStub cmdStub;
+  @Getter
   private CommandService_v1Stub cmdStreamingStub;
+  @Getter
   private QueryService_v1BlockingStub queryStub;
+  @Getter
   private QueryService_v1Stub queryStreamingStub;
 
   public IrohaAPI(URI uri) {
@@ -45,24 +54,52 @@ public class IrohaAPI implements Closeable {
 
   @SneakyThrows
   public IrohaAPI(String host, int port) {
-    channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext().build();
-    cmdStub = CommandService_v1Grpc.newBlockingStub(channel);
-    queryStub = QueryService_v1Grpc.newBlockingStub(channel);
-    cmdStreamingStub = CommandService_v1Grpc.newStub(channel);
-    queryStreamingStub = QueryService_v1Grpc.newStub(channel);
-
+    this(
+        ManagedChannelBuilder
+            .forAddress(host, port)
+            .directExecutor()
+            .usePlaintext()
+            .build()
+    );
     this.uri = new URI("grpc", null, host, port, null, null, null);
   }
 
-  private static final WaitUntilCompleted defaultStrategy = new WaitUntilCompleted();
+  public IrohaAPI(ManagedChannel channel) {
+    this.channel = channel;
+    this.setChannelForBlockingCmdStub(channel)
+        .setChannelForBlockingQueryStub(channel)
+        .setChannelForStreamingCmdStub(channel)
+        .setChannelForStreamingQueryStub(channel);
+  }
+
+  public IrohaAPI setChannelForBlockingCmdStub(Channel channel) {
+    cmdStub = CommandService_v1Grpc.newBlockingStub(channel);
+    return this;
+  }
+
+  public IrohaAPI setChannelForStreamingCmdStub(Channel channel) {
+    cmdStreamingStub = CommandService_v1Grpc.newStub(channel);
+    return this;
+  }
+
+  public IrohaAPI setChannelForBlockingQueryStub(Channel channel) {
+    queryStub = QueryService_v1Grpc.newBlockingStub(channel);
+    return this;
+  }
+
+  public IrohaAPI setChannelForStreamingQueryStub(Channel channel) {
+    queryStreamingStub = QueryService_v1Grpc.newStub(channel);
+    return this;
+  }
 
   /**
    * Send transaction synchronously, then subscribe for transaction status stream.
    *
+   * It uses {@link WaitUntilCompleted} subscription strategy by default.
+   *
    * @param tx protobuf transaction.
    * @return observable. Use {@code Observable.blockingSubscribe(...)} or {@code
    * Observable.subscribe} for synchronous or asynchronous subscription.
-   * @implNote uses {@link WaitUntilCompleted} subscription strategy by default.
    */
   public Observable<ToriiResponse> transaction(TransactionOuterClass.Transaction tx) {
     return transaction(tx, defaultStrategy);
@@ -73,6 +110,10 @@ public class IrohaAPI implements Closeable {
     transactionSync(tx);
     byte[] hash = Utils.hash(tx);
     return strategy.subscribe(this, hash);
+  }
+
+  public QueryAPI getQueryAPI(String accountId, KeyPair keyPair) {
+    return new QueryAPI(this, accountId, keyPair);
   }
 
   /**
