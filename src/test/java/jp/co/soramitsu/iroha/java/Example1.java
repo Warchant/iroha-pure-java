@@ -115,6 +115,9 @@ public class Example1 {
         .orElse(0);
   }
 
+  /**
+   * Case Study: I want to implement simple system with accounts, assets and asset transfers
+   */
   public static void main(String[] args) {
     // for simplicity, we will create Iroha peer in place
     IrohaContainer iroha = new IrohaContainer()
@@ -124,7 +127,7 @@ public class Example1 {
     iroha.start();
 
     // create API wrapper
-    IrohaAPI api = new IrohaAPI(iroha.getToriiAddress());
+    IrohaAPI api = iroha.getApi();
 
     // transfer 100 usd from user_a to user_b
     val tx = Transaction.builder("user_a@bank")
