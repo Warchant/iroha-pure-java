@@ -57,7 +57,6 @@ public class IrohaAPI implements Closeable {
     this(
         ManagedChannelBuilder
             .forAddress(host, port)
-            .directExecutor()
             .usePlaintext()
             .build()
     );
